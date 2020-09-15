@@ -1,0 +1,8 @@
+[submodule "src/ocp4-upi-kvm"]
+	path = src/ocp4-upi-kvm
+	url = https://github.com/ocp-power-automation/ocp4-upi-kvm.git
+	branch = master
+[submodule "src/ocs-ci"]
+	path = src/ocs-ci
+	url = https://github.com/red-hat-storage/ocs-ci
+	branch = master
