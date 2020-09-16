@@ -16,6 +16,11 @@ if [[ -z "$RHID_USERNAME" ]] || [[ -z "$RHID_PASSWORD" ]]; then
 	exit 1
 fi
 
+if [ ! -e ~/pull-secret.txt ]; then
+        echo "Missing ~/pull-secret.txt.  Download it from https://cloud.redhat.com/openshift/install/pull-secret"
+        exit 1
+fi
+
 set -xe
 
 # These variable should be set in the jenkins script

@@ -83,10 +83,19 @@ export OCP_VERSION=4.5
 ```
 
 The environment variable OPENSHIFT_INSTALL_RELEASE_IMAGE_OVERRIDE is defined by
-Red Hat.  It instructs the openshift installer to use specific images, because the
-installer by default uses the latest available image.  The create script sets
-this environment when you specify OCP versions 4.4 and 4.5.  You should set this
-environment when specifying OCP 4.6. 
+Red Hat.  It instructs the openshift installer to use a specific image.  This is
+necessary for OCP 4.4 and 4.5 as the installer by default applies the latest available image.
+The create_ocp.sh script sets this environment variable for OCP 4.4 and OCP 4.5 provided that
+it is not set when the create script is invoked.  This environment variable is not set
+by the tool for OCP 4.6 as this release is still under development.  In this case,
+the latest available image will be used.
+
+## Post Install Setup
+
+Add the following to the root user's profile to enable the use of the **oc** command.
+```
+export KUBECONFIG=~/auth/kubeconfig
+```
 
 ## Webconsole Support
 
@@ -96,4 +105,5 @@ add the following to your /etc/hosts file or MacOS equivalent.
 <ip kvm host server> console-openshift-console.apps.test-ocp4.5.tt.testing oauth-openshift.apps.test-ocp4.5.tt.testing
 ```
 The browser should prompt you to login to the OCP cluster.  The user name is kubeadmin and
-the password is located in the file ~/openstack-upi/auth/kubeadmin-password on the KVM host server.
+the password is located in the file ~/auth/kubeadmin-password on the KVM host server.
+
