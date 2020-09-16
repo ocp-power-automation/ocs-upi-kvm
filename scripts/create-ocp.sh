@@ -80,6 +80,8 @@ scp -o StrictHostKeyChecking=no -r root@192.168.88.2:openstack-upi/auth ~
 
 export KUBECONFIG=~/auth/kubeconfig
 
+set -x
+
 helper/add-data-disks.sh
 
 helper/grow-boot-disks.sh
