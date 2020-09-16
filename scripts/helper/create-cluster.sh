@@ -9,6 +9,11 @@ if [ ! -e $TOP_DIR/files/ocp4-upi-kvm.patch ]; then
         exit 1
 fi
 
+if [ ! -e ~/pull-secret.txt ]; then
+	echo "Missing ~/pull-secret.txt.  Download it from https://cloud.redhat.com/openshift/install/pull-secret"
+	exit 1
+fi
+
 source helper/parameters.sh
 
 export BASTION_IMAGE=${BASTION_IMAGE:="rhel-8.2-update-2-ppc64le-kvm.qcow2"}
@@ -22,11 +27,6 @@ export GO_VERSION=${GO_VERSION:="go1.14.8"}
 
 if [[ -z "$RHID_USERNAME" ]] || [[ -z "$RHID_PASSWORD" ]]; then
 	echo "Must specify your redhat subscription RHID_USERNAME=$RHID_USERNAME and RHID_PASSWORD=$RHID_PASSWORD"
-	exit 1
-fi
-
-if [ ! -e ~/pull-secret.txt ]; then
-	echo "Missing ~/pull-secret.txt.  Download it from https://cloud.redhat.com/openshift/install/pull-secret"
 	exit 1
 fi
 

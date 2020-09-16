@@ -7,7 +7,12 @@ if [ "$user" != root ]; then
 fi
 
 if [ ! -e ~/pull-secret.txt ]; then
-	echo "~/pull-secret.txt is required"
+	echo "Missing ~/pull-secret.txt.  Download it from https://cloud.redhat.com/openshift/install/pull-secret"
+	exit 1
+fi
+
+if [ ! -e ~/auth.yaml ]; then
+	echo "~/auth.yaml is required"
 	exit 1
 fi
 
@@ -23,7 +28,7 @@ pushd $TOP_DIR/src/ocs-ci
 
 mkdir -p data
 
-cp ~/pull-secret.txt data/auth.yaml
+cp ~/auth.yaml data/auth.yaml
 cp ~/pull-secret.txt data/pull-secret
 
 run-ci -m deployment --deploy --ocsci-conf=conf/ocsci/production_powervs_upi.yaml --cluster-name=ocstest --cluster-path=/root --collect-logs
