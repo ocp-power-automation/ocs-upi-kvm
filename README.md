@@ -51,8 +51,23 @@ git submodule update --init
 
 ## Required Files
 
+- ~/auth.yaml
 - ~/pull-secret.txt
 - ~/$BASTION_IMAGE
+
+The auth.yaml file is required for the script run-ocs-cicd.sh.  It contains secrets
+for **quay** and **quay.io/rhceph-dev** which are obtained from the Redhat OCS-CI team.
+
+The pull-secret.txt is required for the scripts create-ocp.sh and run-ocs-cicd.sh.
+Download your managed pull secrets from https://cloud.redhat.com/openshift/install/pull-secret and add
+the secret for **quay.io/rhceph-dev** noted above to this json formatted file.  You will also need
+to add the secret for **registry.svc.ci.openshift.org** which may be obtained as follows:
+
+1.  Become a member of [openshift organization](https://github.com/openshift)
+2.  login to https://api.ci.openshift.org/console/catalog
+3.  Click on "copy login command" under username in the right corner. (This will copy the oc login command to your clipboard.)
+4.  Now open your terminal, paste from the clipboard buffer and execute that command you just pasted (oc login).
+5.  Execute the oc registry login --registry registry.svc.ci.openshift.org which will store your token in ~/.docker/config.json.
 
 The bastion image is a prepared image downloaded from the Red Hat Customer Portal following these
 [instructions](https://github.com/ocp-power-automation/ocp4-upi-kvm/blob/master/docs/prepare-images.md).
