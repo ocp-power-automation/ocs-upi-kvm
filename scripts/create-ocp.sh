@@ -43,10 +43,10 @@ set -xe
 
 # These settings reflect OCS requirements wrt OCP
 
-export OCP_VERSION=4.5
-export WORKERS=3
-export WORKER_DESIRED_MEM="65536"
-export WORKER_DESIRED_CPU="16"
+export OCP_VERSION=${OCP_VERSION:=4.5}
+export WORKERS=${WORKERS:=3}
+export WORKER_DESIRED_MEM=${WORKER_DESIRED_MEM:="65536"}
+export WORKER_DESIRED_CPU=${WORKER_DESIRED_CPU:="16"}
 
 # Additional settings may be found in scripts/helper/parameters.sh
 
