@@ -31,6 +31,6 @@ mkdir -p data
 cp ~/auth.yaml data/auth.yaml
 cp ~/pull-secret.txt data/pull-secret
 
-run-ci -m deployment --deploy --ocsci-conf=conf/ocsci/production_powervs_upi.yaml --cluster-name=ocstest --cluster-path=/root --collect-logs
+run-ci -m deployment --deploy --ocsci-conf=conf/ocsci/production_powervs_upi.yaml --ocs-version 4.6 --cluster-name=ocstest --cluster-path=/root --collect-logs
 
 popd
