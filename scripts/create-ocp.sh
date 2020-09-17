@@ -30,10 +30,15 @@ source helper/parameters.sh
 
 set -xe
 
+retry=false
+if [ "$1" == "--retry" ]; then
+	retry=true
+fi
+
 # Remove known_hosts before creating a new cluster to ensure there is
 # no SSH conflict arising from previously clusters
 
-if [ -d ~/.ssh ]; then
+if [[ -d ~/.ssh ]] && [[ "$retry" == false ]]; then
 	rm -f ~/.ssh/known_hosts
 fi
 
@@ -42,11 +47,11 @@ fi
 if [ ! -e ~/.kvm_setup ]; then
 	helper/setup-kvm-host.sh
 	touch ~/.kvm_setup
-else
+elif [ "$retry" == false ]; then
 	helper/virsh-cleanup.sh
 fi
 
-helper/create-cluster.sh
+helper/create-cluster.sh $1
 
 scp -o StrictHostKeyChecking=no root@192.168.88.2:/usr/local/bin/oc /usr/local/bin
 scp -o StrictHostKeyChecking=no -r root@192.168.88.2:openstack-upi/auth ~

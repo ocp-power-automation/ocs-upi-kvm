@@ -16,6 +16,14 @@ fi
 
 source helper/parameters.sh
 
+if [ "$1" == "--retry" ]; then
+	cd $TOP_DIR/src/ocp4-upi-kvm
+	export TF_LOG=TRACE
+	export TF_LOG_PATH=/tmp/terraform.log
+	/usr/local/bin/terraform apply -var-file var.tfvars -auto-approve -parallelism=3
+	exit
+fi
+
 export BASTION_IMAGE=${BASTION_IMAGE:="rhel-8.2-update-2-ppc64le-kvm.qcow2"}
 
 # Internal variables, don't change unless you also modify the underlying projects

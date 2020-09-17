@@ -20,7 +20,7 @@ provided that a large enough LPAR is allocated.
 
 ## Scripts
 
-- create-ocp.sh
+- create-ocp.sh [ --retry ]
 - setup-ocs-cicd.sh
 - run-ocs-cicd.sh
 - destroy-ocs.sh
@@ -43,6 +43,11 @@ git clone https://github.com/ocp-power-automation/ocs-upi-kvm.sh /root/ocs-upi-k
 cd /root/ocs-upi-kvm
 git submodule update --init
 ```
+The majority of the **create-ocp.sh** command is spent running terraform (and ansible).
+On occasion, a transient error will occur and the operation can simply be restarted
+at the point where the terraform template is applied.  The **--retry** argument is provided
+for this purpose.  The cluster is not automatically destroyed as it would be if this script
+were invoked a second time without the --retry argument.
 
 ## Required Environment Variables
 
