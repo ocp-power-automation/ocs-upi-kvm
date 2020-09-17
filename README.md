@@ -89,6 +89,7 @@ from the RedHat website.
 - OPENSHIFT_INSTALL_RELEASE_IMAGE_OVERRIDE=${OPENSHIFT_INSTALL_RELEASE_IMAGE_OVERRIDE=""}
 - DATA_DISK_SIZE=${DATA_DISK_SIZE:=100}
 - BOOT_DISK_SIZE=${BOOT_DISK_SIZE:=32}   
+- DATA_DISK_LIST=${DATA_DISK_LIST:=""}
 
 Disk sizes are in GBs.
 
@@ -100,10 +101,24 @@ export OCP_VERSION=4.5
 The environment variable OPENSHIFT_INSTALL_RELEASE_IMAGE_OVERRIDE is defined by
 Red Hat.  It instructs the openshift installer to use a specific image.  This is
 necessary for OCP 4.4 and 4.5 as the installer by default applies the latest available image.
-The create_ocp.sh script sets this environment variable for OCP 4.4 and OCP 4.5 provided that
+The **create_ocp.sh** script sets this environment variable for OCP 4.4 and OCP 4.5 provided that
 it is not set when the create script is invoked.  This environment variable is not set
 by the tool for OCP 4.6 as this release is still under development.  In this case,
 the latest available image will be used.
+
+The script **create-ocp.sh** will add a data disk to each worker node.  This disk is visible
+inside the worker node as /dev/vdc.  In the host operating system, the data disk is backed 
+by either a file or a logical disk partition.  If you specify the environment
+variable DATA_DISK_LIST, then logical disk partitions will be used.  The environment
+variable indicates which partitions to use.  The partitions must be unique and one must
+be specified per worker node.
+```
+export DATA_DISK_LIST="sdi1,sdi2,sdi3"
+```
+Otherwise, the data disks will be backed by a file.   The environment variable
+DATA_DISK_SIZE controls the size of the file allocation.  If you don't want the 
+extra disk to be allocated, then set DATA_DISK_SIZE=0.  In this case, don't run
+the scripts **setup-ocs-cicd.sh** or **run-ocs-cicd.sh** as they will fail.
 
 ## Post Install Setup
 

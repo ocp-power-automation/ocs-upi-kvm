@@ -21,34 +21,14 @@ if [ ! -e ~/pull-secret.txt ]; then
         exit 1
 fi
 
-set -xe
-
-# These variable should be set in the jenkins script
-
-#export RHID_USERNAME=
-#export RHID_PASSWORD=
-
-# These variables may be used to override the default boot 
-# and data disk sizes.  Defaults are shown below
-
-#export DATA_DISK_SIZE=${DATA_DISK_SIZE:=100}		# in GBs
-#export BOOT_DISK_SIZE=${BOOT_DISK_SIZE:=32}		# in GBs
-
-# This variable identifies the path where virsh will allocate
-# qemu/libvirt objects.  It should be set to the filesystem with the
-# most free space.  If /home has the most free space, then this
-# variable should be set to /home/libvirt/images 
-
-#export IMAGES_PATH=${IMAGES_PATH:="/var/lib/libvirt/images"}
-
-# These settings reflect OCS requirements wrt OCP
-
 export OCP_VERSION=${OCP_VERSION:=4.5}
 export WORKERS=${WORKERS:=3}
 export WORKER_DESIRED_MEM=${WORKER_DESIRED_MEM:="65536"}
 export WORKER_DESIRED_CPU=${WORKER_DESIRED_CPU:="16"}
 
-# Additional settings may be found in scripts/helper/parameters.sh
+source helper/parameters.sh
+
+set -xe
 
 # Remove known_hosts before creating a new cluster to ensure there is
 # no SSH conflict arising from previously clusters
