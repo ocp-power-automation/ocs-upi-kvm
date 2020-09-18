@@ -20,8 +20,9 @@ if [ -n "$DATA_DISK_ARRAY" ]; then
 	for (( i=0; i<$WORKERS; i++ ))
 	do
 		pname=${DATA_DISK_ARRAY[$i]}
+		vm=$(virsh list | grep worker-$i | tail -n 1 | awk '{print $2}')
 		echo "Attaching /dev/$pname to test-ocp$OCP_VERSION-worker-$i"
- 		virsh list | grep worker-$i | tail -n 1 | awk -v var="$i" '{system("virsh attach-disk " $2 " --source /dev/$pname --target vdc --persistent")}'
+		virsh attach-disk $vm --source /dev/$pname --target vdc --persistent
 	done
 
 	exit 
