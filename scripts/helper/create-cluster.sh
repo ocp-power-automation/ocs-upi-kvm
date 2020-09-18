@@ -1,6 +1,7 @@
 #!/bin/bash
 
-set -xe
+set -e
+set +x
 
 TOP_DIR=$(pwd)/..
 
@@ -190,6 +191,8 @@ git checkout -- var.tfvars
 # ability to work around issues in the GH project ocp4-upi-kvm
 
 patch -p1 < $TOP_DIR/files/ocp4-upi-kvm.patch
+
+set -x
 
 sed -i "s|<IMAGES_PATH>|$IMAGES_PATH|g" var.tfvars
 sed -i "s/<OCP_VERSION>/$OCP_VERSION/g" var.tfvars
