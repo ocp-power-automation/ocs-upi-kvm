@@ -16,15 +16,20 @@ if [ ! -e ~/auth.yaml ]; then
 	exit 1
 fi
 
-set -ex
+source /root/venv/bin/activate                  # enter 'deactivate' in venv shell to exit
 
-TOP_DIR=$(pwd)/..
+set -ex
 
 export KUBECONFIG=~/auth/kubeconfig
 
-source /root/venv/bin/activate                  # enter 'deactivate' in venv shell to exit
+TOP_DIR=$(pwd)/..
 
 pushd $TOP_DIR/src/ocs-ci
+
+# This patch fixes ocs catalog access.  Sets through ocs-olm-operator
+
+git checkout -- conf/ocs_version/ocs-4.6.yaml
+patch -p1 < $TOP_DIR/files/ocs-ci.patch
 
 mkdir -p data
 
