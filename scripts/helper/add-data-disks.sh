@@ -6,6 +6,8 @@
 # the default, which can be overridden by specifying a comma separated list
 # of disk partitions via the environment variable DATA_DISK_LIST.
 
+# Assumes caller sets environment variable KUBECONFIG
+
 set -e
 
 if [ ! -e helper/parameters.sh ]; then
@@ -15,38 +17,62 @@ fi
 
 source helper/parameters.sh
 
-if [ -n "$DATA_DISK_ARRAY" ]; then
-
-	for (( i=0; i<$WORKERS; i++ ))
-	do
-		pname=${DATA_DISK_ARRAY[$i]}
-		vm=$(virsh list | grep worker-$i | tail -n 1 | awk '{print $2}')
-		echo "Attaching /dev/$pname to test-ocp$OCP_VERSION-worker-$i"
-		virsh attach-disk $vm --source /dev/$pname --target vdc --persistent
-	done
-
-	exit 
-fi
-
-# Remember where files were created for virsh_cleanup.sh
-
-echo "$IMAGES_PATH" > ~/.images_path
-
-rm -f $IMAGES_PATH/test-ocp$OCP_VERSION/*.data
-
-if [ "$DATA_DISK_SIZE" -le "0" ]; then
+if [[ -z "$DATA_DISK_ARRAY" ]] && [[ "$DATA_DISK_SIZE" -le "0" ]]; then
 	echo "No data disks will be created"
 	exit
 fi
 
+if [ -z "$DATA_DISK_ARRAY" ]; then
+	# Remember where data files will be created for virsh_cleanup.sh
+	echo "$IMAGES_PATH" > ~/.images_path
+	# Remove old images in case virsh_cleanup.sh is not run
+	rm -f $IMAGES_PATH/test-ocp$OCP_VERSION/*.data
+fi
+
 for (( i=0; i<$WORKERS; i++ ))
 do
-	echo "Creating data disk $IMAGES_PATH/test-ocp$OCP_VERSION/disk-worker${i}.data ${DATA_DISK_SIZE}G"
+	if [ -n "$DATA_DISK_ARRAY" ]; then
+		disk_path=/dev/${DATA_DISK_ARRAY[$i]}
+	else
+		disk_path=$IMAGES_PATH/test-ocp$OCP_VERSION/disk-worker${i}.data
+	fi
 
-	qemu-img create -f raw $IMAGES_PATH/test-ocp$OCP_VERSION/disk-worker${i}.data ${DATA_DISK_SIZE}G
+	echo "Creating data disk $disk_path of size ${DATA_DISK_SIZE}G"
+	qemu-img create -f raw $disk_path ${DATA_DISK_SIZE}G
 
-	echo "Attaching data disk to test-ocp$OCP_VERSION-worker-$i"
+	vm=$(virsh list --all | grep worker-$i | tail -n 1 | awk '{print $2}')
+	echo "Attaching data disk to $vm"
+ 	virsh attach-disk $vm --source $disk_path --target vdc --persistent
+	virsh reboot $vm
+	sleep 5	
+done
 
- 	virsh list | grep worker-$i | tail -n 1 | awk -v var="$i" '{system("virsh attach-disk " $2 " --source $IMAGES_PATH/test-ocp$OCP_VERSION/disk-worker" var ".data --target vdc --persistent")}'
+# Wait for each node to become ready
+echo "Waiting up to a minute for each worker node to become ssh accessible"
+
+for (( i=0; i<$WORKERS; i++ ))
+do
+        vm=$(virsh list --all | grep worker-$i | awk '{print $2}' | tail -n 1)
+
+        ip=$(/usr/local/bin/oc get nodes -o wide | grep worker-$i | tail -n 1 | awk '{print $6}')
+
+        success=false
+        for ((cnt=0; cnt<6; cnt++))
+        do
+                sleep 10
+
+                set +e
+                ls_out=$(ssh -o StrictHostKeyChecking=no core@$ip ls /)
+                set -e
+
+		if [ -n "$ls_out" ]; then
+                        cnt=6
+                        success=true
+                fi
+        done
+
+	if [ "$success" == false ]; then
+		echo "WARNING: worker node $vm at $ip not ssh accessible, continuing anyway"
+	fi
 done
 

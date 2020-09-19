@@ -56,16 +56,6 @@ helper/create-cluster.sh $1
 scp -o StrictHostKeyChecking=no root@192.168.88.2:/usr/local/bin/oc /usr/local/bin
 scp -o StrictHostKeyChecking=no -r root@192.168.88.2:openstack-upi/auth ~
 
-# add-data-disk.sh should be run before grow-boot-disk.sh, because the latter
-# reboots the VM to resize the root file system after the underlying qcow2 image
-# in the host has been expanded.  There is no dynamic reconfiguration capability
-# of base devices in VMs, so the VM must be rebooted for the new data disk to be
-# recognized and configured by RHCOS in the VM.  In effect, add data disk piggy
-# backs on reboot operation in grow boot disk.
-
 export KUBECONFIG=~/auth/kubeconfig
 
 helper/add-data-disks.sh
-
-helper/grow-boot-disks.sh
-
