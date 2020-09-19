@@ -140,5 +140,5 @@ add the following to your /etc/hosts file or MacOS equivalent.
 <ip kvm host server> console-openshift-console.apps.test-ocp4.5.tt.testing oauth-openshift.apps.test-ocp4.5.tt.testing
 ```
 The browser should prompt you to login to the OCP cluster.  The user name is kubeadmin and
-the password is located in the file ~/auth/kubeadmin-password on the KVM host server.
+the password is located in the file /root/auth/kubeadmin-password on the KVM host server.
 

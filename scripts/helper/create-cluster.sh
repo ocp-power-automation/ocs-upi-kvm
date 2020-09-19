@@ -98,6 +98,9 @@ if [ ! -e $IMAGES_PATH/rhcos-$RHCOS_RELEASE-ppc64le-qemu.ppc64le.qcow2 ]; then
         pushd $IMAGES_PATH
         wget https://mirror.openshift.com/pub/openshift-v4/ppc64le/dependencies/rhcos/$RHCOS_VERSION/latest/rhcos-$RHCOS_RELEASE-ppc64le-qemu.ppc64le.qcow2.gz
         gunzip rhcos*qcow2.gz
+        # Expand boot disk.  16G by default.  Master nodes need 20 GBs, OCS Workers need 36 GBs
+        echo "Resizing VM boot image..."
+        qemu-img resize rhcos-$RHCOS_RELEASE-ppc64le-qemu.ppc64le.qcow2 36G
         popd
 fi
 ln -sf $IMAGES_PATH/rhcos-$RHCOS_RELEASE-ppc64le-qemu.ppc64le.qcow2 $IMAGES_PATH/rhcos.qcow2
