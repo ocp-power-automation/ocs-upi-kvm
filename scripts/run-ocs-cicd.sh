@@ -26,11 +26,6 @@ TOP_DIR=$(pwd)/..
 
 pushd $TOP_DIR/src/ocs-ci
 
-# This patch fixes ocs catalog access.  Sets through ocs-olm-operator
-
-git checkout -- conf/ocs_version/ocs-4.6.yaml
-patch -p1 < $TOP_DIR/files/ocs-ci.patch
-
 mkdir -p data
 
 cp ~/auth.yaml data/auth.yaml
