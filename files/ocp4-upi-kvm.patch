@@ -15,7 +15,7 @@ index 1e1d281..133422d 100644
  
  provider "libvirt" {
 diff --git a/var.tfvars b/var.tfvars
-index d8958c1..6f95d41 100644
+index d8958c1..a563da7 100644
 --- a/var.tfvars
 +++ b/var.tfvars
 @@ -1,15 +1,15 @@
@@ -40,7 +40,7 @@ index d8958c1..6f95d41 100644
  cpu_mode        = ""
  network_cidr    = "192.168.88.0/24"
  rhel_username   = "root"
-@@ -18,19 +18,19 @@ public_key_file             = "~/.ssh/id_rsa.pub"
+@@ -18,29 +18,29 @@ public_key_file             = "~/.ssh/id_rsa.pub"
  private_key_file            = "~/.ssh/id_rsa"
  private_key                 = ""
  public_key                  = ""
@@ -67,7 +67,9 @@ index d8958c1..6f95d41 100644
  
  dns_forwarders              = "1.1.1.1; 9.9.9.9"
  installer_log_level         = "info"
-@@ -39,8 +39,8 @@ ansible_extra_options       = "-v"
+-ansible_extra_options       = "-v"
++ansible_extra_options       = "-v --extra-vars '{\"powervm_rmc\":\"false\"}'"
+ 
  #helpernode_tag             = ""
  #install_playbook_tag       = ""
  
