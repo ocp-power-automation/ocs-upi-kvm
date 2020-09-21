@@ -17,7 +17,7 @@ fi
 
 source helper/parameters.sh
 
-if [[ -z "$DATA_DISK_ARRAY" ]] && [[ "$DATA_DISK_SIZE" -le "0" ]]; then
+if [[ "$DATA_DISK_SIZE" -le "0" ]]; then
 	echo "No data disks will be created"
 	exit
 fi
