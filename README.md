@@ -83,24 +83,23 @@ from the RedHat website.
 ## Optional Environment Variables with Default Values
 
 - BASTION_IMAGE=${BASTION_IMAGE:="rhel-8.2-update-2-ppc64le-kvm.qcow2"}
-- OCP_VERSION=${OCP_VERSION:="4.4"}
+- OCP_VERSION=${OCP_VERSION:="4.5"}
 - CLUSTER_DOMAIN=${CLUSTER_DOMAIN:="tt.testing"}
 - MASTER_DESIRED_CPU=${MASTER_DESIRED_CPU:="4"}
 - MASTER_DESIRED_MEM=${MASTER_DESIRED_MEM:="16384"}
-- WORKER_DESIRED_CPU=${WORKER_DESIRED_CPU:="4"}
-- WORKER_DESIRED_MEM=${WORKER_DESIRED_MEM:="16384"}
-- WORKERS=${WORKERS:=2}
+- WORKER_DESIRED_CPU=${WORKER_DESIRED_CPU:="16"}
+- WORKER_DESIRED_MEM=${WORKER_DESIRED_MEM:="65536"}
+- WORKERS=${WORKERS:=3}
 - IMAGES_PATH=${IMAGES_PATH:="/var/lib/libvirt/images"}
 - OPENSHIFT_INSTALL_RELEASE_IMAGE_OVERRIDE=${OPENSHIFT_INSTALL_RELEASE_IMAGE_OVERRIDE=""}
 - DATA_DISK_SIZE=${DATA_DISK_SIZE:=100}
-- BOOT_DISK_SIZE=${BOOT_DISK_SIZE:=32}   
 - DATA_DISK_LIST=${DATA_DISK_LIST:=""}
 
 Disk sizes are in GBs.
 
 Set a new value like this:
 ```
-export OCP_VERSION=4.5
+export OCP_VERSION=4.6
 ```
 
 The environment variable OPENSHIFT_INSTALL_RELEASE_IMAGE_OVERRIDE is defined by
@@ -111,12 +110,12 @@ it is not set when the create script is invoked.  This environment variable is n
 by the tool for OCP 4.6 as this release is still under development.  In this case,
 the latest available image will be used.
 
-The script **create-ocp.sh** will add a data disk to each worker node.  This disk is visible
-inside the worker node as /dev/vdc.  In the host operating system, the data disk is backed 
+The script **create-ocp.sh** will add a data disk to each worker node.  This disk is presented
+inside the worker node as /dev/vdc.  In the KVM host server OS, the data disk is backed 
 by either a file or a logical disk partition.  If you specify the environment
-variable DATA_DISK_LIST, then logical disk partitions will be used.  The environment
-variable indicates which partitions to use.  The partitions must be unique and one must
-be specified per worker node.
+variable DATA_DISK_LIST, then the named logical disk partitions (/dev) will be used.
+The list is composed of comma separated unique partition names with one partition name
+specified per worker node. For example,
 ```
 export DATA_DISK_LIST="sdi1,sdi2,sdi3"
 ```
