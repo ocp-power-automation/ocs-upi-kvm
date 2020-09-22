@@ -11,7 +11,7 @@
 
 # Assumes caller sets environment variable KUBECONFIG
 
-set -e
+set -xe
 
 if [ ! -e helper/parameters.sh ]; then
         echo "Please invoke this script from the directory ocs-upi-kvm/scripts"
@@ -97,7 +97,7 @@ do
         	state=$(/usr/local/bin/oc get nodes -o wide | grep master-$i | tail -n 1 | awk '{print $2}')
 		if [ "$state" == "Ready" ]; then
 			cnt=3
-			master_success++
+			(( master_success = master_success + 1 ))
 		else
 			sleep 10
 		fi
@@ -133,7 +133,7 @@ do
         	state=$(/usr/local/bin/oc get nodes -o wide | grep worker-$i | tail -n 1 | awk '{print $2}')
 		if [ "$state" == "Ready" ]; then
 			cnt=3
-			worker_success++
+			(( worker_success = worker_success + 1 ))
 		else
 			sleep 10
 		fi
