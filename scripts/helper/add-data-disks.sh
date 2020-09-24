@@ -38,6 +38,7 @@ do
 			wipe -I $disk_path
 			echo "Completed disk wipe of $disk_path"
 			DATA_DISK_SIZE=$(fdisk -l $disk_path | head -n 1 | awk '{print $3}')
+			DATA_DISK_SIZE=${DATA_DISK_SIZE/\.*/}
 		fi
 	else
 		disk_path=$IMAGES_PATH/test-ocp$OCP_VERSION/disk-worker${i}.data

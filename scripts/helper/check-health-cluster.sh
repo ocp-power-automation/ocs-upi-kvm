@@ -11,7 +11,7 @@
 
 # Assumes caller sets environment variable KUBECONFIG
 
-set -xe
+set -e
 
 if [ ! -e helper/parameters.sh ]; then
         echo "Please invoke this script from the directory ocs-upi-kvm/scripts"
