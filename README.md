@@ -80,6 +80,8 @@ It is named by the environment variable BASTION_IMAGE which has a default
 value of "rhel-8.2-update-2-ppc64le-kvm.qcow2".  This is the name of the file downloaded
 from the RedHat website.
 
+When preparing the bastion image above, the root password must be set to **123456**.
+
 ## Optional Environment Variables with Default Values
 
 - BASTION_IMAGE=${BASTION_IMAGE:="rhel-8.2-update-2-ppc64le-kvm.qcow2"}

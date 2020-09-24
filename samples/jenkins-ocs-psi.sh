@@ -23,6 +23,10 @@ export RHID_PASSWORD=
 
 #export WORKERS=5				# Default is 3 
 
+# This image is obtained from RedHat Customer Portal and must be prepared for use
+
+#export BASTION_IMAGE=${BASTION_IMAGE:="rhel-8.2-update-2-ppc64le-kvm.qcow2"}
+
 # Controls file placement of VM boot images
 
 export IMAGES_PATH=/var/lib/libvirt/images2
