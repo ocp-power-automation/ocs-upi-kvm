@@ -1,7 +1,8 @@
 #!/bin/bash
 
 set -e
-set +x
+
+echo arg1=$1
 
 TOP_DIR=$(pwd)/..
 
@@ -238,5 +239,3 @@ export TF_LOG_PATH=/tmp/terraform.log
 /usr/local/bin/terraform validate
 
 /usr/local/bin/terraform apply -var-file var.tfvars -auto-approve -parallelism=3
-
-set +xe

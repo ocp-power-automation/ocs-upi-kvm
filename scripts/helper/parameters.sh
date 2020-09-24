@@ -16,7 +16,12 @@ export WORKERS=${WORKERS:=2}
 export WORKER_DESIRED_CPU=${WORKER_DESIRED_CPU:="4"}
 export WORKER_DESIRED_MEM=${WORKER_DESIRED_MEM:="16384"}
 
+# Parameters for data disks backed by disk partitions
+
 export DATA_DISK_LIST=${DATA_DISK_LIST:=""}		# in GBs
+export FORCE_DISK_PARTITION_WIPE=${FORCE_DISK_PARTITION_WIPE:="false"}
+
+# Parameters for data disks backed by files
 
 export DATA_DISK_SIZE=${DATA_DISK_SIZE:=100}		# in GBs
 export BOOT_DISK_SIZE=${BOOT_DISK_SIZE:=32}		# in GBs

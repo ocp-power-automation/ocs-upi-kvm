@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -e
+
 user=$(whoami)
 if [ "$user" != root ]; then
 	echo "This script must be invoked as root"
@@ -28,8 +30,6 @@ export WORKER_DESIRED_CPU=${WORKER_DESIRED_CPU:="16"}
 
 source helper/parameters.sh
 
-set -xe
-
 retry=false
 if [ "$1" == "--retry" ]; then
 	retry=true
@@ -47,7 +47,9 @@ fi
 if [ ! -e ~/.kvm_setup ]; then
 	helper/setup-kvm-host.sh
 	touch ~/.kvm_setup
-elif [ "$retry" == false ]; then
+fi
+
+if [ "$retry" == false ]; then
 	helper/virsh-cleanup.sh
 fi
 

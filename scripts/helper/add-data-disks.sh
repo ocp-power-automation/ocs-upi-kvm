@@ -33,6 +33,12 @@ for (( i=0; i<$WORKERS; i++ ))
 do
 	if [ -n "$DATA_DISK_ARRAY" ]; then
 		disk_path=/dev/${DATA_DISK_ARRAY[$i]}
+		if [ "$FORCE_DISK_PARTITION_WIPE" == "true" ]; then
+			echo "Wiping $disk_path.  This takes ~30 minutes for a 500G disk..."
+			wipe -I $disk_path
+			echo "Completed disk wipe of $disk_path"
+			DATA_DISK_SIZE=$(fdisk -l $disk_path | head -n 1 | awk '{print $3}')
+		fi
 	else
 		disk_path=$IMAGES_PATH/test-ocp$OCP_VERSION/disk-worker${i}.data
 	fi
