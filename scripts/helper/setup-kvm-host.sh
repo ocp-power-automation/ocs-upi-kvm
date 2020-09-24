@@ -29,6 +29,13 @@ yum -y install powerpc-utils net-tools wget git patch gcc-c++ make
 yum -y module install virt container-tools
 yum -y install libvirt-devel libguestfs libguestfs-tools virt-install ansible haproxy tmux
 
+pushd ~
+if [ ! -e wipe-2.3.1-17.15.ppc64le.rpm ]; then
+	wget http://rpmfind.net/linux/opensuse/ports/ppc/tumbleweed/repo/oss/ppc64le/wipe-2.3.1-17.15.ppc64le.rpm
+fi
+yum -y localinstall wipe-2.3.1-17.15.ppc64le.rpm
+popd
+
 # Enable IP Forwarding
 
 sysctl net.ipv4.ip_forward

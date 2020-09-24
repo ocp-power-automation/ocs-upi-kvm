@@ -1,30 +1,41 @@
 #!/bin/bash
 
-# If arg1 is set to --retry, then cluster create will invoke terraform apply
-# again without tearing down the existing cluster.
-
 set -e
 
-export RHID_USERNAME=lbrownin
-#export RHID_PASSWORD=
+arg1=$1
+if [[ -n "$arg1" ]] && [[ "$arg1" != --retry ]]; then
+	echo "Invalid argument - $arg1"
+	echo "Usage: $0 [ --retry ]"
+	echo ""
+	echo "Use --retry when an error occurs while creating the ocp cluster."
+	echo "In this case, the existing VMs are reused and terraform is re-invoked."
+	echo "If the error persists, don't specify --retry.  The default behaviour"
+	echo "is to destroy the existing cluster and then create a new one."
+	exit 1
+fi
 
-#export OCP_VERSION=4.5 			# 4.5 is default.  4.4 and 4.6 also supported
+# Fill these two out
 
-#export WORKERS=3				# Default is 3 
+export RHID_USERNAME=
+export RHID_PASSWORD=
+
+#export OCP_VERSION=4.6 			# 4.5 is default.  4.4 and 4.6 also supported
+
+#export WORKERS=5				# Default is 3 
 
 # Controls file placement of VM boot images
 
-export IMAGES_PATH=/var/lib/libvirt/images
+#export IMAGES_PATH=/var/lib/libvirt/images	# Set to file system with the most space 
 
 # Ensure ocs-ci is at latest commit
 
 pushd ~/ocs-upi-kvm/src/ocs-ci
 
 git checkout master
-git fetch
+git pull
 
 pushd ~/ocs-upi-kvm/scripts
 
-./create-ocp.sh $1				# --retry only, skips cluster destroy and re-invokes terraform
+./create-ocp.sh $arg1
 ./setup-ocs-cicd.sh
 ./run-ocs-cicd.sh

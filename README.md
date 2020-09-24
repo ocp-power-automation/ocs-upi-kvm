@@ -94,6 +94,7 @@ from the RedHat website.
 - OPENSHIFT_INSTALL_RELEASE_IMAGE_OVERRIDE=${OPENSHIFT_INSTALL_RELEASE_IMAGE_OVERRIDE=""}
 - DATA_DISK_SIZE=${DATA_DISK_SIZE:=100}
 - DATA_DISK_LIST=${DATA_DISK_LIST:=""}
+- FORCE_DISK_PARTITION_WIPE=${FORCE_DISK_PARTITION_WIPE:="false"}
 
 Disk sizes are in GBs.
 
@@ -119,10 +120,14 @@ specified per worker node. For example,
 ```
 export DATA_DISK_LIST="sdi1,sdi2,sdi3"
 ```
-Otherwise, the data disks will be backed by a file.   The environment variable
+Otherwise, the data disks will be backed by a file.  The environment variable
 DATA_DISK_SIZE controls the size of the file allocation.  If you don't want the 
 extra disk to be allocated, then set DATA_DISK_SIZE=0.  In this case, don't run
 the scripts **setup-ocs-cicd.sh** or **run-ocs-cicd.sh** as they will fail.
+
+The environment variable FORCE_DISK_PARTITION_WIPE may be set to 'true' to wipe
+the data on a hard disk partition assuming the environment variable DATA_DISK_LIST is
+specified.  The wipe may take an hour or more to complete.
 
 ## Post Install Setup
 
