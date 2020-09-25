@@ -14,10 +14,14 @@ if [[ -n "$arg1" ]] && [[ "$arg1" != --retry ]]; then
 	exit 1
 fi
 
-# Fill these two out
+# Edit username and password below or specify them via the command line
 
-export RHID_USERNAME=
-export RHID_PASSWORD=
+if [ -z "$RHID_USERNAME" ]; then
+	export RHID_USERNAME=
+fi
+if [ -z "$RHID_PASSWORD" ]; then
+	export RHID_PASSWORD=
+fi
 
 #export OCP_VERSION=4.6 			# 4.5 is default.  4.4 and 4.6 also supported
 
