@@ -42,6 +42,13 @@ export DATA_DISK_LIST="sdc1,sdd1,sde1"		# Each worker requires a unique partitio
 
 #export FORCE_DISK_PARTITION_WIPE=true		# Default is false
 
+# Clone git submodule if the user forgot
+
+pushd ~/ocs-upi-kvm
+if [ ! -e src/ocp4-upi-kvm/var.tfvars ]; then
+        git submodule update --init
+fi
+
 # Ensure ocs-ci is at latest commit
 
 pushd ~/ocs-upi-kvm/src/ocs-ci

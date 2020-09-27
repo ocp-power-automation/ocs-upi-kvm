@@ -31,9 +31,18 @@ fi
 
 #export BASTION_IMAGE=${BASTION_IMAGE:="rhel-8.2-update-2-ppc64le-kvm.qcow2"}
 
-# Controls file placement of VM boot images
+# Controls file placement of VM boot images.  Set to file system with the most space
 
-#export IMAGES_PATH=/var/lib/libvirt/images	# Set to file system with the most space 
+#export IMAGES_PATH=/var/lib/libvirt/images
+
+# Clone git submodule if the user forgot
+
+set -x
+
+pushd ~/ocs-upi-kvm
+if [ ! -e src/ocp4-upi-kvm/var.tfvars ]; then
+	git submodule update --init
+fi
 
 # Ensure ocs-ci is at latest commit
 

@@ -24,7 +24,6 @@ export FORCE_DISK_PARTITION_WIPE=${FORCE_DISK_PARTITION_WIPE:="false"}
 # Parameters for data disks backed by files
 
 export DATA_DISK_SIZE=${DATA_DISK_SIZE:=100}		# in GBs
-export BOOT_DISK_SIZE=${BOOT_DISK_SIZE:=32}		# in GBs
 
 # This is set to the file system with the most space.  Sometimes /home/libvirt/images
 
