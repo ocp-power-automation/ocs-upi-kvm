@@ -2,17 +2,34 @@
 
 set -e
 
-arg1=$1
-if [[ -n "$arg1" ]] && [[ "$arg1" != --retry ]]; then
-	echo "Invalid argument - $arg1"
-	echo "Usage: $0 [ --retry ]"
-	echo ""
-	echo "Use --retry when an error occurs while creating the ocp cluster."
-	echo "In this case, the existing VMs are reused and terraform is re-invoked."
-	echo "If the error persists, don't specify --retry.  The default behaviour"
-	echo "is to destroy the existing cluster and then create a new one."
-	exit 1
-fi
+retry_ocp_arg=
+get_latest_ocs=false
+nargs=$#
+i=1
+while (( $i<=$nargs ))
+do
+	arg=$1
+	case "$arg" in
+	--retry-ocp)
+		retry_ocp_arg=--retry
+		shift 1
+		;;
+	--latest-ocs)
+		get_latest_ocs=true
+		shift 1
+		;;
+	*)
+		echo "Usage: $0 [ --retry-ocp ] [ --latest-ocs ]"
+		echo ""
+		echo "Use --retry when an error occurs while creating the ocp cluster."
+		echo "In this case, the existing VMs are reused and terraform is re-invoked."
+		echo "The default behaviour is to destroy the existing cluster."
+		echo ""
+		echo "Use --latest-ocs to pull the latest commit from the ocsi-ci GH repo"
+		exit 1
+	esac
+	(( i++ ))
+done
 
 # Edit username and password below or specify them via the command line
 
@@ -31,28 +48,29 @@ fi
 
 #export BASTION_IMAGE=${BASTION_IMAGE:="rhel-8.2-update-2-ppc64le-kvm.qcow2"}
 
-# Controls file placement of VM boot images.  Set to file system with the most space
+# Controls file placement of VM boot images.  Set to fs with the most space
 
 #export IMAGES_PATH=/var/lib/libvirt/images
 
-# Clone git submodule if the user forgot
-
-set -x
-
 pushd ~/ocs-upi-kvm
 if [ ! -e src/ocp4-upi-kvm/var.tfvars ]; then
+	echo "Refreshing submodules..."
 	git submodule update --init
 fi
 
-# Ensure ocs-ci is at latest commit
+if [ "$get_latest_ocs" == true ]; then
+	echo "Getting latest ocs..."
+	pushd ~/ocs-upi-kvm/src/ocs-ci
+	git checkout master
+	git pull
+	popd
+fi
 
-pushd ~/ocs-upi-kvm/src/ocs-ci
-
-git checkout master
-git pull
+echo "Invoking scripts..."
 
 pushd ~/ocs-upi-kvm/scripts
 
-./create-ocp.sh $arg1
+./create-ocp.sh $retry_ocp_arg
 ./setup-ocs-cicd.sh
 ./run-ocs-cicd.sh
+
