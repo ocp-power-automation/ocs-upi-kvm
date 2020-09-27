@@ -2,7 +2,7 @@
 
 set -e
 
-echo arg1=$1
+echo "Command invocation: $0 $1"
 
 TOP_DIR=$(pwd)/..
 
@@ -32,8 +32,8 @@ export BASTION_IMAGE=${BASTION_IMAGE:="rhel-8.2-update-2-ppc64le-kvm.qcow2"}
 
 BASTION_IP=${BASTION_IP:="192.168.88.2"}
 
-export TERRAFORM_VERSION=${TERRAFORM_VERSION:="v0.12.29"}
-export GO_VERSION=${GO_VERSION:="go1.14.8"}
+export TERRAFORM_VERSION=${TERRAFORM_VERSION:="v0.13.3"}
+export GO_VERSION=${GO_VERSION:="go1.14.9"}
 
 if [[ -z "$RHID_USERNAME" ]] || [[ -z "$RHID_PASSWORD" ]]; then
 	echo "Must specify your redhat subscription RHID_USERNAME=$RHID_USERNAME and RHID_PASSWORD=$RHID_PASSWORD"
@@ -99,9 +99,12 @@ if [ ! -e $IMAGES_PATH/rhcos-$RHCOS_RELEASE-ppc64le-qemu.ppc64le.qcow2 ]; then
         pushd $IMAGES_PATH
         wget https://mirror.openshift.com/pub/openshift-v4/ppc64le/dependencies/rhcos/$RHCOS_VERSION/latest/rhcos-$RHCOS_RELEASE-ppc64le-qemu.ppc64le.qcow2.gz
         gunzip rhcos*qcow2.gz
-        # Expand boot disk.  16G by default.  Master nodes need 20 GBs, OCS Workers need 36 GBs
-        echo "Resizing VM boot image..."
-        qemu-img resize rhcos-$RHCOS_RELEASE-ppc64le-qemu.ppc64le.qcow2 36G
+
+        # Boot disk is 16G by default.  OSC workers need ~20.  These are sparse files
+	# with large holes. Disk space is not allocated unless it is needed.  No penalty
+
+        echo "Resizing VM boot image to 40G"
+        qemu-img resize rhcos-$RHCOS_RELEASE-ppc64le-qemu.ppc64le.qcow2 40G
         popd
 fi
 ln -sf $IMAGES_PATH/rhcos-$RHCOS_RELEASE-ppc64le-qemu.ppc64le.qcow2 $IMAGES_PATH/rhcos.qcow2
@@ -134,10 +137,19 @@ if [ -e /usr/local/bin/terraform ]; then
 	OLD_TERRAFORM_VERSION=$(/usr/local/bin/terraform version | head -n 1| awk '{print $2}')
 fi
 
+PLUGIN_PATH=~/.local/share/terraform/plugins/registry.terraform.io
+
 export GOPATH=~/go
 if [[ "$INSTALLED_GO" == "true" ]] || [[ "$OLD_TERRAFORM_VERSION" != "$TERRAFORM_VERSION" ]] || 
-   [[ ! -e $GOPATH/bin ]] || [[ ! -e ~/.terraform.d/plugins/ ]]; then
+   [[ ! -e $GOPATH/bin ]] || [[ ! -e $PLUGIN_PATH ]]; then
 
+	# Clean directories for go modules
+
+	mkdir -p $GOPATH
+	rm -rf $GOPATH/*
+
+	mkdir -p $GOPATH/bin
+	export PATH=$PATH:$GOPATH/bin
 	export CGO_ENABLED="1"
 
 	# Clean directories for terraform and terraform providers
@@ -147,33 +159,84 @@ if [[ "$INSTALLED_GO" == "true" ]] || [[ "$OLD_TERRAFORM_VERSION" != "$TERRAFORM
 		rm -f /usr/local/bin/kubectl		# User sometimes copies from bastion VM
 		rm -f /usr/local/bin/terraform
 	fi
-	if [ -e ~/.terraform.d ]; then
+	if [ -e ~/.terraform.d ]; then			# Legacy (ocp 4.4 4.5) terraform provider path
 		rm -rf ~/.terraform.d/*
 	fi 
-	if [ -e ~/terraform ]; then
+	if [ -e ~/terraform ]; then			# Legacy terraform build source
 		rm -rf ~/terraform
 	fi
 
-	mkdir -p $GOPATH
-	rm -rf $GOPATH/*
-
-	# Build terraform
-	git clone https://github.com/hashicorp/terraform.git ~/terraform
-	pushd ~/terraform 
-	git checkout -b "$TERRAFORM_VERSION" $TERRAFORM_VERSION
-	go install
-	cp $GOPATH/bin/terraform /usr/local/bin/terraform
-	popd
+	PLATFORM=linux_ppc64le
+	rm -rf $PLUGIN_PATH/*
 
 	pushd $GOPATH
 
-        go get -u github.com/dmacvicar/terraform-provider-libvirt
-   	go get -u github.com/terraform-providers/terraform-provider-ignition
- 	go get -u github.com/terraform-providers/terraform-provider-random
-  	go get -u github.com/terraform-providers/terraform-provider-null
+        mkdir -p $GOPATH/src/github.com/hashicorp/; cd $GOPATH/src/github.com/hashicorp
 
-	cd $GOPATH/bin/ && mkdir -p ~/.terraform.d/plugins/
-	cp * ~/.terraform.d/plugins/
+	# Build terraform
+
+	git clone https://github.com/hashicorp/terraform.git terraform
+	pushd terraform 
+	git checkout -b "$TERRAFORM_VERSION" $TERRAFORM_VERSION
+	TF_DEV=1 scripts/build.sh
+	popd
+
+	cp $GOPATH/bin/terraform /usr/local/bin/terraform
+
+        mkdir -p $GOPATH/src/github.com/dmacvicar; cd $GOPATH/src/github.com/dmacvicar
+        git clone https://github.com/dmacvicar/terraform-provider-libvirt.git
+        pushd terraform-provider-libvirt
+        make install
+        popd
+
+	mkdir -p $PLUGIN_PATH/dmacvicar/libvirt/1.0.0/$PLATFORM/
+	cp $GOPATH/bin/terraform-provider-libvirt $PLUGIN_PATH/dmacvicar/libvirt/1.0.0/$PLATFORM/terraform-provider-libvirt
+
+	VERSION=2.3.0
+	mkdir -p $GOPATH/src/github.com/terraform-providers; cd $GOPATH/src/github.com/terraform-providers
+	git clone https://github.com/terraform-providers/terraform-provider-random --branch v$VERSION
+	pushd terraform-provider-random
+	make build
+	popd
+
+	mkdir -p $PLUGIN_PATH/hashicorp/random/$VERSION/$PLATFORM/
+	cp $GOPATH/bin/terraform-provider-random $PLUGIN_PATH/hashicorp/random/$VERSION/$PLATFORM/terraform-provider-random
+
+	VERSION=2.1.2
+	mkdir -p $GOPATH/src/github.com/terraform-providers; cd $GOPATH/src/github.com/terraform-providers
+	git clone https://github.com/terraform-providers/terraform-provider-null --branch v$VERSION
+	pushd terraform-provider-null
+	make build
+	popd
+
+	mkdir -p $PLUGIN_PATH/hashicorp/null/$VERSION/$PLATFORM/
+	cp $GOPATH/bin/terraform-provider-null $PLUGIN_PATH/hashicorp/null/$VERSION/$PLATFORM/terraform-provider-null
+
+	# OCP 4.6 upgraded to Ignition Config Spec v3.0.0 which is incompatible with the
+	# format used by OCP 4.5 and 4.4, so use terraform versioning to specify which one
+	# should be loaded.  This is accomplished by conditionally patching a very small
+	# amount of terraform data and code based on the OCP version being deployed
+	# enabling bug fixes and enhancements to be more easily integrated.
+
+ 	VERSION=2.1.0
+	mkdir -p $GOPATH/src/github.com/community-terraform-providers; cd $GOPATH/src/github.com/community-terraform-providers 
+	git clone https://github.com/community-terraform-providers/terraform-provider-ignition --branch v$VERSION
+	pushd terraform-provider-ignition
+	make build
+	popd
+
+	mkdir -p $PLUGIN_PATH/terraform-providers/ignition/$VERSION/$PLATFORM/
+	cp $GOPATH/bin/terraform-provider-ignition $PLUGIN_PATH/terraform-providers/ignition/$VERSION/$PLATFORM/terraform-provider-ignition
+
+ 	VERSION=1.2.1
+	mkdir -p $GOPATH/src/github.com/terraform-providers; cd $GOPATH/src/github.com/terraform-providers 
+	git clone https://github.com/terraform-providers/terraform-provider-ignition --branch v$VERSION
+	pushd terraform-provider-ignition
+	make build
+	popd
+
+	mkdir -p $PLUGIN_PATH/terraform-providers/ignition/$VERSION/$PLATFORM/
+	cp $GOPATH/bin/terraform-provider-ignition $PLUGIN_PATH/terraform-providers/ignition/$VERSION/$PLATFORM/terraform-provider-ignition
 
 	popd
 fi
@@ -186,17 +249,23 @@ rm -rf ~/.kube
 rm -f terraform.tfstate
 rm -rf .terraform
 
-# Reset the files in the patch
-
-git checkout -- ocp.tf
-git checkout -- var.tfvars
-
-# Patch enables the use of environment variables and provides the
-# ability to work around issues in the GH project ocp4-upi-kvm
-
-patch -p1 < $TOP_DIR/files/ocp4-upi-kvm.patch
+# Patch ocp4-upi-kvm submodule to enable the use of environment
+# variables and manage ocp differences between releases
 
 set -x
+
+git checkout -- var.tfvars
+
+case "$OCP_VERSION" in
+4.4|4.5)
+	git checkout -- modules/4_nodes/versions.tf
+	git checkout -- modules/4_nodes/nodes.tf
+	patch -p1 < $TOP_DIR/files/ocp4-upi-kvm.legacy.patch
+	;;
+*)
+	patch -p1 < $TOP_DIR/files/ocp4-upi-kvm.patch
+	;;
+esac
 
 sed -i "s|<IMAGES_PATH>|$IMAGES_PATH|g" var.tfvars
 sed -i "s/<OCP_VERSION>/$OCP_VERSION/g" var.tfvars

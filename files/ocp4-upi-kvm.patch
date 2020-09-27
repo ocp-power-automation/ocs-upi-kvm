@@ -1,21 +1,5 @@
-diff --git a/ocp.tf b/ocp.tf
-index 1e1d281..133422d 100644
---- a/ocp.tf
-+++ b/ocp.tf
-@@ -20,11 +20,6 @@
- 
- terraform {
-   required_version = "~> 0.12.2"
--  required_providers {
--    ignition = "~> 1.2"
--    null = "~> 2.1"
--    random = "~> 2.3"
--  }
- }
- 
- provider "libvirt" {
 diff --git a/var.tfvars b/var.tfvars
-index d8958c1..a563da7 100644
+index 02add17..ca1beb2 100644
 --- a/var.tfvars
 +++ b/var.tfvars
 @@ -1,15 +1,15 @@
@@ -50,13 +34,13 @@ index d8958c1..a563da7 100644
 +rhel_subscription_password  = "<RHID_PASSWORD>"
  
  ### OpenShift variables
--openshift_install_tarball   = "https://mirror.openshift.com/pub/openshift-v4/ppc64le/clients/ocp/stable-4.4/openshift-install-linux.tar.gz"
--openshift_client_tarball    = "https://mirror.openshift.com/pub/openshift-v4/ppc64le/clients/ocp/stable-4.4/openshift-client-linux.tar.gz"
+-# openshift_install_tarball   = ""
+-# openshift_client_tarball    = ""
 +openshift_install_tarball   = "https://mirror.openshift.com/pub/openshift-v4/ppc64le/clients/ocp/<INSTALLER_VERSION>/openshift-install-linux.tar.gz"
 +openshift_client_tarball    = "https://mirror.openshift.com/pub/openshift-v4/ppc64le/clients/ocp/<INSTALLER_VERSION>/openshift-client-linux.tar.gz"
  
 -#release_image_override     = ""
-+release_image_override      = "<IMAGE_OVERRIDE>"
++#release_image_override     = "<IMAGE_OVERRIDE>"
  
  pull_secret_file            = "data/pull-secret.txt"
 -cluster_domain              = "example.com"

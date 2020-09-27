@@ -30,9 +30,17 @@ export WORKER_DESIRED_CPU=${WORKER_DESIRED_CPU:="16"}
 
 source helper/parameters.sh
 
+arg1=$1
 retry=false
 if [ "$1" == "--retry" ]; then
-	retry=true
+	retry_version=$(virsh list | grep bastion | awk '{print $2}' | sed 's/-/ /g' | awk '{print $2}' | sed 's/ocp//')
+	if [ "$retry_version" != "$OCP_VERSION" ]; then
+		echo "WARNING: Ignoring --retry argument.  existing version:$retry_version  requested version:$OCP_VERSION"
+		retry=false
+		unset arg1
+	else
+		retry=true
+	fi
 fi
 
 # Remove known_hosts before creating a new cluster to ensure there is
@@ -53,7 +61,7 @@ if [ "$retry" == false ]; then
 	helper/virsh-cleanup.sh
 fi
 
-helper/create-cluster.sh $1
+helper/create-cluster.sh $arg1
 
 scp -o StrictHostKeyChecking=no root@192.168.88.2:/usr/local/bin/oc /usr/local/bin
 scp -o StrictHostKeyChecking=no -r root@192.168.88.2:openstack-upi/auth ~

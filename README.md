@@ -1,4 +1,4 @@
-# Purpose
+# Overview
 
 Provide scripts enabling the automation of OCS-CI on IBM Power Servers,
 including the ability to create an OCP cluster, run OCS-CI tests, and
@@ -44,10 +44,27 @@ cd /root/ocs-upi-kvm
 git submodule update --init
 ```
 The majority of the **create-ocp.sh** command is spent running terraform (and ansible).
-On occasion, a transient error will occur and the operation can simply be restarted
-at the point where the terraform template is applied.  The **--retry** argument is provided
-for this purpose.  The cluster is not automatically destroyed as it would be if this script
-were invoked a second time without the --retry argument.
+On occasion, a transient error will occur while creating the cluster.  In this case,
+the operation can be restarted by specifying the  **--retry** argument.  This can save
+up to an hour of execution time.  If this argument is not specified, the existing
+cluster will be torn down automatically assuming there is one.
+
+If the failure occurs while running the **run-ocs-cicd.sh** script, the operation has to be
+restarted from the beginning.  That is to say with **creat-ocp.sh**.  Do not specify
+the --retry argument as the OCP cluster has to be completely removed before trying to deploy
+OCS.  The run-ocs-cicd.sh changes the internal state of the OCP cluster which may not
+be reset if the --retry option is specified.  Further, the run-ocs-cicd.sh has never been
+run successfully except with a clean OCP cluster.
+
+### Sample scripts
+
+```
+samples/dev-ocs.sh [--retry-ocp] [--latest-ocs] 
+samples/jenkins-ocs-psi.sh [--retry-ocp] [--latest-ocs]
+```
+
+These scripts are useful in getting started.  The script **dev-ocs.sh** uses file backed
+data disks, while the script **jenkins-ocs-psi.sh** uses physical disk partions.
 
 ## Required Environment Variables
 
@@ -84,9 +101,9 @@ When preparing the bastion image above, the root password must be set to **12345
 
 ## Optional Environment Variables with Default Values
 
-- BASTION_IMAGE=${BASTION_IMAGE:="rhel-8.2-update-2-ppc64le-kvm.qcow2"}
 - OCP_VERSION=${OCP_VERSION:="4.5"}
 - CLUSTER_DOMAIN=${CLUSTER_DOMAIN:="tt.testing"}
+- BASTION_IMAGE=${BASTION_IMAGE:="rhel-8.2-update-2-ppc64le-kvm.qcow2"}
 - MASTER_DESIRED_CPU=${MASTER_DESIRED_CPU:="4"}
 - MASTER_DESIRED_MEM=${MASTER_DESIRED_MEM:="16384"}
 - WORKER_DESIRED_CPU=${WORKER_DESIRED_CPU:="16"}
@@ -107,16 +124,24 @@ export OCP_VERSION=4.6
 
 The environment variable OPENSHIFT_INSTALL_RELEASE_IMAGE_OVERRIDE is defined by
 Red Hat.  It instructs the openshift installer to use a specific image.  This is
-necessary for OCP 4.4 and 4.5 as the installer by default applies the latest available image.
-The **create_ocp.sh** script sets this environment variable for OCP 4.4 and OCP 4.5 provided that
-it is not set when the create script is invoked.  This environment variable is not set
-by the tool for OCP 4.6 as this release is still under development.  In this case,
-the latest available image will be used.
+necessary for OCP 4.4 and 4.5 as the
+[latest available image](https://mirror.openshift.com/pub/openshift-v4/ppc64le/clients/ocp-dev-preview/)
+is installed by default.  That is, the latest available image for the release under development.
+
+The **create_ocp.sh** script internally sets this environment variable for OCP 4.4 and OCP 4.5
+provided that it is not set by the user.  This environment variable is not set
+automatically for OCP 4.6 as this release is still under development.
+
+Set a specific daily build like this:
+```
+REGISTRY="registry.svc.ci.openshift.org/ocp-ppc64le/release-ppc64le"
+export OPENSHIFT_INSTALL_RELEASE_IMAGE_OVERRIDE="$REGISTRY:4.6.0-0.nightly-ppc64le-2020-09-27-075246"
+```
 
 The script **create-ocp.sh** will add a data disk to each worker node.  This disk is presented
 inside the worker node as /dev/vdc.  In the KVM host server OS, the data disk is backed 
-by either a file or a logical disk partition.  If you specify the environment
-variable DATA_DISK_LIST, then the named logical disk partitions (/dev) will be used.
+by either a file or a physical disk partition.  If you specify the environment
+variable DATA_DISK_LIST, then the named physical disk partitions (/dev) will be used.
 The list is composed of comma separated unique partition names with one partition name
 specified per worker node. For example,
 ```

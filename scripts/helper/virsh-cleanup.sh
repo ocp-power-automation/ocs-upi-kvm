@@ -74,6 +74,11 @@ do
 	virsh net-undefine $NET
 done
 
+# Recycle libvirtd as it provides dnsmasq 
+systemctl restart libvirtd
+systemctl restart NetworkManager
+firewall-cmd --reload
+
 # Remove files created by add-data-disk.sh and grow-boot-disk.sh
 
 if [ -e ~/.images_path ]; then
@@ -82,3 +87,4 @@ if [ -e ~/.images_path ]; then
 		rm -rf $FILES/test-ocp*
 	fi
 fi
+

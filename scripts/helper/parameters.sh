@@ -18,12 +18,12 @@ export WORKER_DESIRED_MEM=${WORKER_DESIRED_MEM:="16384"}
 
 # Parameters for data disks backed by disk partitions
 
-export DATA_DISK_LIST=${DATA_DISK_LIST:=""}		# in GBs
 export FORCE_DISK_PARTITION_WIPE=${FORCE_DISK_PARTITION_WIPE:="false"}
+export DATA_DISK_LIST=${DATA_DISK_LIST:=""}		# in GBs
 
 # Parameters for data disks backed by files
 
-export DATA_DISK_SIZE=${DATA_DISK_SIZE:=100}		# in GBs
+export DATA_DISK_SIZE=${DATA_DISK_SIZE:=256}		# in GBs
 
 # This is set to the file system with the most space.  Sometimes /home/libvirt/images
 
