@@ -71,6 +71,6 @@ echo "Invoking scripts..."
 pushd ~/ocs-upi-kvm/scripts
 
 ./create-ocp.sh $retry_ocp_arg
-./setup-ocs-cicd.sh
-./run-ocs-cicd.sh
+./setup-ocs-ci.sh
+./deploy-ocs-ci.sh
 

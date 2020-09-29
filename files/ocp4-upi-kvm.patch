@@ -1,5 +1,5 @@
 diff --git a/var.tfvars b/var.tfvars
-index 02add17..ca1beb2 100644
+index 02add17..ce2b141 100644
 --- a/var.tfvars
 +++ b/var.tfvars
 @@ -1,15 +1,15 @@
@@ -14,7 +14,7 @@ index 02add17..ca1beb2 100644
 -bastion_image   = "http://remote_server/rhel-8.1-ppc64le-kvm.qcow2"
 -rhcos_image     = "http://remote_server/rhcos-4.4.9-ppc64le-qemu.ppc64le.qcow2"
 +bastion_image   = "<IMAGES_PATH>/bastion.qcow2"
-+rhcos_image     = "<IMAGES_PATH>/rhcos.qcow2"
++rhcos_image     = "<IMAGES_PATH>/rhcos<RHCOS_SUFFIX>.qcow2"
  bastion         = { memory = 8192, vcpu = 2 }
  bootstrap       = { memory = 8192, vcpu = 4, count = 1 }
 -master          = { memory = 16384, vcpu = 4, count = 3 }
@@ -36,8 +36,8 @@ index 02add17..ca1beb2 100644
  ### OpenShift variables
 -# openshift_install_tarball   = ""
 -# openshift_client_tarball    = ""
-+openshift_install_tarball   = "https://mirror.openshift.com/pub/openshift-v4/ppc64le/clients/ocp/<INSTALLER_VERSION>/openshift-install-linux.tar.gz"
-+openshift_client_tarball    = "https://mirror.openshift.com/pub/openshift-v4/ppc64le/clients/ocp/<INSTALLER_VERSION>/openshift-client-linux.tar.gz"
++openshift_install_tarball   = "https://mirror.openshift.com/pub/openshift-v4/ppc64le/clients/<OCP_INSTALLER_SUBPATH>/openshift-install-linux.tar.gz"
++openshift_client_tarball    = "https://mirror.openshift.com/pub/openshift-v4/ppc64le/clients/<OCP_INSTALLER_SUBPATH>/openshift-client-linux.tar.gz"
  
 -#release_image_override     = ""
 +#release_image_override     = "<IMAGE_OVERRIDE>"
@@ -47,7 +47,7 @@ index 02add17..ca1beb2 100644
 +cluster_domain              = "<CLUSTER_DOMAIN>"
  cluster_id_prefix           = "test"
 -cluster_id                  = ""
-+cluster_id                  = "ocp<OCP_VERSION>"
++cluster_id                  = "ocp<SANITIZED_OCP_VERSION>"
  
  dns_forwarders              = "1.1.1.1; 9.9.9.9"
  installer_log_level         = "info"

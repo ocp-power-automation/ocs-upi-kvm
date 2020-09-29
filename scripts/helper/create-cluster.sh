@@ -6,6 +6,11 @@ echo "Command invocation: $0 $1"
 
 TOP_DIR=$(pwd)/..
 
+if [[ -z "$RHID_USERNAME" ]] || [[ -z "$RHID_PASSWORD" ]]; then
+	echo "Must specify your redhat subscription RHID_USERNAME=$RHID_USERNAME and RHID_PASSWORD=$RHID_PASSWORD"
+	exit 1
+fi
+
 if [ ! -e $TOP_DIR/files/ocp4-upi-kvm.patch ]; then
         echo "Please invoke this script from the directory ocs-upi-kvm/scripts"
         exit 1
@@ -16,8 +21,6 @@ if [ ! -e ~/pull-secret.txt ]; then
 	exit 1
 fi
 
-source helper/parameters.sh
-
 if [ "$1" == "--retry" ]; then
 	cd $TOP_DIR/src/ocp4-upi-kvm
 	export TF_LOG=TRACE
@@ -26,19 +29,14 @@ if [ "$1" == "--retry" ]; then
 	exit
 fi
 
-export BASTION_IMAGE=${BASTION_IMAGE:="rhel-8.2-update-2-ppc64le-kvm.qcow2"}
+source helper/parameters.sh
 
-# Internal variables, don't change unless you also modify the underlying projects
+# Internal variables -- don't change unless you also modify the underlying projects
 
 BASTION_IP=${BASTION_IP:="192.168.88.2"}
 
 export TERRAFORM_VERSION=${TERRAFORM_VERSION:="v0.13.3"}
 export GO_VERSION=${GO_VERSION:="go1.14.9"}
-
-if [[ -z "$RHID_USERNAME" ]] || [[ -z "$RHID_PASSWORD" ]]; then
-	echo "Must specify your redhat subscription RHID_USERNAME=$RHID_USERNAME and RHID_PASSWORD=$RHID_PASSWORD"
-	exit 1
-fi
 
 if [[ ! -e ~/$BASTION_IMAGE ]] && [[ ! -e $IMAGES_PATH/$BASTION_IMAGE ]]; then
 	echo "Missing $BASTION_IMAGE.  Get it from https://access.redhat.com/downloads/content/479/ and prepare it per README"
@@ -59,19 +57,22 @@ INSTALLER_VERSION="latest-$OCP_VERSION"		# https://mirror.openshift.com/pub/open
 
 case "$OCP_VERSION" in
 	4.4)
-		OCP_RELEASE="4.4.9"		# Latest release of OCP 4.4 at this time
+		OCP_RELEASE="4.4.23"		# Latest release of OCP 4.4 at this time
 		RHCOS_VERSION="4.4"
 		RHCOS_RELEASE="4.4.9"
+		RHCOS_SUFFIX="-$RHCOS_RELEASE"	# denotes the use of older ignition format
 		;;
 	4.5)
-		OCP_RELEASE="4.5.7"		# Latest release of OCP 4.5 at this time
+		OCP_RELEASE="4.5.11"		# Latest release of OCP 4.5 at this time
 		RHCOS_VERSION="4.5"
 		RHCOS_RELEASE="4.5.4"
+		RHCOS_SUFFIX="-$RHCOS_RELEASE"	# denotes the use of older ignition format
 		;;
 	4.6)
-		unset OCP_RELEASE		# Not released yet
-		RHCOS_VERSION="4.5"
-		RHCOS_RELEASE="4.5.4"
+		unset OCP_RELEASE
+		RHCOS_VERSION="4.6"
+		unset RHCOS_RELEASE		# TODO: Pre-release when not set.  Update after GA
+		RHCOS_SUFFIX="-$RHCOS_VERSION"	# TODO: Reset to RHCOS release after GA
 		INSTALLER_VERSION="latest"
 		;;
 	*)
@@ -95,19 +96,27 @@ fi
 
 # Get the RHCOS image associated with the specified OCP Version
 
-if [ ! -e $IMAGES_PATH/rhcos-$RHCOS_RELEASE-ppc64le-qemu.ppc64le.qcow2 ]; then
+if [ ! -e $IMAGES_PATH/rhcos${RHCOS_SUFFIX}.qcow2 ]; then
         pushd $IMAGES_PATH
-        wget https://mirror.openshift.com/pub/openshift-v4/ppc64le/dependencies/rhcos/$RHCOS_VERSION/latest/rhcos-$RHCOS_RELEASE-ppc64le-qemu.ppc64le.qcow2.gz
-        gunzip rhcos*qcow2.gz
+	if [ -n "$RHCOS_RELEASE" ]; then
+		wget https://mirror.openshift.com/pub/openshift-v4/ppc64le/dependencies/rhcos/$RHCOS_VERSION/latest/rhcos-$RHCOS_RELEASE-ppc64le-qemu.ppc64le.qcow2.gz
+	else
+		wget https://mirror.openshift.com/pub/openshift-v4/ppc64le/dependencies/rhcos/pre-release/latest-$RHCOS_VERSION/rhcos-qemu.ppc64le.qcow2.gz
+	fi
+	file=$(ls -1 rhcos*qcow2.gz | tail -n 1)
+	echo "Unzipping $file"
+        gunzip -f $file
+	ln -sf ${file/.gz/} rhcos${RHCOS_SUFFIX}.qcow2
 
-        # Boot disk is 16G by default.  OSC workers need ~20.  These are sparse files
-	# with large holes. Disk space is not allocated unless it is needed.  No penalty
+        # Increase the size of the RHCOS disk image from 16 G to 40G.  This image is used
+	# as the boot disk for each VM, so the amount of software that is installed is 
+	# variable given the different openshift roles and use of operators.  There is
+	# penalty though for over allocating as qcow2 images are sparsely populated.
 
-        echo "Resizing VM boot image to 40G"
-        qemu-img resize rhcos-$RHCOS_RELEASE-ppc64le-qemu.ppc64le.qcow2 40G
-        popd
+        echo "Resizing $file (VM boot image) to 40G"
+        qemu-img resize rhcos${RHCOS_SUFFIX}.qcow2 40G
+	popd
 fi
-ln -sf $IMAGES_PATH/rhcos-$RHCOS_RELEASE-ppc64le-qemu.ppc64le.qcow2 $IMAGES_PATH/rhcos.qcow2
 
 # Install GO and terraform
 
@@ -272,7 +281,8 @@ esac
 SANITIZE_OCP_VERSION=${OCP_VERSION/./-}
 
 sed -i "s|<IMAGES_PATH>|$IMAGES_PATH|g" var.tfvars
-sed -i "s/<OCP_VERSION>/$SANITIZE_OCP_VERSION/g" var.tfvars
+sed -i "s/<RHCOS_SUFFIX>/$RHCOS_SUFFIX/g" var.tfvars
+sed -i "s/<SANITIZED_OCP_VERSION>/$SANITIZE_OCP_VERSION/g" var.tfvars
 sed -i "s/<INSTALLER_VERSION>/$INSTALLER_VERSION/g" var.tfvars
 sed -i "s/<CLUSTER_DOMAIN>/$CLUSTER_DOMAIN/g" var.tfvars
 sed -i "s/<BASTION_IP>/$BASTION_IP/g" var.tfvars
@@ -283,6 +293,13 @@ sed -i "s/<MASTER_DESIRED_CPU>/$MASTER_DESIRED_CPU/g" var.tfvars
 sed -i "s/<WORKER_DESIRED_MEM>/$WORKER_DESIRED_MEM/g" var.tfvars
 sed -i "s/<WORKER_DESIRED_CPU>/$WORKER_DESIRED_CPU/g" var.tfvars
 sed -i "s/<WORKERS>/$WORKERS/g" var.tfvars
+
+if [ -n "$RHCOS_RELEASE" ]; then
+	OCP_INSTALLER_SUBPATH="ocp/latest-$OCP_VERSION"
+else
+	OCP_INSTALLER_SUBPATH="ocp-dev-preview/latest-$OCP_VERSION"
+fi
+sed -i "s|<OCP_INSTALLER_SUBPATH>|$OCP_INSTALLER_SUBPATH|g" var.tfvars
 
 if [ -z "$OPENSHIFT_INSTALL_RELEASE_IMAGE_OVERRIDE" ]; then
 	sed -i 's/release_image_override/#release_image_override/' var.tfvars

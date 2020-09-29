@@ -21,9 +21,9 @@ provided that a large enough LPAR is allocated.
 ## Scripts
 
 - create-ocp.sh [ --retry ]
-- setup-ocs-cicd.sh
-- run-ocs-cicd.sh
-- destroy-ocs.sh
+- setup-ocs-ci.sh
+- deploy-ocs-ci.sh
+- teardown-ocs.sh
 
 The scripts above correspond to high level tasks of OCS-CI.  They are intended to
 be invoked from an automation test script such as might be deployed with Jenkins
@@ -49,11 +49,11 @@ the operation can be restarted by specifying the  **--retry** argument.  This ca
 up to an hour of execution time.  If this argument is not specified, the existing
 cluster will be torn down automatically assuming there is one.
 
-If the failure occurs while running the **run-ocs-cicd.sh** script, the operation has to be
+If the failure occurs while running the **deploy-ocs-ci.sh** script, the operation has to be
 restarted from the beginning.  That is to say with **creat-ocp.sh**.  Do not specify
 the --retry argument as the OCP cluster has to be completely removed before trying to deploy
-OCS.  The run-ocs-cicd.sh changes the internal state of the OCP cluster which may not
-be reset if the --retry option is specified.  Further, the run-ocs-cicd.sh has never been
+OCS.  The deploy-ocs-ci.sh changes the internal state of the OCP cluster which may not
+be reset if the --retry option is specified.  Further, the deploy-ocs-ci.sh has never been
 run successfully except with a clean OCP cluster.
 
 ### Sample scripts
@@ -77,10 +77,10 @@ data disks, while the script **jenkins-ocs-psi.sh** uses physical disk partions.
 - ~/pull-secret.txt
 - ~/$BASTION_IMAGE
 
-The auth.yaml file is required for the script run-ocs-cicd.sh.  It contains secrets
+The auth.yaml file is required for the script deploy-ocs-ci.sh.  It contains secrets
 for **quay** and **quay.io/rhceph-dev** which are obtained from the Redhat OCS-CI team.
 
-The pull-secret.txt is required for the scripts create-ocp.sh and run-ocs-cicd.sh.
+The pull-secret.txt is required for the scripts create-ocp.sh and deploy-ocs-ci.sh.
 Download your managed pull secrets from https://cloud.redhat.com/openshift/install/pull-secret and add
 the secret for **quay.io/rhceph-dev** noted above to this json formatted file.  You will also need
 to add the secret for **registry.svc.ci.openshift.org** which may be obtained as follows:
@@ -150,7 +150,7 @@ export DATA_DISK_LIST="sdi1,sdi2,sdi3"
 Otherwise, the data disks will be backed by a file.  The environment variable
 DATA_DISK_SIZE controls the size of the file allocation.  If you don't want the 
 extra disk to be allocated, then set DATA_DISK_SIZE=0.  In this case, don't run
-the scripts **setup-ocs-cicd.sh** or **run-ocs-cicd.sh** as they will fail.
+the scripts **setup-ocs-ci.sh** or **deploy-ocs-ci.sh** as they will fail.
 
 The environment variable FORCE_DISK_PARTITION_WIPE may be set to 'true' to wipe
 the data on a hard disk partition assuming the environment variable DATA_DISK_LIST is

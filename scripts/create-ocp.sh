@@ -23,7 +23,6 @@ if [ ! -e ~/pull-secret.txt ]; then
         exit 1
 fi
 
-export OCP_VERSION=${OCP_VERSION:=4.5}
 export WORKERS=${WORKERS:=3}
 export WORKER_DESIRED_MEM=${WORKER_DESIRED_MEM:="65536"}
 export WORKER_DESIRED_CPU=${WORKER_DESIRED_CPU:="16"}
@@ -33,7 +32,7 @@ source helper/parameters.sh
 arg1=$1
 retry=false
 if [ "$1" == "--retry" ]; then
-	retry_version=$(virsh list | grep bastion | awk '{print $2}' | sed 's/-/ /g' | awk '{print $2}' | sed 's/ocp//')
+	retry_version=$(virsh list | grep bastion | awk '{print $2}' | sed 's/4-/4./' | sed 's/-/ /g' | awk '{print $2}' | sed 's/ocp//')
 	if [ "$retry_version" != "$OCP_VERSION" ]; then
 		echo "WARNING: Ignoring --retry argument.  existing version:$retry_version  requested version:$OCP_VERSION"
 		retry=false
@@ -41,6 +40,11 @@ if [ "$1" == "--retry" ]; then
 	else
 		retry=true
 	fi
+fi
+
+if [[ ! -e ~/$BASTION_IMAGE ]] && [[ ! -e $IMAGES_PATH/$BASTION_IMAGE ]]; then
+	echo "Missing $BASTION_IMAGE.  Get it from https://access.redhat.com/downloads/content/479/ and prepare it per README"
+	exit 1
 fi
 
 # Remove known_hosts before creating a new cluster to ensure there is
