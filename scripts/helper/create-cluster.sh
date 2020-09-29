@@ -276,13 +276,9 @@ case "$OCP_VERSION" in
 	;;
 esac
 
-# Sanitize for cluster domain: test-ocp4-6.tt.testing.  Can't include dots in first part
-
-SANITIZE_OCP_VERSION=${OCP_VERSION/./-}
-
 sed -i "s|<IMAGES_PATH>|$IMAGES_PATH|g" var.tfvars
 sed -i "s/<RHCOS_SUFFIX>/$RHCOS_SUFFIX/g" var.tfvars
-sed -i "s/<SANITIZED_OCP_VERSION>/$SANITIZE_OCP_VERSION/g" var.tfvars
+sed -i "s/<SANITIZED_OCP_VERSION>/$SANITIZED_OCP_VERSION/g" var.tfvars
 sed -i "s/<INSTALLER_VERSION>/$INSTALLER_VERSION/g" var.tfvars
 sed -i "s/<CLUSTER_DOMAIN>/$CLUSTER_DOMAIN/g" var.tfvars
 sed -i "s/<BASTION_IP>/$BASTION_IP/g" var.tfvars
