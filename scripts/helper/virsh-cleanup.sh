@@ -79,7 +79,7 @@ systemctl restart libvirtd
 systemctl restart NetworkManager
 firewall-cmd --reload
 
-# Remove files created by add-data-disk.sh and grow-boot-disk.sh
+# Remove files created by add-data-disk.sh
 
 if [ -e ~/.images_path ]; then
 	FILES=$(cat ~/.images_path)

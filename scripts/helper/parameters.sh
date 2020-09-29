@@ -4,7 +4,7 @@ export RHID_PASSWORD=${RHID_PASSWORD:=""}
 
 export RHID_USERNAME=${RHID_USERNAME:=""}
 
-export OCP_VERSION=${OCP_VERSION:="4.4"}
+export OCP_VERSION=${OCP_VERSION:="4.5"}
 
 export CLUSTER_DOMAIN=${CLUSTER_DOMAIN:="tt.testing"}
 
@@ -32,7 +32,6 @@ export IMAGES_PATH=${IMAGES_PATH:="/var/lib/libvirt/images"}
 # This image is obtained from RedHat Customer Portal and then prepared for use
 
 export BASTION_IMAGE=${BASTION_IMAGE:="rhel-8.2-update-2-ppc64le-kvm.qcow2"}
-
 
 # Validate DATA_DISK_LIST upfront so that mistakes are captured early 
 
