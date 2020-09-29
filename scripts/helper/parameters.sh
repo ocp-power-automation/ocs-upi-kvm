@@ -71,3 +71,13 @@ if [ -n "$DATA_DISK_LIST" ]; then
 		fi
 	done
 fi
+
+# Internal variables
+
+# Sanitize the user specified ocp version which is included in the cluster name.  The cluster
+# name should not include dots (.) as this is reflected in the fully qualified hostname which
+# confuses DHCP.  For example, bastion-test-ocp4.6.tt.testing.  The dot in ocp version is
+# changed to a dash(-) to solve this problem
+
+SANITIZED_OCP_VERSION=${OCP_VERSION/./-}
+

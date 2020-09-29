@@ -26,7 +26,7 @@ if [ -z "$DATA_DISK_ARRAY" ]; then
 	# Remember where data files will be created for virsh_cleanup.sh
 	echo "$IMAGES_PATH" > ~/.images_path
 	# Remove old images in case virsh_cleanup.sh is not run
-	rm -f $IMAGES_PATH/test-ocp$OCP_VERSION/*.data
+	rm -f $IMAGES_PATH/test-ocp$SANITIZED_OCP_VERSION/*.data
 fi
 
 for (( i=0; i<$WORKERS; i++ ))
@@ -41,7 +41,7 @@ do
 			DATA_DISK_SIZE=${DATA_DISK_SIZE/\.*/}
 		fi
 	else
-		disk_path=$IMAGES_PATH/test-ocp$OCP_VERSION/disk-worker${i}.data
+		disk_path=$IMAGES_PATH/test-ocp$SANITIZED_OCP_VERSION/disk-worker${i}.data
 	fi
 
 	echo "Creating data disk $disk_path of size ${DATA_DISK_SIZE}G"
