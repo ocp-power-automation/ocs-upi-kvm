@@ -264,11 +264,11 @@ rm -rf .terraform
 set -x
 
 git checkout -- var.tfvars
+git checkout -- modules/4_nodes/versions.tf
+git checkout -- modules/4_nodes/nodes.tf
 
 case "$OCP_VERSION" in
 4.4|4.5)
-	git checkout -- modules/4_nodes/versions.tf
-	git checkout -- modules/4_nodes/nodes.tf
 	patch -p1 < $TOP_DIR/files/ocp4-upi-kvm.legacy.patch
 	;;
 *)
@@ -304,6 +304,7 @@ sed -i "s|<OCP_INSTALLER_SUBPATH>|$OCP_INSTALLER_SUBPATH|g" var.tfvars
 if [ -z "$OPENSHIFT_INSTALL_RELEASE_IMAGE_OVERRIDE" ]; then
 	sed -i 's/release_image_override/#release_image_override/' var.tfvars
 else
+	sed -i 's/#release_image_override/release_image_override/' var.tfvars
 	sed -i "s|<IMAGE_OVERRIDE>|$OPENSHIFT_INSTALL_RELEASE_IMAGE_OVERRIDE|" var.tfvars
 fi
 
