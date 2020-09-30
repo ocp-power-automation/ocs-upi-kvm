@@ -81,3 +81,43 @@ fi
 
 SANITIZED_OCP_VERSION=${OCP_VERSION/./-}
 
+# WORKSPACE is a jenkins environment variable denoting a dedicated execution environment
+# that does not overlap with other jobs.  For this project, there are required input and
+# output files that should be placed outside the git project itself.  If a workspace
+# is not defined, then assume it is the parent directory of the project.
+
+if [ -z "$WORKSPACE" ]; then
+	cdir="$(pwd)"
+	if [[ "$cdir" =~ "ocs-upi-kvm" ]]; then
+		cdirnames=$(echo $cdir | sed 's/\// /g')
+		dir=""
+		for i in $cdirnames
+		do
+			if [ "$i" == "ocs-upi-kvm" ]; then
+				break
+			fi
+			dir="$dir/$i"
+		done
+		WORKSPACE="$dir"
+	elif [ -e ocs-upi-kvm ]; then
+		WORKSPACE="$cdir"
+	else
+		WORKSPACE="$HOME"
+	fi
+fi
+echo WORKSPACE=$WORKSPACE
+
+file_rc=
+function file_present ( ) {
+	file=$1	
+
+	set +e
+	ls_out=$(sudo ls $1 || true)
+	set -e
+
+	if [ -n "$ls_out" ]; then
+		file_rc=0
+	else
+		file_rc=1
+	fi
+}

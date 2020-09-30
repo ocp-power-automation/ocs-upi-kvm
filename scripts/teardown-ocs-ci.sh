@@ -1,21 +1,23 @@
 #!/bin/bash
 
-user=$(whoami)
-if [ "$user" != root ]; then
-        echo "This script must be invoked as root"
-        exit 1
+set -e
+
+if [ ! -e helper/parameters.sh ]; then
+	echo "This script should be invoked from the directory ocs-upi-kvm/scripts"
+	exit 1
 fi
 
-set -ex
+source helper/parameters.h
 
-TOP_DIR=$(pwd)/..
+export KUBECONFIG=$WORKSPACE/auth/kubeconfig
 
-export KUBECONFIG=~/auth/kubeconfig
+pushd ../src/ocs-ci
 
-source /root/venv/bin/activate                  # enter 'deactivate' in venv shell to exit
+source $WORKSPACE/venv/bin/activate		# enter 'deactivate' in venv shell to exit
 
-pushd $TOP_DIR/src/ocs-ci
+run-ci -m deployment --teardown --ocsci-conf=conf/ocsci/production_powervs_upi.yaml \
+	--cluster-name=ocstest --cluster-path=$WORKSPACE --collect-logs
 
-run-ci -m deployment --teardown --ocsci-conf=conf/ocsci/production_powervs_upi.yaml --cluster-name=ocstest --cluster-path=/root --collect-logs
+deactivate
 
 popd

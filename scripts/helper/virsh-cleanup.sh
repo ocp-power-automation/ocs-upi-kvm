@@ -1,5 +1,12 @@
 #!/bin/bash
 
+if [ ! -e helper/parameters.sh ]; then
+        echo "Please invoke this script from the directory ocs-upi-kvm/scripts"
+        exit 1
+fi
+
+source helper/parameters.sh
+
 # Deactivate VMs
 
 while :
@@ -62,9 +69,8 @@ done
 
 while :
 do
-
 	NET=$(virsh net-list --all | tail -n 2 | head -n 1 | awk '{ print $1 }')
-	if [ "$NET" == "default" ]; then
+	if [[ "$NET" == "default" ]] || [[ "$NET" = \-* ]]; then
 		break;
 	fi
 	echo "virsh net-destroy $NET"
@@ -75,16 +81,15 @@ do
 done
 
 # Recycle libvirtd as it provides dnsmasq 
-systemctl restart libvirtd
-systemctl restart NetworkManager
-firewall-cmd --reload
+sudo systemctl restart libvirtd
+sudo systemctl restart NetworkManager
+sudo firewall-cmd --reload
 
 # Remove files created by add-data-disk.sh
 
-if [ -e ~/.images_path ]; then
-	FILES=$(cat ~/.images_path)
+if [ -e $WORKSPACE/.images_path ]; then
+	FILES=$(cat $WORKSPACE/.images_path)
 	if [ -n "$FILES" ]; then
 		rm -rf $FILES/test-ocp*
 	fi
 fi
-

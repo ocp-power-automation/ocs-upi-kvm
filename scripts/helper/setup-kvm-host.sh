@@ -10,9 +10,7 @@
 
 set -xe
 
-TOP_DIR=$(pwd)/..
-
-if [ ! -e $TOP_DIR/files/haproxy.cfg ]; then
+if [ ! -e helper/parameters.sh ]; then
 	echo "Please invoke from the directory ocs-upi-kvm/scripts"
 	exit 1
 fi
@@ -29,7 +27,7 @@ yum -y install powerpc-utils net-tools wget git patch gcc-c++ make
 yum -y module install virt container-tools
 yum -y install libvirt-devel libguestfs libguestfs-tools virt-install ansible haproxy tmux
 
-pushd ~
+pushd $WORKSPACE
 if [ ! -e wipe-2.3.1-17.15.ppc64le.rpm ]; then
 	wget http://rpmfind.net/linux/opensuse/ports/ppc/tumbleweed/repo/oss/ppc64le/wipe-2.3.1-17.15.ppc64le.rpm
 fi
@@ -114,7 +112,7 @@ restorecon /etc/firewalld/services/haproxy-https.xml
 if [ ! -e /etc/haproxy/haproxy.cfg.orig ]; then
 	cp /etc/haproxy/haproxy.cfg /etc/haproxy/haproxy.cfg.orig
 fi
-cp $TOP_DIR/files/haproxy.cfg /etc/haproxy/haproxy.cfg
+cp $WORKSPACE/ocs-upi-kvm/files/haproxy.cfg /etc/haproxy/haproxy.cfg
 
 chmod 644 /etc/haproxy/haproxy.cfg
 restorecon -Rv /etc/haproxy

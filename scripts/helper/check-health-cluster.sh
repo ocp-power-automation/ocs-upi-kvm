@@ -28,7 +28,7 @@ function wait_vm_reboot ( ) {
         success=false
         for ((cnt=0; cnt<3; cnt++))
 	do
-        	ip=$(/usr/local/bin/oc get nodes -o wide | grep $vm | tail -n 1 | awk '{print $6}')
+		ip=$($WORKSPACE/bin/oc get nodes -o wide | grep $vm | tail -n 1 | awk '{print $6}')
 		if [ -n "$ip" ]; then
 			cnt=3
 			success=true
@@ -94,10 +94,10 @@ for (( i=0; i<3; i++ ))
 do
         for (( cnt=0; cnt<3; cnt++ ))
 	do
-        	state=$(/usr/local/bin/oc get nodes -o wide | grep master-$i | tail -n 1 | awk '{print $2}')
+		state=$($WORKSPACE/bin/oc get nodes -o wide | grep master-$i | tail -n 1 | awk '{print $2}')
 		if [ "$state" == "Ready" ]; then
 			cnt=3
-			(( master_success=master_success + 1 ))
+			(( master_success = master_success + 1 ))
 		else
 			sleep 10
 		fi
@@ -107,7 +107,7 @@ if [ "$master_success" -eq "3" ]; then
 	echo "Master nodes healthy"
 else
 	echo "ERROR: all master nodes must be ready"
-	oc get nodes
+	$WORKSPACE/bin/oc get nodes
 	exit 1
 fi
 
@@ -130,7 +130,7 @@ for (( i=0; i<$WORKERS; i++ ))
 do
         for (( cnt=0; cnt<3; cnt++ ))
 	do
-        	state=$(/usr/local/bin/oc get nodes -o wide | grep worker-$i | tail -n 1 | awk '{print $2}')
+		state=$($WORKSPACE/bin/oc get nodes -o wide | grep worker-$i | tail -n 1 | awk '{print $2}')
 		if [ "$state" == "Ready" ]; then
 			cnt=3
 			(( worker_success = worker_success + 1 ))
@@ -143,6 +143,6 @@ if [ "$worker_success" -eq "$WORKERS" ]; then
 	echo "Worker nodes healthy"
 else
 	echo "ERROR: all requested worker nodes must be not ready"
-	oc get nodes
+	$WORKSPACE/bin/oc get nodes
 	exit 1
 fi
