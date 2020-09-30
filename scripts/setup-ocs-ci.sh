@@ -1,25 +1,25 @@
 #!/bin/bash
 
-user=$(whoami)
-if [ "$user" != root ]; then
-        echo "This script must be invoked as root"
-        exit 1
+set -e
+
+if [ ! -e helper/parameters.sh ]; then
+	echo "This script should be invoked from the directory ocs-upi-kvm/scripts"
+	exit 1
 fi
 
-set -ex
+sudo yum -y install libffi-devel lapack atlas-devel gcc-gfortran openssl-devel gcc-gfortran
+sudo yum -y install python38-devel python38-setuptools python38-Cython python3-virtualenv python3-docutils
 
-TOP_DIR=$(pwd)/..
+source helper/parameters.sh
 
-yum -y install libffi-devel lapack atlas-devel gcc-gfortran openssl-devel gcc-gfortran
-yum -y install python38-devel python38-setuptools python38-Cython python3-virtualenv python3-docutils
+python3.8 -m venv $WORKSPACE/venv
 
-python3.8 -m venv /root/venv
-source /root/venv/bin/activate			# activate named python venv
+source $WORKSPACE/venv/bin/activate		# activate named python venv
 
 pip install --upgrade pip setuptools
 pip install wheel
 
-pushd $TOP_DIR/src/ocs-ci
+pushd ../src/ocs-ci
 pip install -r requirements.txt
 popd
 

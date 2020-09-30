@@ -24,7 +24,7 @@ fi
 
 if [ -z "$DATA_DISK_ARRAY" ]; then
 	# Remember where data files will be created for virsh_cleanup.sh
-	echo "$IMAGES_PATH" > ~/.images_path
+	echo "$IMAGES_PATH" > $WORKSPACE/.images_path
 	# Remove old images in case virsh_cleanup.sh is not run
 	rm -f $IMAGES_PATH/test-ocp$SANITIZED_OCP_VERSION/*.data
 fi
@@ -61,7 +61,7 @@ for (( i=0; i<$WORKERS; i++ ))
 do
         vm=$(virsh list --all | grep worker-$i | awk '{print $2}' | tail -n 1)
 
-        ip=$(/usr/local/bin/oc get nodes -o wide | grep worker-$i | tail -n 1 | awk '{print $6}')
+        ip=$($WORKSPACE/bin/oc get nodes -o wide | grep worker-$i | tail -n 1 | awk '{print $6}')
 
         success=false
         for ((cnt=0; cnt<6; cnt++))
