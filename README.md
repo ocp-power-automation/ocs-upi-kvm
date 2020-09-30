@@ -23,21 +23,22 @@ provided that a large enough LPAR is allocated.
 - create-ocp.sh [ --retry ]
 - setup-ocs-ci.sh
 - deploy-ocs-ci.sh
-- teardown-ocs.sh
+- test-ocs-ci.sh [ --tier <0,1,...> ]
+- teardown-ocs-ci.sh
 
 The scripts above correspond to high level tasks of OCS-CI.  They are intended to
 be invoked from an automation test script such as might be deployed with Jenkins
 and are designed to run unattended.  The scripts are listed in the order that
 they are expected to be run.
 
-This project uses git submodules: ocp-power-automation/ocp4-upi-kvm and
-red-hat-storage/ocs-ci.  This project should be cloned to instantiate
+This project uses git submodules: github.com/ocp-power-automation/ocp4-upi-kvm and
+github.com/red-hat-storage/ocs-ci.  This project should be cloned to instantiate
 submodules as shown below.
   
 ```
 git clone https://github.com/ocp-power-automation/ocs-upi-kvm --recursive /root/ocs-upi-kvm
 
-or
+OR
 
 git clone https://github.com/ocp-power-automation/ocs-upi-kvm.sh /root/ocs-upi-kvm
 cd /root/ocs-upi-kvm
