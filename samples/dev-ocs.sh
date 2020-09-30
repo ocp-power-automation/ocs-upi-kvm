@@ -2,6 +2,26 @@
 
 set -e
 
+if [ -z "$WORKSPACE" ]; then
+        cdir="$(pwd)"
+        if [[ "$cdir" =~ "ocs-upi-kvm" ]]; then
+                cdirnames=$(echo $cdir | sed 's/\// /g')
+                dir=""
+                for i in $cdirnames
+                do
+                        if [ "$i" == "ocs-upi-kvm" ]; then
+                                break
+                        fi
+                        dir="$dir/$i"
+                done
+                WORKSPACE="$dir"
+        elif [ -e ocs-upi-kvm ]; then
+                WORKSPACE="$cdir"
+        else
+                WORKSPACE="$HOME"
+        fi
+fi
+
 retry_ocp_arg=
 get_latest_ocs=false
 nargs=$#
@@ -70,7 +90,7 @@ echo "Invoking scripts..."
 
 pushd ~/ocs-upi-kvm/scripts
 
-./create-ocp.sh $retry_ocp_arg
-./setup-ocs-ci.sh
-./deploy-ocs-ci.sh
+./create-ocp.sh $retry_ocp_arg 2>&1 | tee $WORKSPACE/create-ocp.log
+./setup-ocs-ci.sh 2>&1 | tee $WORKSPACE/setup-ocs-ci.log
+./deploy-ocs-ci.sh 2>&1 | tee $WORKSPACE/deploy-ocs-ci.log
 
