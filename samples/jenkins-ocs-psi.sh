@@ -82,3 +82,4 @@ pushd ~/ocs-upi-kvm/scripts
 ./create-ocp.sh $retry_ocp_arg
 ./setup-ocs-ci.sh
 ./deploy-ocs-ci.sh
+./test-ocs-ci.sh --tier 0,1
