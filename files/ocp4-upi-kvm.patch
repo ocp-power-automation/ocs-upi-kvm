@@ -1,5 +1,5 @@
 diff --git a/var.tfvars b/var.tfvars
-index 02add17..ce2b141 100644
+index 02add17..491ac17 100644
 --- a/var.tfvars
 +++ b/var.tfvars
 @@ -1,15 +1,15 @@
@@ -55,7 +55,8 @@ index 02add17..ce2b141 100644
 +ansible_extra_options       = "-v --extra-vars '{\"powervm_rmc\":\"false\"}'"
  
  #helpernode_tag             = ""
- #install_playbook_tag       = ""
+-#install_playbook_tag       = ""
++install_playbook_tag        = "5df13a33f204c53043c32d583771650c09049d49"
  
 -storage_type                = "nfs"
 -volume_size                 = "300" # Value in GB
