@@ -37,9 +37,9 @@ source helper/parameters.sh
 
 export KUBECONFIG=$WORKSPACE/auth/kubeconfig
 
-source $WORKSPACE/venv/bin/activate		# enter 'deactivate' in venv shell to exit
-
 pushd ../src/ocs-ci
+
+source $WORKSPACE/venv/bin/activate		# enter 'deactivate' in venv shell to exit
 
 for i in ${tests[@]}
 do
