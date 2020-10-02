@@ -40,6 +40,8 @@ if [ -z "$RHID_PASSWORD" ]; then
 	export RHID_PASSWORD=
 fi
 
+set -x
+
 #export OCP_VERSION=4.6 			# 4.5 is default.  4.4 and 4.6 also supported
 
 #export WORKERS=5				# Default is 3 
@@ -61,7 +63,31 @@ fi
 
 #export FORCE_DISK_PARTITION_WIPE=true		# Default is false
 
-pushd ~/ocs-upi-kvm
+set +x
+
+# Set WORKSPACE where go code, binaries, and log files are placed
+
+if [ -z "$WORKSPACE" ]; then
+	cwdir=$(pwd)
+	cmdpath=$(dirname $0)
+	if [[ "$cmdpath" =~ "ocs-upi-kvm/samples" ]]; then
+		if [[ "$cmdpath" =~ ^/ ]]; then
+			export WORKSPACE=$cmdpath/../..
+		else
+			export WORKSPACE=$cwdir/$cmdpath/../..
+		fi
+	else
+		if [[ "$cmdpath" =~ "samples" ]]; then
+			export WORKSPACE=$cwdir/..
+		else
+			export WORKSPACE=$cwdir/../..
+		fi
+	fi
+fi
+
+echo "Location of log files: $WORKSPACE"
+
+pushd $WORKSPACE/ocs-upi-kvm
 if [ ! -e src/ocp4-upi-kvm/var.tfvars ]; then
 	echo "Refreshing submodules..."
 	git submodule update --init
@@ -69,17 +95,28 @@ fi
 
 if [ "$get_latest_ocs" == true ]; then
 	echo "Getting latest ocs..."
-	pushd ~/ocs-upi-kvm/src/ocs-ci
+	pushd $WORKSPACE/ocs-upi-kvm/src/ocs-ci
 	git checkout master
 	git pull
 	popd
 fi
 
+
 echo "Invoking scripts..."
 
-pushd ~/ocs-upi-kvm/scripts
+pushd $WORKSPACE/ocs-upi-kvm/scripts
 
-./create-ocp.sh $retry_ocp_arg
-./setup-ocs-ci.sh
-./deploy-ocs-ci.sh
-./test-ocs-ci.sh --tier 0,1
+set -o pipefail
+set -x
+
+./create-ocp.sh $retry_ocp_arg 2>&1 | tee $WORKSPACE/create-ocp.log
+
+nvms=$(sudo virsh list | grep worker | wc -l)
+if [ "$nvms" != "$WORKERS" ]; then
+	echo "ERROR: create-ocp.sh failed.  Incorrect number of worker nodes (expected $WORKERS, actual $nvms)"
+	exit 1
+fi
+
+./setup-ocs-ci.sh 2>&1 | tee $WORKSPACE/setup-ocs-ci.log
+./deploy-ocs-ci.sh 2>&1 | tee $WORKSPACE/deploy-ocs-ci.log
+./test-ocs-ci.sh --tier 0,1 2>&1 | tee $WORKSPACE/test-ocs-ci.log

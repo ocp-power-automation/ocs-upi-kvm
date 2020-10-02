@@ -1,11 +1,5 @@
 #!/bin/bash
 
-user=$(whoami)
-if [ "$user" != root ]; then
-        echo "This script must be invoked as root"
-        exit 1
-fi
-
 set -e
 
 if [ ! -e helper/virsh-cleanup.sh ]; then
@@ -13,4 +7,4 @@ if [ ! -e helper/virsh-cleanup.sh ]; then
         exit 1
 fi
 
-helper/virsh-cleanup.sh
+sudo -s helper/virsh-cleanup.sh

@@ -1,36 +1,38 @@
 #!/bin/bash
 
-user=$(whoami)
-if [ "$user" != root ]; then
-        echo "This script must be invoked as root"
-        exit 1
-fi
-
-if [ ! -e ~/pull-secret.txt ]; then
-	echo "Missing ~/pull-secret.txt.  Download it from https://cloud.redhat.com/openshift/install/pull-secret"
+if [ ! -e helper/parameters.sh ]; then
+	echo "This script should be invoked from the directory ocs-upi-kvm/scripts"
 	exit 1
 fi
 
-if [ ! -e ~/auth.yaml ]; then
-	echo "~/auth.yaml is required"
+source helper/parameters.sh
+
+if [ ! -e $WORKSPACE/pull-secret.txt ]; then
+	echo "Missing $WORKSPACE/pull-secret.txt.  Download it from https://cloud.redhat.com/openshift/install/pull-secret"
 	exit 1
 fi
 
-source /root/venv/bin/activate                  # enter 'deactivate' in venv shell to exit
+if [ ! -e $WORKSPACE/auth.yaml ]; then
+	echo "$WORKSPACE/auth.yaml is required"
+	exit 1
+fi
 
-set -ex
+set -e
 
-export KUBECONFIG=~/auth/kubeconfig
+export KUBECONFIG=$WORKSPACE/auth/kubeconfig
 
-TOP_DIR=$(pwd)/..
-
-pushd $TOP_DIR/src/ocs-ci
+pushd ../src/ocs-ci
 
 mkdir -p data
 
-cp ~/auth.yaml data/auth.yaml
-cp ~/pull-secret.txt data/pull-secret
+cp $WORKSPACE/auth.yaml data/auth.yaml
+cp $WORKSPACE/pull-secret.txt data/pull-secret
 
-run-ci -m deployment --deploy --ocsci-conf=conf/ocsci/production_powervs_upi.yaml --ocs-version 4.6 --cluster-name=ocstest --cluster-path=/root --collect-logs
+source $WORKSPACE/venv/bin/activate                  # enter 'deactivate' in venv shell to exit
+
+run-ci -m deployment --deploy --ocsci-conf=conf/ocsci/production_powervs_upi.yaml --ocs-version 4.6 \
+       --cluster-name=ocstest --cluster-path=$WORKSPACE --collect-logs
+
+deactivate
 
 popd

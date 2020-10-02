@@ -28,20 +28,27 @@ else
 	fi
 fi
 
-TOP_DIR=$(pwd)/..
+if [ ! -e helper/parameters.sh ]; then
+	echo "This script should be invoked from the directory ocs-upi-kvm/scripts"
+	exit 1
+fi
 
-export KUBECONFIG=~/auth/kubeconfig
+source helper/parameters.sh
 
-source /root/venv/bin/activate                  # enter 'deactivate' in venv shell to exit
+export KUBECONFIG=$WORKSPACE/auth/kubeconfig
 
-pushd $TOP_DIR/src/ocs-ci
+source $WORKSPACE/venv/bin/activate		# enter 'deactivate' in venv shell to exit
+
+pushd ../src/ocs-ci
 
 for i in ${tests[@]}
 do
 	time run-ci -m "tier$i and manage" --ocsci-conf conf/ocsci/production_powervs_upi.yaml \
-       		--cluster-name ocstest --cluster-path /root --collect-logs tests/
+       		--cluster-name ocstest --cluster-path $WORKSPACE --collect-logs tests/
 	rc=$?
 	echo "TEST RESULT: run-ci tier$i rc=$rc" 
 done
 
 deactivate
+
+popd

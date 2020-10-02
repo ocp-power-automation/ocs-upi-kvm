@@ -2,25 +2,14 @@
 
 set -e
 
-user=$(whoami)
-if [ "$user" != root ]; then
-	echo "This script must be invoked as root"
-	exit 1
-fi
-
-if [ ! -d helper ]; then
-	echo "This script should be invoked from the directory ocs-upi-kvm/scripts"
+if [ ! -e helper/parameters.sh ]; then
+	echo "ERROR: This script should be invoked from the directory ocs-upi-kvm/scripts"
 	exit 1
 fi
 
 if [[ -z "$RHID_USERNAME" ]] || [[ -z "$RHID_PASSWORD" ]]; then
-	echo "Environment variables RHID_USERNAME and RHID_PASSWORD must both be set"
+	echo "ERROR: Environment variables RHID_USERNAME and RHID_PASSWORD must both be set"
 	exit 1
-fi
-
-if [ ! -e ~/pull-secret.txt ]; then
-        echo "Missing ~/pull-secret.txt.  Download it from https://cloud.redhat.com/openshift/install/pull-secret"
-        exit 1
 fi
 
 export WORKERS=${WORKERS:=3}
@@ -29,10 +18,15 @@ export WORKER_DESIRED_CPU=${WORKER_DESIRED_CPU:="16"}
 
 source helper/parameters.sh
 
+if [ ! -e $WORKSPACE/pull-secret.txt ]; then
+        echo "ERROR: Missing $WORKSPACE/pull-secret.txt.  Download it from https://cloud.redhat.com/openshift/install/pull-secret"
+        exit 1
+fi
+
 arg1=$1
 retry=false
 if [ "$1" == "--retry" ]; then
-	retry_version=$(virsh list | grep bastion | awk '{print $2}' | sed 's/4-/4./' | sed 's/-/ /g' | awk '{print $2}' | sed 's/ocp//')
+	retry_version=$(sudo virsh list | grep bastion | awk '{print $2}' | sed 's/4-/4./' | sed 's/-/ /g' | awk '{print $2}' | sed 's/ocp//')
 	if [ "$retry_version" != "$OCP_VERSION" ]; then
 		echo "WARNING: Ignoring --retry argument.  existing version:$retry_version  requested version:$OCP_VERSION"
 		retry=false
@@ -42,8 +36,9 @@ if [ "$1" == "--retry" ]; then
 	fi
 fi
 
-if [[ ! -e ~/$BASTION_IMAGE ]] && [[ ! -e $IMAGES_PATH/$BASTION_IMAGE ]]; then
-	echo "Missing $BASTION_IMAGE.  Get it from https://access.redhat.com/downloads/content/479/ and prepare it per README"
+file_present $IMAGES_PATH/$BASTION_IMAGE
+if [[ ! -e $WORKSPACE/$BASTION_IMAGE ]] && [[ "$file_rc" != 0 ]]; then
+	echo "ERROR: Missing $BASTION_IMAGE.  Get it from https://access.redhat.com/downloads/content/479/ and prepare it per README"
 	exit 1
 fi
 
@@ -57,20 +52,35 @@ fi
 # Setup kvm on the host
 
 if [ ! -e ~/.kvm_setup ]; then
-	helper/setup-kvm-host.sh
+	sudo -s helper/setup-kvm-host.sh
 	touch ~/.kvm_setup
 fi
 
 if [ "$retry" == false ]; then
-	helper/virsh-cleanup.sh
+	echo "Invoking virsh-cleanup.sh"
+	sudo -s helper/virsh-cleanup.sh
 fi
+
+export PATH=$WORKSPACE/bin:$PATH
 
 helper/create-cluster.sh $arg1
 
-scp -o StrictHostKeyChecking=no root@192.168.88.2:/usr/local/bin/oc /usr/local/bin
-scp -o StrictHostKeyChecking=no -r root@192.168.88.2:openstack-upi/auth ~
+scp -o StrictHostKeyChecking=no root@192.168.88.2:/usr/local/bin/oc $WORKSPACE/bin
+scp -o StrictHostKeyChecking=no -r root@192.168.88.2:openstack-upi/auth $WORKSPACE
 
-export KUBECONFIG=~/auth/kubeconfig
+export KUBECONFIG=$WORKSPACE/auth/kubeconfig
 
-helper/add-data-disks.sh
-helper/check-health-cluster.sh
+sudo -sE helper/add-data-disks.sh
+sudo -sE helper/check-health-cluster.sh
+
+echo "Invoke oc command as follows:"
+echo ""
+echo "export KUBECONFIG=$WORKSPACE/auth/kubeconfig"
+echo "$WORKSPACE/bin/oc get nodes"
+
+user=$(whoami)
+if [ "$user" != "root" ]; then
+	echo "As a non-root user, you must use sudo with virsh:"
+	echo ""
+	echo "sudo virsh list --all"
+fi 
