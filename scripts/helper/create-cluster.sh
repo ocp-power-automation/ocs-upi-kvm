@@ -49,7 +49,6 @@ if [[ -e $WORKSPACE/$BASTION_IMAGE ]] && [[ "$file_rc" != 0 ]]; then
 	sudo -s mkdir -p $IMAGES_PATH 
 	sudo -s mv -f $WORKSPACE/$BASTION_IMAGE $IMAGES_PATH
 fi
-sudo ln -sf $IMAGES_PATH/$BASTION_IMAGE $IMAGES_PATH/bastion.qcow2
 
 # openshift install images are publically released with every minor update.  RHCOS
 # boot images are released less frequently, but follow the same version numbering scheme
@@ -95,7 +94,11 @@ if [ -z "$OPENSHIFT_INSTALL_RELEASE_IMAGE_OVERRIDE" ]; then
 	fi
 fi
 
-# Get the RHCOS image associated with the specified OCP Version
+# Get the RHCOS image associated with the specified OCP Version and copy it to
+# IMAGES_PATH and normalize the name of the image with a soft link with RHCOS_SUFFIX
+# so that it referenced with a common naming scheme.  This image is the boot disk of
+# each VM and needs to be resized to accomodate OCS.  There is no penalty for specifying
+# a larger size than what is actually needed as the qcow2 image is a sparse file.
 
 file_present $IMAGES_PATH/rhcos${RHCOS_SUFFIX}.qcow2
 if [ "$file_rc" != 0 ]; then
@@ -110,17 +113,16 @@ if [ "$file_rc" != 0 ]; then
         gunzip -f $file
 	file=${file/.gz/}
 
-        # Increase the size of the RHCOS disk image from 16 G to 40G.  This image is used
-	# as the boot disk for each VM, so the amount of software that is installed is 
-	# variable given the different openshift roles and use of operators.  There is
-	# penalty though for over allocating as qcow2 images are sparsely populated.
-
-        echo "Resizing $file (VM boot image) to 40G"
-        qemu-img resize $file 40G
+	echo "Resizing $file (VM boot image) to 40G"
+	qemu-img resize $file 40G
 	sudo mv -f $file $IMAGES_PATH
+
 	sudo ln -sf $IMAGES_PATH/$file $IMAGES_PATH/rhcos${RHCOS_SUFFIX}.qcow2
 	popd
 fi
+
+echo "Normalized RHCOS image name is rhcos${RHCOS_SUFFIX}.qcow2"
+RHCOS_IMAGE=rhcos${RHCOS_SUFFIX}.qcow2
 
 # Install GO and terraform
 
@@ -282,7 +284,8 @@ case "$OCP_VERSION" in
 esac
 
 sed -i "s|<IMAGES_PATH>|$IMAGES_PATH|g" var.tfvars
-sed -i "s/<RHCOS_SUFFIX>/$RHCOS_SUFFIX/g" var.tfvars
+sed -i "s/<BASTION_IMAGE>/$BASTION_IMAGE/g" var.tfvars
+sed -i "s/<RHCOS_IMAGE>/$RHCOS_IMAGE/g" var.tfvars
 sed -i "s/<SANITIZED_OCP_VERSION>/$SANITIZED_OCP_VERSION/g" var.tfvars
 sed -i "s/<INSTALLER_VERSION>/$INSTALLER_VERSION/g" var.tfvars
 sed -i "s/<CLUSTER_DOMAIN>/$CLUSTER_DOMAIN/g" var.tfvars
