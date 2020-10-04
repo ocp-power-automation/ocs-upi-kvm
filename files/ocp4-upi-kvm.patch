@@ -1,5 +1,5 @@
 diff --git a/var.tfvars b/var.tfvars
-index 02add17..2c567b1 100644
+index 72d8b82..49dedc1 100644
 --- a/var.tfvars
 +++ b/var.tfvars
 @@ -1,15 +1,15 @@
@@ -24,14 +24,18 @@ index 02add17..2c567b1 100644
  cpu_mode        = ""
  network_cidr    = "192.168.88.0/24"
  rhel_username   = "root"
-@@ -18,29 +18,29 @@ public_key_file             = "~/.ssh/id_rsa.pub"
+@@ -18,31 +18,31 @@ public_key_file             = "~/.ssh/id_rsa.pub"
  private_key_file            = "~/.ssh/id_rsa"
  private_key                 = ""
  public_key                  = ""
--rhel_subscription_username  = ""
--rhel_subscription_password  = ""
-+rhel_subscription_username  = "<RHID_USERNAME>"
-+rhel_subscription_password  = "<RHID_PASSWORD>"
+-rhel_subscription_username      = ""
+-rhel_subscription_password      = ""
+-rhel_subscription_org           = ""
+-rhel_subscription_activationkey = ""
++#rhel_subscription_username      = "<RHID_USERNAME>"
++#rhel_subscription_password      = "<RHID_PASSWORD>"
++#rhel_subscription_org           = "<RHID_ORG>"
++#rhel_subscription_activationkey = "<RHID_KEY>"
  
  ### OpenShift variables
 -# openshift_install_tarball   = ""
