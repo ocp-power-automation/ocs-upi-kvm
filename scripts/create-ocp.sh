@@ -7,8 +7,18 @@ if [ ! -e helper/parameters.sh ]; then
 	exit 1
 fi
 
-if [[ -z "$RHID_USERNAME" ]] || [[ -z "$RHID_PASSWORD" ]]; then
+if [[ -z "$RHID_USERNAME" && -z "$RHID_PASSWORD" && -z "$RHID_ORG" && -z "$RHID_KEY" ]]; then
 	echo "ERROR: Environment variables RHID_USERNAME and RHID_PASSWORD must both be set"
+	echo "ERROR: OR"
+	echo "ERROR: Environment variables RHID_ORG and RHID_KEY must both be set"
+	exit 1
+fi
+
+if [[ -z "$RHID_USERNAME" && -n "$RHID_PASSWORD" ]] || [[ -n "$RHID_USERNAME" && -z "$RHID_PASSWORD" ]]; then
+	echo "ERROR: Environment variables RHID_USERNAME and RHID_PASSWORD must both be set"
+	exit 1
+elif [[ -z "$RHID_ORG" && -n "$RHID_KEY" ]] || [[ -n "$RHID_ORG" && -z "$RHID_KEY" ]]; then
+	echo "ERROR: Environment variables RHID_ORG and RHID_KEY must both be set"
 	exit 1
 fi
 

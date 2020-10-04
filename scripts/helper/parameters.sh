@@ -1,8 +1,12 @@
 #!/bin/bash
 
-export RHID_PASSWORD=${RHID_PASSWORD:=""}
+# Either username / password or org / key.  Username / password takes precedence
 
 export RHID_USERNAME=${RHID_USERNAME:=""}
+export RHID_PASSWORD=${RHID_PASSWORD:=""}
+
+export RHID_ORG=${RHID_ORG:=""}
+export RHID_KEY=${RHID_KEY:=""}
 
 export OCP_VERSION=${OCP_VERSION:="4.5"}
 
