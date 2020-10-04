@@ -2,8 +2,18 @@
 
 echo "Command invocation: $0 $1"
 
-if [[ -z "$RHID_USERNAME" ]] || [[ -z "$RHID_PASSWORD" ]]; then
-	echo "Must specify your redhat subscription RHID_USERNAME=$RHID_USERNAME and RHID_PASSWORD=$RHID_PASSWORD"
+if [[ -z "$RHID_USERNAME" && -z "$RHID_PASSWORD" && -z "$RHID_ORG" && -z "$RHID_KEY" ]]; then
+	echo "ERROR: Environment variables RHID_USERNAME and RHID_PASSWORD must both be set"
+	echo "ERROR: OR"
+	echo "ERROR: Environment variables RHID_ORG and RHID_KEY must both be set"
+	exit 1
+fi
+
+if [[ -z "$RHID_USERNAME" && -n "$RHID_PASSWORD" ]] || [[ -n "$RHID_USERNAME" && -z "$RHID_PASSWORD" ]]; then
+	echo "ERROR: Environment variables RHID_USERNAME and RHID_PASSWORD must both be set"
+	exit 1
+elif [[ -z "$RHID_ORG" && -n "$RHID_KEY" ]] || [[ -n "$RHID_ORG" && -z "$RHID_KEY" ]]; then
+	echo "ERROR: Environment variables RHID_ORG and RHID_KEY must both be set"
 	exit 1
 fi
 
@@ -290,8 +300,6 @@ sed -i "s/<SANITIZED_OCP_VERSION>/$SANITIZED_OCP_VERSION/g" var.tfvars
 sed -i "s/<INSTALLER_VERSION>/$INSTALLER_VERSION/g" var.tfvars
 sed -i "s/<CLUSTER_DOMAIN>/$CLUSTER_DOMAIN/g" var.tfvars
 sed -i "s/<BASTION_IP>/$BASTION_IP/g" var.tfvars
-sed -i "s/<RHID_USERNAME>/$RHID_USERNAME/g" var.tfvars
-sed -i "s/<RHID_PASSWORD>/$RHID_PASSWORD/g" var.tfvars
 sed -i "s/<MASTER_DESIRED_MEM>/$MASTER_DESIRED_MEM/g" var.tfvars
 sed -i "s/<MASTER_DESIRED_CPU>/$MASTER_DESIRED_CPU/g" var.tfvars
 sed -i "s/<WORKER_DESIRED_MEM>/$WORKER_DESIRED_MEM/g" var.tfvars
@@ -306,10 +314,22 @@ fi
 sed -i "s|<OCP_INSTALLER_SUBPATH>|$OCP_INSTALLER_SUBPATH|g" var.tfvars
 
 if [ -z "$OPENSHIFT_INSTALL_RELEASE_IMAGE_OVERRIDE" ]; then
-	sed -i 's/release_image_override/#release_image_override/' var.tfvars
+	sed -i "s/release_image_override/#release_image_override/" var.tfvars
 else
-	sed -i 's/#release_image_override/release_image_override/' var.tfvars
+	sed -i "s/#release_image_override/release_image_override/" var.tfvars
 	sed -i "s|<IMAGE_OVERRIDE>|$OPENSHIFT_INSTALL_RELEASE_IMAGE_OVERRIDE|" var.tfvars
+fi
+
+if [[ -n "$RHID_USERNAME" && -n "$RHID_PASSWORD" ]]; then
+	sed -i "s/#rhel_subscription_username/rhel_subscription_username/" var.tfvars
+	sed -i "s/#rhel_subscription_password/rhel_subscription_password/" var.tfvars
+	sed -i "s/<RHID_USERNAME>/$RHID_USERNAME/" var.tfvars
+	sed -i "s/<RHID_PASSWORD>/$RHID_PASSWORD/" var.tfvars
+else
+	sed -i "s/#rhel_subscription_org/rhel_subscription_org/" var.tfvars
+	sed -i "s/#rhel_subscription_activationkey/rhel_subscription_activationkey/" var.tfvars
+	sed -i "s|<RHID_ORG>|$RHID_ORG|" var.tfvars
+	sed -i "s|<RHID_KEY>|$RHID_KEY|" var.tfvars
 fi
 
 mkdir -p data
