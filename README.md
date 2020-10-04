@@ -47,9 +47,9 @@ submodules as shown below.
   
 ```
 git clone https://github.com/ocp-power-automation/ocs-upi-kvm --recursive
-
-OR
-
+```
+**OR**
+```
 git clone https://github.com/ocp-power-automation/ocs-upi-kvm.sh
 cd ocs-upi-kvm
 git submodule update --init
@@ -81,6 +81,11 @@ data disks, while the script **jenkins-ocs-psi.sh** uses physical disk partions.
 
 - RHID_USERNAME=xxx
 - RHID_PASSWORD=yyy
+
+**OR**
+
+- RHID_ORG=ppp
+- RHID_KEY=qqq
 
 ## Project Workspace
 
