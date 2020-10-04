@@ -1,5 +1,5 @@
 diff --git a/var.tfvars b/var.tfvars
-index 02add17..491ac17 100644
+index 02add17..2c567b1 100644
 --- a/var.tfvars
 +++ b/var.tfvars
 @@ -1,15 +1,15 @@
@@ -13,8 +13,8 @@ index 02add17..491ac17 100644
  ### Configure the Nodes details
 -bastion_image   = "http://remote_server/rhel-8.1-ppc64le-kvm.qcow2"
 -rhcos_image     = "http://remote_server/rhcos-4.4.9-ppc64le-qemu.ppc64le.qcow2"
-+bastion_image   = "<IMAGES_PATH>/bastion.qcow2"
-+rhcos_image     = "<IMAGES_PATH>/rhcos<RHCOS_SUFFIX>.qcow2"
++bastion_image   = "<IMAGES_PATH>/<BASTION_IMAGE>"
++rhcos_image     = "<IMAGES_PATH>/<RHCOS_IMAGE>"
  bastion         = { memory = 8192, vcpu = 2 }
  bootstrap       = { memory = 8192, vcpu = 4, count = 1 }
 -master          = { memory = 16384, vcpu = 4, count = 3 }
