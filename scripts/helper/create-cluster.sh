@@ -48,8 +48,6 @@ BASTION_IP=${BASTION_IP:="192.168.88.2"}
 export TERRAFORM_VERSION=${TERRAFORM_VERSION:="v0.13.3"}
 export GO_VERSION=${GO_VERSION:="go1.14.9"}
 
-set -x
-
 file_present $IMAGES_PATH/$BASTION_IMAGE
 if [[ ! -e $WORKSPACE/$BASTION_IMAGE ]] && [[ "$file_rc" != 0 ]]; then
 	echo "ERROR: Missing $BASTION_IMAGE.  Get it from https://access.redhat.com/downloads/content/479/ and prepare it per README"
@@ -167,9 +165,9 @@ if [ -e $WORKSPACE/bin/terraform ]; then
 	OLD_TERRAFORM_VERSION=$($WORKSPACE/bin/terraform version | head -n 1| awk '{print $2}')
 fi
 
-# Terraform modules are placed in directories with version names so they can be shared
+# Terraform modules built below are versioned so they can be shared
 
-PLUGIN_PATH=~/.local/share/terraform/plugins/registry.terraform.io
+PLUGIN_PATH=~/.terraform.d/plugins/registry.terraform.io
 
 export GOPATH=$WORKSPACE/go
 if [[ "$INSTALLED_GO" == "true" ]] || [[ "$OLD_TERRAFORM_VERSION" != "$TERRAFORM_VERSION" ]] || 
@@ -183,15 +181,6 @@ if [[ "$INSTALLED_GO" == "true" ]] || [[ "$OLD_TERRAFORM_VERSION" != "$TERRAFORM
 	mkdir -p $GOPATH/bin
 	export PATH=$GOPATH/bin:$PATH
 	export CGO_ENABLED="1"
-
-	# Clean directories for terraform and terraform providers
-
-#	if [ -e ~/.terraform.d ]; then			# Legacy (ocp 4.4 4.5) terraform provider path
-#		rm -rf ~/.terraform.d/*
-#	fi 
-	if [ -e $WORKSPACE/terraform ]; then
-		rm -rf $WORKSPACE/terraform
-	fi
 
 	PLATFORM=linux_ppc64le
 

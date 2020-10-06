@@ -62,14 +62,18 @@ fi
 # Setup kvm on the host
 
 if [ ! -e ~/.kvm_setup ]; then
-	sudo -s helper/setup-kvm-host.sh
 	touch ~/.kvm_setup
+	echo "Invoking setup-kvm-host.sh"
+	sudo -sE helper/setup-kvm-host.sh
 fi
 
 if [ "$retry" == false ]; then
 	echo "Invoking virsh-cleanup.sh"
-	sudo -s helper/virsh-cleanup.sh
+	sudo -sE helper/virsh-cleanup.sh
 fi
+
+echo "export PATH=$WORKSPACE/bin/:$PATH" | tee $WORKSPACE/env-ocp.sh
+chmod a+x $WORKSPACE/env-ocp.sh
 
 export PATH=$WORKSPACE/bin:$PATH
 
@@ -78,19 +82,14 @@ helper/create-cluster.sh $arg1
 scp -o StrictHostKeyChecking=no root@192.168.88.2:/usr/local/bin/oc $WORKSPACE/bin
 scp -o StrictHostKeyChecking=no -r root@192.168.88.2:openstack-upi/auth $WORKSPACE
 
+echo "export KUBECONFIG=$WORKSPACE/auth/kubeconfig" | tee -a $WORKSPACE/env-ocp.sh
+
 export KUBECONFIG=$WORKSPACE/auth/kubeconfig
 
 sudo -sE helper/add-data-disks.sh
 sudo -sE helper/check-health-cluster.sh
 
-echo "Invoke oc command as follows:"
 echo ""
-echo "export KUBECONFIG=$WORKSPACE/auth/kubeconfig"
-echo "$WORKSPACE/bin/oc get nodes"
-
-user=$(whoami)
-if [ "$user" != "root" ]; then
-	echo "As a non-root user, you must use sudo with virsh:"
-	echo ""
-	echo "sudo virsh list --all"
-fi 
+echo "To access the cluster:"
+echo "source $WORKSPACE/env-ocp.sh"
+echo "oc get nodes -o wide"

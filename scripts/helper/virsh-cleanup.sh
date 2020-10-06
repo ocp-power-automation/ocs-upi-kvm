@@ -9,87 +9,68 @@ source helper/parameters.sh
 
 # Deactivate VMs
 
-while :
+activevms=$(virsh list | grep test-ocp | awk '{print $2}')
+for i in $activevms
 do
-	ACTIVEVM=$(virsh list | tail -n 2 | head -n 1 | awk '{ print $2 }')
-	if [[ -z "$ACTIVEVM" ]] || [[ "$ACTIVEVM" = \-* ]]; then
-		break;
-	fi
-	echo "virsh destroy $ACTIVEVM"
-	virsh destroy $ACTIVEVM
+	echo "virsh destroy $i"
+	virsh destroy $i
 done
 
 # Delete storage volumes
 
 declare -i nvols
-while :
+pools=$(virsh pool-list --all | grep test-ocp | awk '{print $1}')
+for i in $pools
 do
-	POOL=$(virsh pool-list --all | tail -n 2 | head -n 1 | awk '{ print $1 }')
-	if [[ -z "$POOL" ]] || [[ "$POOL" == "default" ]] || [[ "$POOL" == \-* ]]; then
-		break;
-	fi
-	nvols=$(virsh vol-list $POOL | wc -l)-3
+	nvols=$(virsh vol-list $i | wc -l)-3
 	while :
 	do
 		if (( nvols < 1 )); then
 			break;
 		fi
-		VOL=$(virsh vol-list $POOL | tail -n 2 | head -n 1 | awk '{ print $1 }')
+		vol=$(virsh vol-list $i | tail -n 2 | head -n 1 | awk '{ print $1 }')
 
-		echo "virsh vol-delete $VOL --pool $POOL"
-		virsh vol-delete $VOL --pool $POOL
+		echo "virsh vol-delete $vol --pool $i"
+		virsh vol-delete $vol --pool $i
 
 		nvols=nvols-1
 	done
-	echo "virsh pool-destroy $POOL"
-	virsh pool-destroy $POOL
+	echo "virsh pool-destroy $i"
+	virsh pool-destroy $i
 
-	echo "virsh pool-delete $POOL"
-	virsh pool-delete $POOL
+	echo "virsh pool-delete $i"
+	virsh pool-delete $i >/dev/null 2>&1
 
-	echo "virsh pool-undefine $POOL"
-	virsh pool-undefine $POOL
+	echo "virsh pool-undefine $i"
+	virsh pool-undefine $i
 done
 
 # Delete VM definitions
 
-while :
+inactivevms=$(virsh list --all | grep test-ocp | awk '{print $2}')
+for i in $inactivevms
 do
-	INACTIVEVM=$(virsh list --all | tail -n 2 | head -n 1 | awk '{ print $2 }')
-	if [[ -z "$INACTIVEVM" ]] || [[ "$INACTIVEVM" = \-* ]]; then
-		break;
-	fi
-	echo "virsh undefine $INACTIVEVM"
-	virsh undefine $INACTIVEVM
+	echo "virsh undefine $i"
+	virsh undefine $i
 done
-
-
 
 # Delete Virtual Networks
 
-while :
+nets=$(virsh net-list --all | grep test-ocp | awk '{print $1}')
+for i in $nets
 do
-	NET=$(virsh net-list --all | tail -n 2 | head -n 1 | awk '{ print $1 }')
-	if [[ "$NET" == "default" ]] || [[ "$NET" = \-* ]]; then
-		break;
-	fi
-	echo "virsh net-destroy $NET"
-	virsh net-destroy $NET
+	echo "virsh net-destroy $i"
+	virsh net-destroy $i
 
-	echo "virsh net-undefine $NET"
-	virsh net-undefine $NET
+	echo "virsh net-undefine $i"
+	virsh net-undefine $i
 done
-
-# Recycle libvirtd as it provides dnsmasq 
-sudo systemctl restart libvirtd
-sudo systemctl restart NetworkManager
-sudo firewall-cmd --reload
 
 # Remove files created by add-data-disk.sh
 
 if [ -e $WORKSPACE/.images_path ]; then
 	FILES=$(cat $WORKSPACE/.images_path)
 	if [ -n "$FILES" ]; then
-		rm -rf $FILES/test-ocp*
+		rm -rf $FILES/test-ocp*$CLUSTER_REQUESTED
 	fi
 fi

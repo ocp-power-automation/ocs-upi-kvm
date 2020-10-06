@@ -12,15 +12,18 @@ sudo yum -y install python38-devel python38-setuptools python38-Cython python3-v
 
 source helper/parameters.sh
 
+pushd ../src/ocs-ci
+
+rm -rf $WORKSPACE/venv
+
 python3.8 -m venv $WORKSPACE/venv
 
 source $WORKSPACE/venv/bin/activate		# activate named python venv
 
 pip install --upgrade pip setuptools
 pip install wheel
-
-pushd ../src/ocs-ci
 pip install -r requirements.txt
-popd
 
 deactivate					# exit venv shell
+
+popd
