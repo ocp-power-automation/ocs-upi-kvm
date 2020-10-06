@@ -8,12 +8,17 @@
 # along with the cluster domain, so if the underlying projects change
 # this script will have to change as well.
 
-set -xe
+set -e
 
 if [ ! -e helper/parameters.sh ]; then
 	echo "Please invoke from the directory ocs-upi-kvm/scripts"
 	exit 1
 fi
+
+yum -y install https://dl.fedoraproject.org/pub/epel/epel-release-latest-$(rpm -E %rhel).noarch.rpm
+yum -y install powerpc-utils net-tools wget git patch gcc-c++ make
+yum -y module install virt container-tools
+yum -y install libvirt-devel libguestfs libguestfs-tools virt-install ansible haproxy tmux
 
 source helper/parameters.sh
 
@@ -21,11 +26,6 @@ source helper/parameters.sh
 
 CLUSTER_CIDR=${CLUSTER_CIDR:="192.168.88.0/24"}
 CLUSTER_GATEWAY=${CLUSTER_GATEWAY:="192.168.88.1"}
-
-yum -y install https://dl.fedoraproject.org/pub/epel/epel-release-latest-$(rpm -E %rhel).noarch.rpm
-yum -y install powerpc-utils net-tools wget git patch gcc-c++ make
-yum -y module install virt container-tools
-yum -y install libvirt-devel libguestfs libguestfs-tools virt-install ansible haproxy tmux
 
 pushd $WORKSPACE
 if [ ! -e wipe-2.3.1-17.15.ppc64le.rpm ]; then
@@ -76,6 +76,7 @@ firewall-cmd --reload
 
 echo -e "[main]\ndns=dnsmasq" | tee /etc/NetworkManager/conf.d/openshift.conf
 echo server=/$CLUSTER_DOMAIN/$CLUSTER_GATEWAY | tee /etc/NetworkManager/dnsmasq.d/openshift.conf
+echo dns-forward-max=600 | tee -a /etc/NetworkManager/dnsmasq.d/openshift.conf
 
 systemctl restart NetworkManager
 systemctl restart firewalld

@@ -37,7 +37,10 @@ export IMAGES_PATH=${IMAGES_PATH:="/var/lib/libvirt/images"}
 
 export BASTION_IMAGE=${BASTION_IMAGE:="rhel-8.2-update-2-ppc64le-kvm.qcow2"}
 
-# Validate DATA_DISK_LIST upfront so that mistakes are captured early 
+
+############################## Validate Input Parameters ###############################
+
+# Validate DATA_DISK_LIST so that mistakes are captured early
 
 if [ -n "$DATA_DISK_LIST" ]; then
 
@@ -76,7 +79,7 @@ if [ -n "$DATA_DISK_LIST" ]; then
 	done
 fi
 
-# Internal variables
+############################## Internal variables & functions ###############################
 
 # Sanitize the user specified ocp version which is included in the cluster name.  The cluster
 # name should not include dots (.) as this is reflected in the fully qualified hostname which
@@ -109,7 +112,8 @@ if [ -z "$WORKSPACE" ]; then
 		WORKSPACE="$HOME"
 	fi
 fi
-echo WORKSPACE=$WORKSPACE
+
+# Files in IMAGES_PATH are not visible to non-root users.  This provides a lookup function
 
 file_rc=
 function file_present ( ) {
