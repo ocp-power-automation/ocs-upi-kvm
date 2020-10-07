@@ -18,7 +18,7 @@ fi
 yum -y install https://dl.fedoraproject.org/pub/epel/epel-release-latest-$(rpm -E %rhel).noarch.rpm
 yum -y install powerpc-utils net-tools wget git patch gcc-c++ make
 yum -y module install virt container-tools
-yum -y install libvirt-devel libguestfs libguestfs-tools virt-install ansible haproxy tmux
+yum -y install libvirt-devel libguestfs libguestfs-tools virt-install ansible haproxy tmux jq
 
 source helper/parameters.sh
 
