@@ -98,17 +98,12 @@ echo "Invoking scripts..."
 pushd $WORKSPACE/ocs-upi-kvm/scripts
 
 set -o pipefail
-set -x
 
 ./create-ocp.sh $retry_ocp_arg 2>&1 | tee $WORKSPACE/create-ocp.log
 
-nvms=$(sudo virsh list | grep worker | wc -l)
-if [ "$nvms" != "$WORKERS" ]; then
-	echo "ERROR: create-ocp.sh failed.  Incorrect number of worker nodes (expected $WORKERS, actual $nvms)"
-	exit 1
-fi
+source $WORKSPACE/env-ocp.sh
+oc get nodes
 
 ./setup-ocs-ci.sh 2>&1 | tee $WORKSPACE/setup-ocs-ci.log
 
 ./deploy-ocs-ci.sh 2>&1 | tee $WORKSPACE/deploy-ocs-ci.log
-
