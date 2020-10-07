@@ -13,6 +13,12 @@
 
 set -e
 
+user=$(whoami)
+if [ "$user" != "root" ]; then
+	echo "You must be root user to invoke this script $0"
+	exit 1
+fi
+
 if [ ! -e helper/parameters.sh ]; then
         echo "Please invoke this script from the directory ocs-upi-kvm/scripts"
         exit 1

@@ -74,8 +74,11 @@ samples/dev-ocs.sh [--retry-ocp] [--latest-ocs]
 samples/jenkins-ocs-psi.sh [--retry-ocp] [--latest-ocs]
 ```
 
-These scripts are useful in getting started.  The script **dev-ocs.sh** uses file backed
-data disks, while the script **jenkins-ocs-psi.sh** uses physical disk partions.
+These scripts are useful in getting started.  They implement the full sequence of
+high level tasks defined above.  The difference between these scripts is that the
+**dev-ocs.sh** script uses files and the script **jenkins-ocs-psi.sh** uses
+physical disk partions for the extra data disks that are attached to worker nodes.
+In addition, the latter script will invoke ocs-ci tier 0 and 1 tests automatically.
 
 ## Required Environment Variables
 
@@ -108,8 +111,8 @@ for **quay** and **quay.io/rhceph-dev** which are obtained from the Redhat OCS-C
 
 The pull-secret.txt is required for the scripts create-ocp.sh and deploy-ocs-ci.sh.
 Download your managed pull secrets from https://cloud.redhat.com/openshift/install/pull-secret and add
-the secret for **quay.io/rhceph-dev** noted above to this json formatted file.  You will also need
-to add the secret for **registry.svc.ci.openshift.org** which may be obtained as follows:
+the secret for **quay.io/rhceph-dev** noted above to the pull-secret.txt file.  You will
+also need to add the secret for **registry.svc.ci.openshift.org** which may be obtained as follows:
 
 1.  Become a member of [openshift organization](https://github.com/openshift)
 2.  login to https://api.ci.openshift.org/console/catalog

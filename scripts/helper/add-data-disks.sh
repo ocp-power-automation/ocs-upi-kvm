@@ -10,12 +10,20 @@
 
 set -e
 
+user=$(whoami)
+if [ "$user" != "root" ]; then
+	echo "You must be root user to invoke this script $0"
+	exit 1
+fi
+
 if [ ! -e helper/parameters.sh ]; then
         echo "Please invoke this script from the directory ocs-upi-kvm/scripts"
         exit 1
 fi
 
 source helper/parameters.sh
+
+echo KUBECONFIG=$KUBECONFIG
 
 if [[ "$DATA_DISK_SIZE" -le "0" ]]; then
 	echo "No data disks will be created"
@@ -51,20 +59,38 @@ do
 	echo "Attaching data disk to $vm"
  	virsh attach-disk $vm --source $disk_path --target vdc --persistent
 	virsh reboot $vm
-	sleep 5	
+	sleep 5
 done
 
+sleep 30
+
 # Wait for each node to become ready
+
 echo "Waiting up to a minute for each worker node to become ssh accessible"
 
 for (( i=0; i<$WORKERS; i++ ))
 do
         vm=$(virsh list --all | grep worker-$i | awk '{print $2}' | tail -n 1)
 
-        ip=$($WORKSPACE/bin/oc get nodes -o wide | grep worker-$i | tail -n 1 | awk '{print $6}')
+        success=false
+        for ((cnt=0; cnt<3; cnt++))
+        do
+		ip=$($WORKSPACE/bin/oc get nodes -o wide | grep worker-$i | tail -n 1 | awk '{print $6}')
+		if [ -n "$ip" ]; then
+			cnt=3
+                        success=true
+		else
+			sleep 10
+		fi
+	done
+
+	if [ "$success" == false ]; then
+		echo "WARNING: IP Address for worker VM $vm is not known, continuing anyway"
+		continue
+	fi
 
         success=false
-        for ((cnt=0; cnt<6; cnt++))
+        for ((cnt=0; cnt<3; cnt++))
         do
                 sleep 10
 
@@ -73,13 +99,13 @@ do
                 set -e
 
 		if [ -n "$ls_out" ]; then
-                        cnt=6
+                        cnt=3
                         success=true
                 fi
         done
 
 	if [ "$success" == false ]; then
-		echo "WARNING: worker node $vm at $ip not ssh accessible, continuing anyway"
+		echo "WARNING: worker VM $vm at $ip is not ssh accessible, continuing anyway"
 	fi
 done
 
