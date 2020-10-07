@@ -68,6 +68,7 @@ firewall-cmd --zone=public --add-port=22623/tcp    --permanent  # HAProxy
 firewall-cmd --zone=libvirt --add-service=libvirt  --permanent
 firewall-cmd --zone=libvirt --add-service=http     --permanent
 firewall-cmd --zone=libvirt --add-service=https    --permanent
+firewall-cmd --zone=libvirt --add-port=53/udp      --permanent
 firewall-cmd --zone=libvirt --add-port=623/udp     --permanent	# RMCP (ipmi / bmc)
 
 firewall-cmd --reload
@@ -76,7 +77,20 @@ firewall-cmd --reload
 
 echo -e "[main]\ndns=dnsmasq" | tee /etc/NetworkManager/conf.d/openshift.conf
 echo server=/$CLUSTER_DOMAIN/$CLUSTER_GATEWAY | tee /etc/NetworkManager/dnsmasq.d/openshift.conf
-echo dns-forward-max=600 | tee -a /etc/NetworkManager/dnsmasq.d/openshift.conf
+
+# The message 'Maximum number of concurrent DNS queries reached (max: 150)' occurs
+# thousands of times in /var/log/messages mostly when running ocs-ci.  This limit is
+# controlled by the dnamasq parameter dns-forward-max.  libvirt does not expose dnsmasq
+# parameters so a command wrapper is used to inject this argument into the CLI.
+
+echo dns-forward-max=1000 | tee -a /etc/NetworkManager/dnsmasq.d/openshift.conf
+
+if [ ! -e /usr/sbin/dnsmasq.bin ]; then
+	echo "Patching /usr/sbin/dnsmasq.  Log file is /tmp/dnsmasq.log"
+	cp /usr/sbin/dnsmasq /usr/sbin/dnsmasq.bin
+	cp -f ../files/dnsmasq.sh /usr/sbin/dnsmasq
+	restorecon /usr/sbin/dnsmasq.bin /usr/sbin/dnsmasq
+fi
 
 systemctl restart NetworkManager
 systemctl restart firewalld
