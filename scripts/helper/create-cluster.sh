@@ -54,8 +54,8 @@ if [[ ! -e $WORKSPACE/$BASTION_IMAGE ]] && [[ "$file_rc" != 0 ]]; then
 	exit 1
 fi
 if [[ -e $WORKSPACE/$BASTION_IMAGE ]] && [[ "$file_rc" != 0 ]]; then
-	sudo -s mkdir -p $IMAGES_PATH 
-	sudo -s mv -f $WORKSPACE/$BASTION_IMAGE $IMAGES_PATH
+	sudo -sE mkdir -p $IMAGES_PATH 
+	sudo -sE mv -f $WORKSPACE/$BASTION_IMAGE $IMAGES_PATH
 fi
 
 # openshift install images are publically released with every minor update.  RHCOS
@@ -112,9 +112,9 @@ file_present $IMAGES_PATH/rhcos${RHCOS_SUFFIX}.qcow2
 if [ "$file_rc" != 0 ]; then
         pushd $WORKSPACE
 	if [ -n "$RHCOS_RELEASE" ]; then
-		wget https://mirror.openshift.com/pub/openshift-v4/ppc64le/dependencies/rhcos/$RHCOS_VERSION/latest/rhcos-$RHCOS_RELEASE-ppc64le-qemu.ppc64le.qcow2.gz
+		wget -q https://mirror.openshift.com/pub/openshift-v4/ppc64le/dependencies/rhcos/$RHCOS_VERSION/latest/rhcos-$RHCOS_RELEASE-ppc64le-qemu.ppc64le.qcow2.gz
 	else
-		wget https://mirror.openshift.com/pub/openshift-v4/ppc64le/dependencies/rhcos/pre-release/latest-$RHCOS_VERSION/rhcos-qemu.ppc64le.qcow2.gz
+		wget -q https://mirror.openshift.com/pub/openshift-v4/ppc64le/dependencies/rhcos/pre-release/latest-$RHCOS_VERSION/rhcos-qemu.ppc64le.qcow2.gz
 	fi
 	file=$(ls -1 rhcos*qcow2.gz | tail -n 1)
 	echo "Unzipping $file"
@@ -123,9 +123,9 @@ if [ "$file_rc" != 0 ]; then
 
 	echo "Resizing $file (VM boot image) to 40G"
 	qemu-img resize $file 40G
-	sudo mv -f $file $IMAGES_PATH
+	sudo -sE mv -f $file $IMAGES_PATH
 
-	sudo ln -sf $IMAGES_PATH/$file $IMAGES_PATH/rhcos${RHCOS_SUFFIX}.qcow2
+	sudo -sE ln -sf $IMAGES_PATH/$file $IMAGES_PATH/rhcos${RHCOS_SUFFIX}.qcow2
 	popd
 fi
 
@@ -143,7 +143,7 @@ INSTALLED_GO=false
 if [ "$OLD_GO_VERSION" != "$GO_VERSION" ]; then
 	if [ ! -e $WORKSPACE/$GO_VERSION.linux-ppc64le.tar.gz ]; then
 		pushd $WORKSPACE
-		wget https://golang.org/dl/$GO_VERSION.linux-ppc64le.tar.gz
+		wget -q https://golang.org/dl/$GO_VERSION.linux-ppc64le.tar.gz
 		popd
 	fi
 	rm -rf $WORKSPACE/usr/local/go
@@ -176,7 +176,7 @@ if [[ "$INSTALLED_GO" == "true" ]] || [[ "$OLD_TERRAFORM_VERSION" != "$TERRAFORM
 	# Clean directories for go modules
 
 	mkdir -p $GOPATH
-	sudo rm -rf $GOPATH/*
+	sudo -sE rm -rf $GOPATH/*
 
 	mkdir -p $GOPATH/bin
 	export PATH=$GOPATH/bin:$PATH
@@ -196,7 +196,7 @@ if [[ "$INSTALLED_GO" == "true" ]] || [[ "$OLD_TERRAFORM_VERSION" != "$TERRAFORM
 	TF_DEV=1 scripts/build.sh
 	popd
 
-	cp $GOPATH/bin/terraform $WORKSPACE/bin/terraform
+	cp -f $GOPATH/bin/terraform $WORKSPACE/bin/terraform
 
         mkdir -p $GOPATH/src/github.com/dmacvicar; cd $GOPATH/src/github.com/dmacvicar
         git clone https://github.com/dmacvicar/terraform-provider-libvirt.git
@@ -205,7 +205,7 @@ if [[ "$INSTALLED_GO" == "true" ]] || [[ "$OLD_TERRAFORM_VERSION" != "$TERRAFORM
         popd
 
 	mkdir -p $PLUGIN_PATH/dmacvicar/libvirt/1.0.0/$PLATFORM/
-	cp $GOPATH/bin/terraform-provider-libvirt $PLUGIN_PATH/dmacvicar/libvirt/1.0.0/$PLATFORM/terraform-provider-libvirt
+	cp -f $GOPATH/bin/terraform-provider-libvirt $PLUGIN_PATH/dmacvicar/libvirt/1.0.0/$PLATFORM/terraform-provider-libvirt
 
 	VERSION=2.3.0
 	mkdir -p $GOPATH/src/github.com/terraform-providers; cd $GOPATH/src/github.com/terraform-providers
@@ -215,7 +215,7 @@ if [[ "$INSTALLED_GO" == "true" ]] || [[ "$OLD_TERRAFORM_VERSION" != "$TERRAFORM
 	popd
 
 	mkdir -p $PLUGIN_PATH/hashicorp/random/$VERSION/$PLATFORM/
-	cp $GOPATH/bin/terraform-provider-random $PLUGIN_PATH/hashicorp/random/$VERSION/$PLATFORM/terraform-provider-random
+	cp -f $GOPATH/bin/terraform-provider-random $PLUGIN_PATH/hashicorp/random/$VERSION/$PLATFORM/terraform-provider-random
 
 	VERSION=2.1.2
 	mkdir -p $GOPATH/src/github.com/terraform-providers; cd $GOPATH/src/github.com/terraform-providers
@@ -225,7 +225,7 @@ if [[ "$INSTALLED_GO" == "true" ]] || [[ "$OLD_TERRAFORM_VERSION" != "$TERRAFORM
 	popd
 
 	mkdir -p $PLUGIN_PATH/hashicorp/null/$VERSION/$PLATFORM/
-	cp $GOPATH/bin/terraform-provider-null $PLUGIN_PATH/hashicorp/null/$VERSION/$PLATFORM/terraform-provider-null
+	cp -f $GOPATH/bin/terraform-provider-null $PLUGIN_PATH/hashicorp/null/$VERSION/$PLATFORM/terraform-provider-null
 
 	# OCP 4.6 upgraded to Ignition Config Spec v3.0.0 which is incompatible with the
 	# format used by OCP 4.5 and 4.4, so use terraform versioning to specify which one
@@ -241,7 +241,7 @@ if [[ "$INSTALLED_GO" == "true" ]] || [[ "$OLD_TERRAFORM_VERSION" != "$TERRAFORM
 	popd
 
 	mkdir -p $PLUGIN_PATH/terraform-providers/ignition/$VERSION/$PLATFORM/
-	cp $GOPATH/bin/terraform-provider-ignition $PLUGIN_PATH/terraform-providers/ignition/$VERSION/$PLATFORM/terraform-provider-ignition
+	cp -f $GOPATH/bin/terraform-provider-ignition $PLUGIN_PATH/terraform-providers/ignition/$VERSION/$PLATFORM/terraform-provider-ignition
 
  	VERSION=1.2.1
 	mkdir -p $GOPATH/src/github.com/terraform-providers; cd $GOPATH/src/github.com/terraform-providers 
@@ -251,7 +251,7 @@ if [[ "$INSTALLED_GO" == "true" ]] || [[ "$OLD_TERRAFORM_VERSION" != "$TERRAFORM
 	popd
 
 	mkdir -p $PLUGIN_PATH/terraform-providers/ignition/$VERSION/$PLATFORM/
-	cp $GOPATH/bin/terraform-provider-ignition $PLUGIN_PATH/terraform-providers/ignition/$VERSION/$PLATFORM/terraform-provider-ignition
+	cp -f $GOPATH/bin/terraform-provider-ignition $PLUGIN_PATH/terraform-providers/ignition/$VERSION/$PLATFORM/terraform-provider-ignition
 
 	popd
 fi

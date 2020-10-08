@@ -71,6 +71,9 @@ done
 if [ -e $WORKSPACE/.images_path ]; then
 	FILES=$(cat $WORKSPACE/.images_path)
 	if [ -n "$FILES" ]; then
-		rm -rf $FILES/test-ocp*$CLUSTER_REQUESTED
+		rm -rf $FILES/test-ocp*
 	fi
 fi
+
+systemctl restart libvirtd
+systemctl restart firewalld

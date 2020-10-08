@@ -29,7 +29,7 @@ CLUSTER_GATEWAY=${CLUSTER_GATEWAY:="192.168.88.1"}
 
 pushd $WORKSPACE
 if [ ! -e wipe-2.3.1-17.15.ppc64le.rpm ]; then
-	wget http://rpmfind.net/linux/opensuse/ports/ppc/tumbleweed/repo/oss/ppc64le/wipe-2.3.1-17.15.ppc64le.rpm
+	wget -q http://rpmfind.net/linux/opensuse/ports/ppc/tumbleweed/repo/oss/ppc64le/wipe-2.3.1-17.15.ppc64le.rpm
 fi
 yum -y localinstall wipe-2.3.1-17.15.ppc64le.rpm
 popd
@@ -93,8 +93,8 @@ if [ ! -e /usr/sbin/dnsmasq.bin ]; then
 fi
 
 systemctl restart NetworkManager
-systemctl restart firewalld
 systemctl restart libvirtd
+systemctl restart firewalld
 
 set +e
 
