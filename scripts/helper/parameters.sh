@@ -1,5 +1,7 @@
 #!/bin/bash
 
+ulimit -s unlimited
+
 # Either username / password or org / key.  Username / password takes precedence
 
 export RHID_USERNAME=${RHID_USERNAME:=""}

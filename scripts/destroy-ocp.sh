@@ -7,4 +7,4 @@ if [ ! -e helper/virsh-cleanup.sh ]; then
         exit 1
 fi
 
-sudo -s helper/virsh-cleanup.sh
+sudo -sE helper/virsh-cleanup.sh
