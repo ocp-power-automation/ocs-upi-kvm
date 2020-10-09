@@ -76,15 +76,17 @@ if [ -z "$WORKSPACE" ]; then
 		else
 			export WORKSPACE=$cwdir/$cmdpath/../..
 		fi
+	elif [[ "$cmdpath" =~ "samples" ]]; then
+		export WORKSPACE=$cwdir/..
+	elif [ -d ocs-upi-kvm ]; then
+		export WORKSPACE=$cwdir
 	else
-		if [[ "$cmdpath" =~ "samples" ]]; then
-			export WORKSPACE=$cwdir/..
-		else
-			export WORKSPACE=$cwdir/../..
-		fi
+		echo "Could not find ocs-upi-kvm directory"
+		exit 1
 	fi
 fi
 
+echo "Location of project: $WORKSPACE/ocs-upi-kvm"
 echo "Location of log files: $WORKSPACE"
 
 pushd $WORKSPACE/ocs-upi-kvm
@@ -111,7 +113,7 @@ set -o pipefail
 ./create-ocp.sh $retry_ocp_arg 2>&1 | tee $WORKSPACE/create-ocp.log
 
 source $WORKSPACE/env-ocp.sh
-oc get nodes -o wide
+oc get nodes -o wide 2>&1 | tee -a $WORKSPACE/create-ocp.log
 
 ./setup-ocs-ci.sh 2>&1 | tee $WORKSPACE/setup-ocs-ci.log
 ./deploy-ocs-ci.sh 2>&1 | tee $WORKSPACE/deploy-ocs-ci.log
