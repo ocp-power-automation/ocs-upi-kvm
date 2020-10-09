@@ -7,7 +7,7 @@ if [ ! -e helper/parameters.sh ]; then
 	exit 1
 fi
 
-source helper/parameters.h
+source helper/parameters.sh
 
 export KUBECONFIG=$WORKSPACE/auth/kubeconfig
 
