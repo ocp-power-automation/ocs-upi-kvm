@@ -21,6 +21,10 @@ set -e
 
 export KUBECONFIG=$WORKSPACE/auth/kubeconfig
 
+# WORKAROUND for ocs-ci powerpc bug in conf/ocsci/production_powervs_upi.yaml
+
+sudo -sE cp -f $WORKSPACE/bin/oc /usr/local/bin/oc
+
 pushd ../src/ocs-ci
 
 mkdir -p data
