@@ -143,4 +143,4 @@ fi
 setsebool -P haproxy_connect_any=1
 
 systemctl enable haproxy
-systemctl start haproxy
+systemctl restart haproxy
