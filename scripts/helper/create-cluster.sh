@@ -24,8 +24,6 @@ fi
 
 source helper/parameters.sh
 
-export PATH=$WORKSPACE/usr/local/go/bin:$PATH
-
 if [ "$1" == "--retry" ]; then
 	cd $WORKSPACE/ocs-upi-kvm/src/ocp4-upi-kvm
 	export TF_LOG=TRACE
@@ -38,6 +36,9 @@ if [ ! -e $WORKSPACE/pull-secret.txt ]; then
 	echo "Missing $WORKSPACE/pull-secret.txt.  Download it from https://cloud.redhat.com/openshift/install/pull-secret"
 	exit 1
 fi
+
+export GOROOT=$WORKSPACE/usr/local/go
+export PATH=$WORKSPACE/bin:$PATH
 
 set -e
 
