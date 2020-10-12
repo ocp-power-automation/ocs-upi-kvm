@@ -95,7 +95,7 @@ do
                 sleep 10
 
                 set +e
-                ls_out=$(ssh -o StrictHostKeyChecking=no core@$ip ls /)
+                ls_out=$(su - $SUDO_USER -c "ssh -o StrictHostKeyChecking=no core@$ip ls /")
                 set -e
 
 		if [ -n "$ls_out" ]; then
