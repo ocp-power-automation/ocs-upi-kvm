@@ -86,7 +86,6 @@ echo server=/$CLUSTER_DOMAIN/$CLUSTER_GATEWAY | tee /etc/NetworkManager/dnsmasq.
 echo dns-forward-max=1000 | tee -a /etc/NetworkManager/dnsmasq.d/openshift.conf
 
 if [ ! -e /usr/sbin/dnsmasq.bin ]; then
-	echo "Patching /usr/sbin/dnsmasq.  Log file is /tmp/dnsmasq.log"
 	cp /usr/sbin/dnsmasq /usr/sbin/dnsmasq.bin
 	cp -f ../files/dnsmasq.sh /usr/sbin/dnsmasq
 	restorecon /usr/sbin/dnsmasq.bin /usr/sbin/dnsmasq
