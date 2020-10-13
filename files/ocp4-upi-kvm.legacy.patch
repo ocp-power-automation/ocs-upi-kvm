@@ -126,7 +126,7 @@ index dadfe22..bbe5216 100644
      libvirt = {
        source = "dmacvicar/libvirt"
 diff --git a/var.tfvars b/var.tfvars
-index 72d8b82..ace0d1f 100644
+index 72d8b82..c11f1a0 100644
 --- a/var.tfvars
 +++ b/var.tfvars
 @@ -1,15 +1,15 @@
@@ -180,7 +180,8 @@ index 72d8b82..ace0d1f 100644
 -cluster_id                  = ""
 +cluster_id                  = "ocp<SANITIZED_OCP_VERSION>"
  
- dns_forwarders              = "1.1.1.1; 9.9.9.9"
+-dns_forwarders              = "1.1.1.1; 9.9.9.9"
++dns_forwarders              = "192.168.88.1"
  installer_log_level         = "info"
  ansible_extra_options       = "-v"
  
