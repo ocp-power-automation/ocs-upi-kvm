@@ -27,6 +27,10 @@ sudo -sE cp -f $WORKSPACE/bin/oc /usr/local/bin/oc
 
 pushd ../src/ocs-ci
 
+# WORKAROUND for ocs-ci bug that downloads x86 binary
+
+cp $WORKSPACE/bin/oc bin
+
 mkdir -p data
 
 cp $WORKSPACE/auth.yaml data/auth.yaml
