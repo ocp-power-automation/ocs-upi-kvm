@@ -88,7 +88,7 @@ fi
 # confuses DHCP.  For example, bastion-test-ocp4.6.tt.testing.  The dot in ocp version is
 # changed to a dash(-) to solve this problem
 
-SANITIZED_OCP_VERSION=${OCP_VERSION/./-}
+export SANITIZED_OCP_VERSION=${OCP_VERSION/./-}
 
 # WORKSPACE is a jenkins environment variable denoting a dedicated execution environment
 # that does not overlap with other jobs.  For this project, there are required input and
