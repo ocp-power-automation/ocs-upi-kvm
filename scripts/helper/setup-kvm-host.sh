@@ -10,6 +10,8 @@
 
 set -e
 
+export WIPE_VERSION=${WIPE_VERSION:=2.3.1-17.15}
+
 if [ ! -e helper/parameters.sh ]; then
 	echo "Please invoke from the directory ocs-upi-kvm/scripts"
 	exit 1
@@ -27,12 +29,14 @@ source helper/parameters.sh
 CLUSTER_CIDR=${CLUSTER_CIDR:="192.168.88.0/24"}
 CLUSTER_GATEWAY=${CLUSTER_GATEWAY:="192.168.88.1"}
 
-pushd $WORKSPACE
-if [ ! -e wipe-2.3.1-17.15.ppc64le.rpm ]; then
-	wget -q http://rpmfind.net/linux/opensuse/ports/ppc/tumbleweed/repo/oss/ppc64le/wipe-2.3.1-17.15.ppc64le.rpm
+wipe_installed=$(rpm -q wipe || true)
+if [[ ! "$wipe_installed" =~ $WIPE_VERSION ]]; then
+	pushd $WORKSPACE
+	rm -f wipe-$WIPE_VERSION.ppc64le.rpm
+	wget -nv http://rpmfind.net/linux/opensuse/ports/ppc/tumbleweed/repo/oss/ppc64le/wipe-$WIPE_VERSION.ppc64le.rpm
+	yum -y localinstall wipe-$WIPE_VERSION.ppc64le.rpm
+	popd
 fi
-yum -y localinstall wipe-2.3.1-17.15.ppc64le.rpm
-popd
 
 # Enable IP Forwarding
 

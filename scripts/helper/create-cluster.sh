@@ -111,11 +111,12 @@ fi
 
 file_present $IMAGES_PATH/rhcos${RHCOS_SUFFIX}.qcow2
 if [ "$file_rc" != 0 ]; then
-        pushd $WORKSPACE
+	pushd $WORKSPACE
+	rm -f rhcos*qcow2.gz
 	if [ -n "$RHCOS_RELEASE" ]; then
-		wget -q https://mirror.openshift.com/pub/openshift-v4/ppc64le/dependencies/rhcos/$RHCOS_VERSION/latest/rhcos-$RHCOS_RELEASE-ppc64le-qemu.ppc64le.qcow2.gz
+		wget -nv https://mirror.openshift.com/pub/openshift-v4/ppc64le/dependencies/rhcos/$RHCOS_VERSION/latest/rhcos-$RHCOS_RELEASE-ppc64le-qemu.ppc64le.qcow2.gz
 	else
-		wget -q https://mirror.openshift.com/pub/openshift-v4/ppc64le/dependencies/rhcos/pre-release/latest-$RHCOS_VERSION/rhcos-qemu.ppc64le.qcow2.gz
+		wget -nv https://mirror.openshift.com/pub/openshift-v4/ppc64le/dependencies/rhcos/pre-release/latest-$RHCOS_VERSION/rhcos-qemu.ppc64le.qcow2.gz
 	fi
 	file=$(ls -1 rhcos*qcow2.gz | tail -n 1)
 	echo "Unzipping $file"
@@ -142,11 +143,11 @@ fi
 
 INSTALLED_GO=false
 if [ "$OLD_GO_VERSION" != "$GO_VERSION" ]; then
-	if [ ! -e $WORKSPACE/$GO_VERSION.linux-ppc64le.tar.gz ]; then
-		pushd $WORKSPACE
-		wget -q https://golang.org/dl/$GO_VERSION.linux-ppc64le.tar.gz
-		popd
-	fi
+	pushd $WORKSPACE
+	rm -f $GO_VERSION.linux-ppc64le.tar.gz
+	wget -nv https://golang.org/dl/$GO_VERSION.linux-ppc64le.tar.gz
+	popd
+
 	rm -rf $WORKSPACE/usr/local/go
 	mkdir -p $WORKSPACE/usr/local
 	tar -C $WORKSPACE/usr/local -xzf $WORKSPACE/$GO_VERSION.linux-ppc64le.tar.gz
