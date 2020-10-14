@@ -122,7 +122,7 @@ function file_present ( ) {
 	file=$1	
 
 	set +e
-	ls_out=$(sudo ls $1 || true)
+	ls_out=$(sudo ls $1)
 	set -e
 
 	if [ -n "$ls_out" ]; then

@@ -46,10 +46,12 @@ if [ "$1" == "--retry" ]; then
 	fi
 fi
 
-file_present $IMAGES_PATH/$BASTION_IMAGE
-if [[ ! -e $WORKSPACE/$BASTION_IMAGE ]] && [[ "$file_rc" != 0 ]]; then
-	echo "ERROR: Missing $BASTION_IMAGE.  Get it from https://access.redhat.com/downloads/content/479/ and prepare it per README"
-	exit 1
+if [ ! -e $WORKSPACE/$BASTION_IMAGE ]; then
+	file_present $IMAGES_PATH/$BASTION_IMAGE
+	if  [[ "$file_rc" != 0 ]]; then
+		echo "ERROR: Missing $BASTION_IMAGE.  Get it from https://access.redhat.com/downloads/content/479/ and prepare it per README"
+		exit 1
+	fi
 fi
 
 # Remove known_hosts before creating a new cluster to ensure there is
@@ -62,9 +64,9 @@ fi
 # Setup kvm on the host
 
 if [ ! -e ~/.kvm_setup ]; then
-	touch ~/.kvm_setup
 	echo "Invoking setup-kvm-host.sh"
 	sudo -sE helper/setup-kvm-host.sh
+	touch ~/.kvm_setup
 fi
 
 if [ "$retry" == false ]; then
