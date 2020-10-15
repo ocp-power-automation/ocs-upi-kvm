@@ -63,17 +63,25 @@ iptables -I INPUT -p tcp -s $CLUSTER_CIDR -d 192.168.122.1 --dport 16509 -j ACCE
 
 sed -i 's/AllowZoneDrifting=yes/AllowZoneDrifting=no/' /etc/firewalld/firewalld.conf
 
-firewall-cmd --zone=public --add-port=623/udp      --permanent	# Remote Management and Control Protocol (ipmi / bmc)
+firewall-cmd --zone=public --add-service=rpc-bind  --permanent
+firewall-cmd --zone=public --add-service=mountd    --permanent
+firewall-cmd --zone=public --add-service=nfs       --permanent
+firewall-cmd --zone=public --add-port=53/tcp       --permanent
+firewall-cmd --zone=public --add-port=53/udp       --permanent
 firewall-cmd --zone=public --add-port=80/tcp       --permanent  # HAProxy
 firewall-cmd --zone=public --add-port=443/tcp      --permanent  # HAProxy
+firewall-cmd --zone=public --add-port=623/udp      --permanent  # Remote Management and Control Protocol (ipmi / bmc)
 firewall-cmd --zone=public --add-port=6443/tcp     --permanent  # HAProxy
 firewall-cmd --zone=public --add-port=22623/tcp    --permanent  # HAProxy
 
 firewall-cmd --zone=libvirt --add-service=libvirt  --permanent
 firewall-cmd --zone=libvirt --add-service=http     --permanent
 firewall-cmd --zone=libvirt --add-service=https    --permanent
+firewall-cmd --zone=libvirt --add-service=rpc-bind --permanent
+firewall-cmd --zone=libvirt --add-port=53/tcp      --permanent
 firewall-cmd --zone=libvirt --add-port=53/udp      --permanent
 firewall-cmd --zone=libvirt --add-port=623/udp     --permanent	# RMCP (ipmi / bmc)
+firewall-cmd --zone=libvirt --add-port=953/tcp     --permanent	# named bind9
 
 firewall-cmd --reload
 
