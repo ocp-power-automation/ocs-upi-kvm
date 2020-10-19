@@ -207,7 +207,7 @@ if [[ "$INSTALLED_GO" == "true" ]] || [[ "$OLD_TERRAFORM_VERSION" != "$TERRAFORM
         popd
 
 	mkdir -p $PLUGIN_PATH/dmacvicar/libvirt/1.0.0/$PLATFORM/
-	cp -f $GOPATH/bin/terraform-provider-libvirt $PLUGIN_PATH/dmacvicar/libvirt/1.0.0/$PLATFORM/terraform-provider-libvirt
+	cp -f $GOPATH/bin/terraform-provider-libvirt $PLUGIN_PATH/dmacvicar/libvirt/1.0.0/$PLATFORM/
 
 	VERSION=2.3.0
 	mkdir -p $GOPATH/src/github.com/terraform-providers; cd $GOPATH/src/github.com/terraform-providers
@@ -217,7 +217,7 @@ if [[ "$INSTALLED_GO" == "true" ]] || [[ "$OLD_TERRAFORM_VERSION" != "$TERRAFORM
 	popd
 
 	mkdir -p $PLUGIN_PATH/hashicorp/random/$VERSION/$PLATFORM/
-	cp -f $GOPATH/bin/terraform-provider-random $PLUGIN_PATH/hashicorp/random/$VERSION/$PLATFORM/terraform-provider-random
+	cp -f $GOPATH/bin/terraform-provider-random $PLUGIN_PATH/hashicorp/random/$VERSION/$PLATFORM/
 
 	VERSION=2.1.2
 	mkdir -p $GOPATH/src/github.com/terraform-providers; cd $GOPATH/src/github.com/terraform-providers
@@ -227,7 +227,7 @@ if [[ "$INSTALLED_GO" == "true" ]] || [[ "$OLD_TERRAFORM_VERSION" != "$TERRAFORM
 	popd
 
 	mkdir -p $PLUGIN_PATH/hashicorp/null/$VERSION/$PLATFORM/
-	cp -f $GOPATH/bin/terraform-provider-null $PLUGIN_PATH/hashicorp/null/$VERSION/$PLATFORM/terraform-provider-null
+	cp -f $GOPATH/bin/terraform-provider-null $PLUGIN_PATH/hashicorp/null/$VERSION/$PLATFORM/
 
 	# OCP 4.6 upgraded to Ignition Config Spec v3.0.0 which is incompatible with the
 	# format used by OCP 4.5 and 4.4, so use terraform versioning to specify which one
@@ -235,15 +235,15 @@ if [[ "$INSTALLED_GO" == "true" ]] || [[ "$OLD_TERRAFORM_VERSION" != "$TERRAFORM
 	# amount of terraform data and code based on the OCP version being deployed
 	# enabling bug fixes and enhancements to be more easily integrated.
 
- 	VERSION=2.1.0
+	VERSION=2.1.1
 	mkdir -p $GOPATH/src/github.com/community-terraform-providers; cd $GOPATH/src/github.com/community-terraform-providers 
 	git clone https://github.com/community-terraform-providers/terraform-provider-ignition --branch v$VERSION
 	pushd terraform-provider-ignition
 	make build
 	popd
 
-	mkdir -p $PLUGIN_PATH/terraform-providers/ignition/$VERSION/$PLATFORM/
-	cp -f $GOPATH/bin/terraform-provider-ignition $PLUGIN_PATH/terraform-providers/ignition/$VERSION/$PLATFORM/terraform-provider-ignition
+	mkdir -p $PLUGIN_PATH/community-terraform-providers/ignition/$VERSION/$PLATFORM/
+	cp -f $GOPATH/bin/terraform-provider-ignition $PLUGIN_PATH/community-terraform-providers/ignition/$VERSION/$PLATFORM/
 
  	VERSION=1.2.1
 	mkdir -p $GOPATH/src/github.com/terraform-providers; cd $GOPATH/src/github.com/terraform-providers 
@@ -253,7 +253,7 @@ if [[ "$INSTALLED_GO" == "true" ]] || [[ "$OLD_TERRAFORM_VERSION" != "$TERRAFORM
 	popd
 
 	mkdir -p $PLUGIN_PATH/terraform-providers/ignition/$VERSION/$PLATFORM/
-	cp -f $GOPATH/bin/terraform-provider-ignition $PLUGIN_PATH/terraform-providers/ignition/$VERSION/$PLATFORM/terraform-provider-ignition
+	cp -f $GOPATH/bin/terraform-provider-ignition $PLUGIN_PATH/terraform-providers/ignition/$VERSION/$PLATFORM/
 
 	popd
 fi
@@ -271,9 +271,11 @@ rm -f terraform.tfstate
 
 set -x
 
-git checkout -- var.tfvars
-git checkout -- modules/4_nodes/versions.tf
-git checkout -- modules/4_nodes/nodes.tf
+# Force option throws out previous changes to the project
+
+# TODO: when release-4.5 branch contains requisite fixes use it
+
+git checkout master --force
 
 case "$OCP_VERSION" in
 4.4|4.5)

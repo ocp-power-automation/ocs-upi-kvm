@@ -1,28 +1,8 @@
 diff --git a/modules/4_nodes/nodes.tf b/modules/4_nodes/nodes.tf
-index 07d0106..c020d93 100644
+index 07d0106..d805ae2 100644
 --- a/modules/4_nodes/nodes.tf
 +++ b/modules/4_nodes/nodes.tf
-@@ -18,12 +18,19 @@
- #
- ################################################################
- 
-+locals {
-+    bootstrap_ip    = cidrhost(var.network_cidr, 3)
-+    first_master_ip = 4
-+    first_worker_ip = 11
-+}
-+
- resource "libvirt_volume" "rhcos_base" {
-     name    = "${var.cluster_id}-rhcos-base-vol"
-     source  = var.rhcos_image
-     pool    = var.storage_pool_name
- }
- 
-+
- # volumes
- resource "libvirt_volume" "bootstrap" {
-     name            = "${var.cluster_id}-bootstrap"
-@@ -46,7 +53,7 @@ resource "libvirt_volume" "worker" {
+@@ -46,7 +46,7 @@ resource "libvirt_volume" "worker" {
  
  # hostname-ignitions
  data "ignition_file" "b_hostname" {
@@ -31,7 +11,7 @@ index 07d0106..c020d93 100644
      mode        = "420" // 0644
      path        = "/etc/hostname"
      content {
-@@ -57,7 +64,7 @@ EOF
+@@ -57,7 +57,7 @@ EOF
  }
  data "ignition_file" "m_hostname" {
      count       = var.master["count"]
@@ -40,7 +20,7 @@ index 07d0106..c020d93 100644
      mode        = "420" // 0644
      path        = "/etc/hostname"
      content {
-@@ -68,7 +75,7 @@ EOF
+@@ -68,7 +68,7 @@ EOF
  }
  data "ignition_file" "w_hostname" {
      count       = var.worker["count"]
@@ -49,7 +29,7 @@ index 07d0106..c020d93 100644
      mode        = "420" // 0644
      path        = "/etc/hostname"
  
-@@ -82,7 +89,7 @@ EOF
+@@ -82,7 +82,7 @@ EOF
  
  # ignitions
  data "ignition_config" "bootstrap" {
@@ -58,7 +38,7 @@ index 07d0106..c020d93 100644
          source  = "http://${var.bastion_ip}:8080/ignition/bootstrap.ign"
      }
      files = [
-@@ -91,7 +98,7 @@ data "ignition_config" "bootstrap" {
+@@ -91,7 +91,7 @@ data "ignition_config" "bootstrap" {
  }
  data "ignition_config" "master" {
      count       = var.master["count"]
@@ -67,7 +47,7 @@ index 07d0106..c020d93 100644
          source  = "http://${var.bastion_ip}:8080/ignition/master.ign"
      }
      files       = [
-@@ -100,7 +107,7 @@ data "ignition_config" "master" {
+@@ -100,7 +100,7 @@ data "ignition_config" "master" {
  }
  data "ignition_config" "worker" {
      count       = var.worker["count"]
@@ -76,57 +56,23 @@ index 07d0106..c020d93 100644
          source  = "http://${var.bastion_ip}:8080/ignition/worker.ign"
      }
      files       = [
-@@ -151,7 +158,7 @@ resource "libvirt_domain" "bootstrap" {
-     network_interface {
-         network_id  = var.network_id
-         hostname    = "bootstrap.${var.cluster_id}.${var.cluster_domain}"
--        mac         = var.bootstrap_mac
-+	mac	    = var.bootstrap_mac
-     }
- }
- 
-@@ -176,7 +183,7 @@ resource "libvirt_domain" "master" {
-     network_interface {
-         network_id  = var.network_id
-         hostname    = "master-${count.index}.${var.cluster_id}.${var.cluster_domain}"
--        mac         = var.master_macs[count.index]
-+	mac         = var.master_macs[count.index]
-     }
- }
- 
-@@ -204,3 +211,17 @@ resource "libvirt_domain" "worker" {
-         mac         = var.worker_macs[count.index]
-     }
- }
-+
-+resource "null_resource" "master_ip" {
-+    count       = var.master["count"]
-+    triggers    = {
-+        address = cidrhost(var.network_cidr, local.first_master_ip + count.index)
-+    }
-+}
-+
-+resource "null_resource" "worker_ip" {
-+    count       = var.worker["count"]
-+    triggers    = {
-+        address = cidrhost(var.network_cidr, local.first_worker_ip + count.index)
-+    }
-+}
 diff --git a/modules/4_nodes/versions.tf b/modules/4_nodes/versions.tf
-index dadfe22..bbe5216 100644
+index ca8afa7..6f80545 100644
 --- a/modules/4_nodes/versions.tf
 +++ b/modules/4_nodes/versions.tf
-@@ -2,7 +2,7 @@ terraform {
+@@ -1,8 +1,8 @@
+ terraform {
    required_providers {
      ignition = {
-       source = "terraform-providers/ignition"
--      version = "~> 2.1"
+-      source  = "community-terraform-providers/ignition"
+-      version = "~> 2.1.0"
++      source  = "terraform-providers/ignition"
 +      version = "~> 1.2"
      }
      libvirt = {
        source = "dmacvicar/libvirt"
 diff --git a/var.tfvars b/var.tfvars
-index 72d8b82..c11f1a0 100644
+index 72d8b82..2b935a6 100644
 --- a/var.tfvars
 +++ b/var.tfvars
 @@ -1,15 +1,15 @@
@@ -181,7 +127,7 @@ index 72d8b82..c11f1a0 100644
 +cluster_id                  = "ocp<SANITIZED_OCP_VERSION>"
  
 -dns_forwarders              = "1.1.1.1; 9.9.9.9"
-+dns_forwarders              = "192.168.88.1"
++dns_forwarders              = "192.168.88.1; 127.0.0.1"
  installer_log_level         = "info"
  ansible_extra_options       = "-v"
  
