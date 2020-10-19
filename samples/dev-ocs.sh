@@ -31,7 +31,7 @@ do
 	(( i++ ))
 done
 
-# Edit username and password below or specify them via the command line
+# Edit username and password below or better specify them via the command line
 
 if [ -z "$RHID_USERNAME" ]; then
 	export RHID_USERNAME=
@@ -83,12 +83,17 @@ echo "Location of log files: $WORKSPACE"
 pushd $WORKSPACE/ocs-upi-kvm
 
 if [ ! -e src/ocp4-upi-kvm/var.tfvars ]; then
-	echo "Refreshing submodules..."
-	git submodule update --init
+	echo "Refreshing submodule ocp4-upi-kvm..."
+	git submodule update --init src/ocp4-upi-kvm
+fi
+
+if [ ! -e src/ocs-ci/README.md ]; then
+	echo "Refreshing submodule ocs-ci..."
+	git submodule update --init src/ocs-ci
 fi
 
 if [ "$get_latest_ocs" == true ]; then
-	echo "Getting latest ocs..."
+	echo "Getting latest ocs-ci..."
 	pushd $WORKSPACE/ocs-upi-kvm/src/ocs-ci
 	git checkout master
 	git pull

@@ -31,7 +31,7 @@ do
 	(( i++ ))
 done
 
-# Edit username and password below or specify them via the command line
+# Edit username and password below or better specify them via the command line
 
 if [ -z "$RHID_USERNAME" ]; then
 	export RHID_USERNAME=
@@ -57,9 +57,9 @@ export IMAGES_PATH=/var/lib/libvirt/images2
 # To use disk partitions for VM data disks, set DATA_DISK_LIST to partition names
 # To use files instead, unset DATA_DISK_LIST
 
-if [ -z "$DATA_DISK_LIST" ]; then
-	export DATA_DISK_LIST="sdc1,sdd1,sde1"	# Each worker requires a unique partition
-fi
+#if [ -z "$DATA_DISK_LIST" ]; then
+#	export DATA_DISK_LIST="sdc1,sdd1,sde1"	# Each worker requires a unique partition
+#fi
 
 #export FORCE_DISK_PARTITION_WIPE=true		# Default is false
 
@@ -91,18 +91,22 @@ echo "Location of log files: $WORKSPACE"
 
 pushd $WORKSPACE/ocs-upi-kvm
 if [ ! -e src/ocp4-upi-kvm/var.tfvars ]; then
-	echo "Refreshing submodules..."
-	git submodule update --init
+	echo "Refreshing submodule ocp4-upi-kvm..."
+	git submodule update --init src/ocp4-upi-kvm
+fi
+
+if [ ! -e src/ocs-ci/README.md ]; then
+	echo "Refreshing submodule ocs-ci..."
+	git submodule update --init src/ocs-ci
 fi
 
 if [ "$get_latest_ocs" == true ]; then
-	echo "Getting latest ocs..."
+	echo "Getting latest ocs-ci..."
 	pushd $WORKSPACE/ocs-upi-kvm/src/ocs-ci
 	git checkout master
 	git pull
 	popd
 fi
-
 
 echo "Invoking scripts..."
 
@@ -117,4 +121,5 @@ oc get nodes -o wide 2>&1 | tee -a $WORKSPACE/create-ocp.log
 
 ./setup-ocs-ci.sh 2>&1 | tee $WORKSPACE/setup-ocs-ci.log
 ./deploy-ocs-ci.sh 2>&1 | tee $WORKSPACE/deploy-ocs-ci.log
-./test-ocs-ci.sh --tier 0,1 2>&1 | tee $WORKSPACE/test-ocs-ci.log
+
+nohup ./test-ocs-ci.sh --tier 2,3,4,4a,4b,4c 2>&1 > $WORKSPACE/test-ocs-ci.log
