@@ -52,7 +52,7 @@ set -x
 
 # Controls file placement of VM boot images.  Set to fs with the most space
 
-export IMAGES_PATH=/var/lib/libvirt/images2
+#export IMAGES_PATH=/var/lib/libvirt/images
 
 # To use disk partitions for VM data disks, set DATA_DISK_LIST to partition names
 # To use files instead, unset DATA_DISK_LIST
