@@ -71,12 +71,12 @@ run successfully except with a clean OCP cluster.
 
 ```
 samples/dev-ocs.sh [--retry-ocp] [--latest-ocs] 
-samples/jenkins-ocs-psi.sh [--retry-ocp] [--latest-ocs]
+samples/test-ocs.sh [--retry-ocp] [--latest-ocs]
 ```
 
 These scripts are useful in getting started.  They implement the full sequence of
 high level tasks defined above.  The difference between these scripts is that the
-**dev-ocs.sh** script uses files and the script **jenkins-ocs-psi.sh** uses
+**dev-ocs.sh** script uses files and the script **test-ocs.sh** uses
 physical disk partions for the extra data disks that are attached to worker nodes.
 In addition, the latter script will invoke ocs-ci tier 0 and 1 tests automatically.
 
