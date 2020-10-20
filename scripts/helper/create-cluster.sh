@@ -235,15 +235,15 @@ if [[ "$INSTALLED_GO" == "true" ]] || [[ "$OLD_TERRAFORM_VERSION" != "$TERRAFORM
 	# amount of terraform data and code based on the OCP version being deployed
 	# enabling bug fixes and enhancements to be more easily integrated.
 
-	VERSION=2.1.1
+	VERSION=2.1.0
 	mkdir -p $GOPATH/src/github.com/community-terraform-providers; cd $GOPATH/src/github.com/community-terraform-providers 
 	git clone https://github.com/community-terraform-providers/terraform-provider-ignition --branch v$VERSION
 	pushd terraform-provider-ignition
 	make build
 	popd
 
-	mkdir -p $PLUGIN_PATH/community-terraform-providers/ignition/$VERSION/$PLATFORM/
-	cp -f $GOPATH/bin/terraform-provider-ignition $PLUGIN_PATH/community-terraform-providers/ignition/$VERSION/$PLATFORM/
+	mkdir -p $PLUGIN_PATH/terraform-providers/ignition/$VERSION/$PLATFORM/
+	cp -f $GOPATH/bin/terraform-provider-ignition $PLUGIN_PATH/terraform-providers/ignition/$VERSION/$PLATFORM/
 
  	VERSION=1.2.1
 	mkdir -p $GOPATH/src/github.com/terraform-providers; cd $GOPATH/src/github.com/terraform-providers 
