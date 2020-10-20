@@ -20,7 +20,7 @@ release_image_override     = "$OPENSHIFT_INSTALL_RELEASE_IMAGE_OVERRIDE"
 cluster_domain              = "$CLUSTER_DOMAIN"
 cluster_id                  = "ocp$SANITIZED_OCP_VERSION"
 
-dns_forwarders              = "192.168.88.1; 127.0.0.1"
+dns_forwarders              = "192.168.88.1;$DNS_BACKUP_SERVER"
 
 install_playbook_tag        = "9a5128fc58ed86aa332128314181dc9ab86334c6"
 
