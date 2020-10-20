@@ -258,25 +258,20 @@ if [[ "$INSTALLED_GO" == "true" ]] || [[ "$OLD_TERRAFORM_VERSION" != "$TERRAFORM
 	popd
 fi
 
-pushd ../src/ocp4-upi-kvm
+pushd ..
+set -x
 
 # Remove files from previous cluster creation
-
 rm -rf ~/.kube
-rm -rf .terraform
-rm -f terraform.tfstate
+
+# Reset submodule
+git submodule deinit --force src/ocp4-upi-kvm
+git submodule update --init --remote src/ocp4-upi-kvm
+
+pushd src/ocp4-upi-kvm
 
 # Patch ocp4-upi-kvm submodule to enable the use of environment
 # variables and manage ocp differences between releases
-
-set -x
-
-# Force option throws out previous changes to the project
-
-# TODO: when release-4.5 branch contains requisite fixes use it
-
-git checkout master --force
-
 case "$OCP_VERSION" in
 4.4|4.5)
 	patch -p1 < $WORKSPACE/ocs-upi-kvm/files/ocp4-upi-kvm.legacy.patch
