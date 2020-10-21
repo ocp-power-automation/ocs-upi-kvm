@@ -44,7 +44,7 @@ source $WORKSPACE/venv/bin/activate		# enter 'deactivate' in venv shell to exit
 for i in ${tests[@]}
 do
 	time run-ci -m "tier$i and manage" --ocsci-conf conf/ocsci/production_powervs_upi.yaml \
-       		--cluster-name ocstest --cluster-path $WORKSPACE --collect-logs tests/
+		--cluster-name ocstest --cluster-path $WORKSPACE --collect-logs tests/
 	rc=$?
 	echo "TEST RESULT: run-ci tier$i rc=$rc" 
 done
