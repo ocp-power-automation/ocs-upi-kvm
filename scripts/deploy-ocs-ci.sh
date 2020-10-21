@@ -39,7 +39,7 @@ cp $WORKSPACE/pull-secret.txt data/pull-secret
 source $WORKSPACE/venv/bin/activate	# enter 'deactivate' in venv shell to exit
 
 run-ci -m deployment --deploy --ocsci-conf=conf/ocsci/production_powervs_upi.yaml --ocs-version 4.6 \
-       --cluster-name=ocstest --cluster-path=$WORKSPACE --collect-logs
+	--cluster-name=ocstest --cluster-path=$WORKSPACE --collect-logs
 
 deactivate
 

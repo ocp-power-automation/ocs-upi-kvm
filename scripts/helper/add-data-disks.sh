@@ -17,8 +17,8 @@ if [ "$user" != "root" ]; then
 fi
 
 if [ ! -e helper/parameters.sh ]; then
-        echo "Please invoke this script from the directory ocs-upi-kvm/scripts"
-        exit 1
+	echo "Please invoke this script from the directory ocs-upi-kvm/scripts"
+	exit 1
 fi
 
 source helper/parameters.sh
@@ -57,7 +57,7 @@ do
 
 	vm=$(virsh list --all | grep worker-$i | tail -n 1 | awk '{print $2}')
 	echo "Attaching data disk to $vm"
- 	virsh attach-disk $vm --source $disk_path --target vdc --persistent
+	virsh attach-disk $vm --source $disk_path --target vdc --persistent
 	virsh reboot $vm
 	sleep 5
 done
@@ -70,15 +70,15 @@ echo "Waiting up to a minute for each worker node to become ssh accessible"
 
 for (( i=0; i<$WORKERS; i++ ))
 do
-        vm=$(virsh list --all | grep worker-$i | awk '{print $2}' | tail -n 1)
+	vm=$(virsh list --all | grep worker-$i | awk '{print $2}' | tail -n 1)
 
-        success=false
-        for ((cnt=0; cnt<3; cnt++))
-        do
+	success=false
+	for ((cnt=0; cnt<3; cnt++))
+	do
 		ip=$($WORKSPACE/bin/oc get nodes -o wide | grep worker-$i | tail -n 1 | awk '{print $6}')
 		if [ -n "$ip" ]; then
 			cnt=3
-                        success=true
+			success=true
 		else
 			sleep 10
 		fi
@@ -89,20 +89,20 @@ do
 		continue
 	fi
 
-        success=false
-        for ((cnt=0; cnt<3; cnt++))
-        do
-                sleep 10
+	success=false
+	for ((cnt=0; cnt<3; cnt++))
+	do
+		sleep 10
 
-                set +e
-                ls_out=$(su - $SUDO_USER -c "ssh -o StrictHostKeyChecking=no core@$ip ls /")
-                set -e
+		set +e
+		ls_out=$(su - $SUDO_USER -c "ssh -o StrictHostKeyChecking=no core@$ip ls /")
+		set -e
 
 		if [ -n "$ls_out" ]; then
-                        cnt=3
-                        success=true
-                fi
-        done
+			cnt=3
+			success=true
+		fi
+	done
 
 	if [ "$success" == false ]; then
 		echo "WARNING: worker VM $vm at $ip is not ssh accessible, continuing anyway"
