@@ -29,8 +29,8 @@ export WORKER_DESIRED_CPU=${WORKER_DESIRED_CPU:="16"}
 source helper/parameters.sh
 
 if [ ! -e $WORKSPACE/pull-secret.txt ]; then
-        echo "ERROR: Missing $WORKSPACE/pull-secret.txt.  Download it from https://cloud.redhat.com/openshift/install/pull-secret"
-        exit 1
+	echo "ERROR: Missing $WORKSPACE/pull-secret.txt.  Download it from https://cloud.redhat.com/openshift/install/pull-secret"
+	exit 1
 fi
 
 arg1=$1

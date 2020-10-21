@@ -18,8 +18,8 @@ elif [[ -z "$RHID_ORG" && -n "$RHID_KEY" ]] || [[ -n "$RHID_ORG" && -z "$RHID_KE
 fi
 
 if [ ! -e helper/parameters.sh ]; then
-        echo "Please invoke this script from the directory ocs-upi-kvm/scripts"
-        exit 1
+	echo "Please invoke this script from the directory ocs-upi-kvm/scripts"
+	exit 1
 fi
 
 source helper/parameters.sh
@@ -101,7 +101,7 @@ esac
 # to a specific daily build image or leave it unset to choose the latest available image
 
 if [ -z "$OPENSHIFT_INSTALL_RELEASE_IMAGE_OVERRIDE" ]; then
-    	REGISTRY=registry.svc.ci.openshift.org/ocp-ppc64le/release-ppc64le
+	REGISTRY=registry.svc.ci.openshift.org/ocp-ppc64le/release-ppc64le
 
 	# Set to the latest released image
 	if [ -n "$OCP_RELEASE" ]; then
@@ -127,7 +127,7 @@ if [ "$file_rc" != 0 ]; then
 	fi
 	file=$(ls -1 rhcos*qcow2.gz | tail -n 1)
 	echo "Unzipping $file"
-        gunzip -f $file
+	gunzip -f $file
 	file=${file/.gz/}
 
 	echo "Resizing $file (VM boot image) to 40G"
@@ -180,7 +180,7 @@ PLUGIN_PATH=~/.terraform.d/plugins/registry.terraform.io
 
 export GOPATH=$WORKSPACE/go
 if [[ "$INSTALLED_GO" == "true" ]] || [[ "$OLD_TERRAFORM_VERSION" != "$TERRAFORM_VERSION" ]] || 
-   [[ ! -e $GOPATH/bin ]] || [[ ! -e $PLUGIN_PATH ]]; then
+	[[ ! -e $GOPATH/bin ]] || [[ ! -e $PLUGIN_PATH ]]; then
 
 	# Clean directories for go modules
 
@@ -195,7 +195,7 @@ if [[ "$INSTALLED_GO" == "true" ]] || [[ "$OLD_TERRAFORM_VERSION" != "$TERRAFORM
 
 	pushd $GOPATH
 
-        mkdir -p $GOPATH/src/github.com/hashicorp/; cd $GOPATH/src/github.com/hashicorp
+	mkdir -p $GOPATH/src/github.com/hashicorp/; cd $GOPATH/src/github.com/hashicorp
 
 	# Build terraform
 
@@ -207,11 +207,11 @@ if [[ "$INSTALLED_GO" == "true" ]] || [[ "$OLD_TERRAFORM_VERSION" != "$TERRAFORM
 
 	cp -f $GOPATH/bin/terraform $WORKSPACE/bin/terraform
 
-        mkdir -p $GOPATH/src/github.com/dmacvicar; cd $GOPATH/src/github.com/dmacvicar
-        git clone https://github.com/dmacvicar/terraform-provider-libvirt.git
-        pushd terraform-provider-libvirt
-        make install
-        popd
+	mkdir -p $GOPATH/src/github.com/dmacvicar; cd $GOPATH/src/github.com/dmacvicar
+	git clone https://github.com/dmacvicar/terraform-provider-libvirt.git
+	pushd terraform-provider-libvirt
+	make install
+	popd
 
 	mkdir -p $PLUGIN_PATH/dmacvicar/libvirt/1.0.0/$PLATFORM/
 	cp -f $GOPATH/bin/terraform-provider-libvirt $PLUGIN_PATH/dmacvicar/libvirt/1.0.0/$PLATFORM/
@@ -252,7 +252,7 @@ if [[ "$INSTALLED_GO" == "true" ]] || [[ "$OLD_TERRAFORM_VERSION" != "$TERRAFORM
 	mkdir -p $PLUGIN_PATH/terraform-providers/ignition/$VERSION/$PLATFORM/
 	cp -f $GOPATH/bin/terraform-provider-ignition $PLUGIN_PATH/terraform-providers/ignition/$VERSION/$PLATFORM/
 
- 	VERSION=1.2.1
+	VERSION=1.2.1
 	mkdir -p $GOPATH/src/github.com/terraform-providers; cd $GOPATH/src/github.com/terraform-providers 
 	git clone https://github.com/terraform-providers/terraform-provider-ignition --branch v$VERSION
 	pushd terraform-provider-ignition
