@@ -42,7 +42,7 @@ export BASTION_IMAGE=${BASTION_IMAGE:="rhel-8.2-update-2-ppc64le-kvm.qcow2"}
 
 # A second DNS forwarder - can and should be overridden if deployment will
 # happen behind a firewall
-export DNS_BACKUP_SERVER=${DNS_BACKUP_SERVER:="9.9.9.9"}
+export DNS_BACKUP_SERVER=${DNS_BACKUP_SERVER:="1.1.1.1"}
 
 
 ############################## Validate Input Parameters ###############################
