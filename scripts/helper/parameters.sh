@@ -88,6 +88,8 @@ fi
 
 ############################## Internal variables & functions ###############################
 
+export BASTION_IP=${BASTION_IP:="192.168.88.2"}
+
 # Sanitize the user specified ocp version which is included in the cluster name.  The cluster
 # name should not include dots (.) as this is reflected in the fully qualified hostname which
 # confuses DHCP.  For example, bastion-test-ocp4.6.tt.testing.  The dot in ocp version is
