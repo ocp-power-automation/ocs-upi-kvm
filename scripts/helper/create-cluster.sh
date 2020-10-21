@@ -266,7 +266,7 @@ rm -rf ~/.kube
 
 # Reset submodule
 git submodule deinit --force src/ocp4-upi-kvm
-git submodule update --init --remote src/ocp4-upi-kvm
+git submodule update --init  src/ocp4-upi-kvm
 
 pushd src/ocp4-upi-kvm
 
