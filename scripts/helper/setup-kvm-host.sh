@@ -88,7 +88,7 @@ firewall-cmd --reload
 # Setup the DNS overlay for the cluster
 
 echo -e "[main]\ndns=dnsmasq" | tee /etc/NetworkManager/conf.d/openshift.conf
-echo server=/$CLUSTER_DOMAIN/$CLUSTER_GATEWAY | tee /etc/NetworkManager/dnsmasq.d/openshift.conf
+echo server=/$CLUSTER_DOMAIN/$BASTION_IP | tee /etc/NetworkManager/dnsmasq.d/openshift.conf
 echo dns-forward-max=1000 | tee -a /etc/NetworkManager/dnsmasq.d/openshift.conf
 
 systemctl restart NetworkManager

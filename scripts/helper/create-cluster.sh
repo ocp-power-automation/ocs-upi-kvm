@@ -49,9 +49,6 @@ export PATH=$WORKSPACE/bin:$PATH
 set -e
 
 # Internal variables -- don't change unless you also modify the underlying projects
-
-export BASTION_IP=${BASTION_IP:="192.168.88.2"}
-
 export TERRAFORM_VERSION=${TERRAFORM_VERSION:="v0.13.3"}
 export GO_VERSION=${GO_VERSION:="go1.14.9"}
 
