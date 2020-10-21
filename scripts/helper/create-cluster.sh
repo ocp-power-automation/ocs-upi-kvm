@@ -23,12 +23,18 @@ if [ ! -e helper/parameters.sh ]; then
 fi
 
 source helper/parameters.sh
+export SANITIZED_OCP_VERSION
+
+function terraform_apply () {
+	cat $WORKSPACE/ocs-upi-kvm/files/site.tfvars.in | envsubst > $WORKSPACE/site.tfvars
+	terraform apply -var-file var.tfvars -var-file $WORKSPACE/site.tfvars -auto-approve -parallelism=3
+}
 
 if [ "$1" == "--retry" ]; then
 	cd $WORKSPACE/ocs-upi-kvm/src/ocp4-upi-kvm
 	export TF_LOG=TRACE
 	export TF_LOG_PATH=$WORKSPACE/terraform.log
-	terraform apply -var-file var.tfvars -auto-approve -parallelism=3
+	terraform_apply
 	exit
 fi
 
@@ -44,7 +50,7 @@ set -e
 
 # Internal variables -- don't change unless you also modify the underlying projects
 
-BASTION_IP=${BASTION_IP:="192.168.88.2"}
+export BASTION_IP=${BASTION_IP:="192.168.88.2"}
 
 export TERRAFORM_VERSION=${TERRAFORM_VERSION:="v0.13.3"}
 export GO_VERSION=${GO_VERSION:="go1.14.9"}
@@ -102,6 +108,7 @@ if [ -z "$OPENSHIFT_INSTALL_RELEASE_IMAGE_OVERRIDE" ]; then
 		OPENSHIFT_INSTALL_RELEASE_IMAGE_OVERRIDE="$REGISTRY:$OCP_RELEASE"
 	fi
 fi
+export OPENSHIFT_INSTALL_RELEASE_IMAGE_OVERRIDE
 
 # Get the RHCOS image associated with the specified OCP Version and copy it to
 # IMAGES_PATH and normalize the name of the image with a soft link with RHCOS_SUFFIX
@@ -132,7 +139,7 @@ if [ "$file_rc" != 0 ]; then
 fi
 
 echo "Normalized RHCOS image name is rhcos${RHCOS_SUFFIX}.qcow2"
-RHCOS_IMAGE=rhcos${RHCOS_SUFFIX}.qcow2
+export RHCOS_IMAGE=rhcos${RHCOS_SUFFIX}.qcow2
 
 # Install GO and terraform
 
@@ -281,43 +288,18 @@ case "$OCP_VERSION" in
 	;;
 esac
 
-sed -i "s|<IMAGES_PATH>|$IMAGES_PATH|g" var.tfvars
-sed -i "s/<BASTION_IMAGE>/$BASTION_IMAGE/g" var.tfvars
-sed -i "s/<RHCOS_IMAGE>/$RHCOS_IMAGE/g" var.tfvars
-sed -i "s/<SANITIZED_OCP_VERSION>/$SANITIZED_OCP_VERSION/g" var.tfvars
-sed -i "s/<INSTALLER_VERSION>/$INSTALLER_VERSION/g" var.tfvars
-sed -i "s/<CLUSTER_DOMAIN>/$CLUSTER_DOMAIN/g" var.tfvars
-sed -i "s/<BASTION_IP>/$BASTION_IP/g" var.tfvars
-sed -i "s/<MASTER_DESIRED_MEM>/$MASTER_DESIRED_MEM/g" var.tfvars
-sed -i "s/<MASTER_DESIRED_CPU>/$MASTER_DESIRED_CPU/g" var.tfvars
-sed -i "s/<WORKER_DESIRED_MEM>/$WORKER_DESIRED_MEM/g" var.tfvars
-sed -i "s/<WORKER_DESIRED_CPU>/$WORKER_DESIRED_CPU/g" var.tfvars
-sed -i "s/<WORKERS>/$WORKERS/g" var.tfvars
-
 if [ -n "$RHCOS_RELEASE" ]; then
-	OCP_INSTALLER_SUBPATH="ocp/latest-$OCP_VERSION"
+	export OCP_INSTALLER_SUBPATH="ocp/latest-$OCP_VERSION"
 else
-	OCP_INSTALLER_SUBPATH="ocp-dev-preview/latest-$OCP_VERSION"
-fi
-sed -i "s|<OCP_INSTALLER_SUBPATH>|$OCP_INSTALLER_SUBPATH|g" var.tfvars
-
-if [ -z "$OPENSHIFT_INSTALL_RELEASE_IMAGE_OVERRIDE" ]; then
-	sed -i "s/release_image_override/#release_image_override/" var.tfvars
-else
-	sed -i "s/#release_image_override/release_image_override/" var.tfvars
-	sed -i "s|<IMAGE_OVERRIDE>|$OPENSHIFT_INSTALL_RELEASE_IMAGE_OVERRIDE|" var.tfvars
+	export OCP_INSTALLER_SUBPATH="ocp-dev-preview/latest-$OCP_VERSION"
 fi
 
 if [[ -n "$RHID_USERNAME" && -n "$RHID_PASSWORD" ]]; then
-	sed -i "s/#rhel_subscription_username/rhel_subscription_username/" var.tfvars
-	sed -i "s/#rhel_subscription_password/rhel_subscription_password/" var.tfvars
-	sed -i "s/<RHID_USERNAME>/$RHID_USERNAME/" var.tfvars
-	sed -i "s/<RHID_PASSWORD>/$RHID_PASSWORD/" var.tfvars
+	export RHID_ORG=""
+	export RHID_KEY=""
 else
-	sed -i "s/#rhel_subscription_org/rhel_subscription_org/" var.tfvars
-	sed -i "s/#rhel_subscription_activationkey/rhel_subscription_activationkey/" var.tfvars
-	sed -i "s|<RHID_ORG>|$RHID_ORG|" var.tfvars
-	sed -i "s|<RHID_KEY>|$RHID_KEY|" var.tfvars
+	export RHID_USERNAME=""
+	export RHID_PASSWORD=""
 fi
 
 mkdir -p data
@@ -343,4 +325,4 @@ terraform init
 
 terraform validate
 
-terraform apply -var-file var.tfvars -auto-approve -parallelism=3
+terraform_apply
