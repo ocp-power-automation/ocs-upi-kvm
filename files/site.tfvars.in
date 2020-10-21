@@ -1,0 +1,28 @@
+host_address    = "$BASTION_IP"
+images_path     = "$IMAGES_PATH"
+
+bastion_image   = "$IMAGES_PATH/$BASTION_IMAGE"
+rhcos_image     = "$IMAGES_PATH/$RHCOS_IMAGE"
+
+master          = { memory = $MASTER_DESIRED_MEM, vcpu = $MASTER_DESIRED_CPU, count = 3 }
+worker          = { memory = $WORKER_DESIRED_MEM, vcpu = $WORKER_DESIRED_CPU, count = $WORKERS }
+
+rhel_subscription_username      = "$RHID_USERNAME"
+rhel_subscription_password      = "$RHID_PASSWORD"
+rhel_subscription_org           = "$RHID_ORG"
+rhel_subscription_activationkey = "$RHID_KEY"
+
+openshift_install_tarball   = "https://mirror.openshift.com/pub/openshift-v4/ppc64le/clients/$OCP_INSTALLER_SUBPATH/openshift-install-linux.tar.gz"
+openshift_client_tarball    = "https://mirror.openshift.com/pub/openshift-v4/ppc64le/clients/$OCP_INSTALLER_SUBPATH/openshift-client-linux.tar.gz"
+
+release_image_override     = "$OPENSHIFT_INSTALL_RELEASE_IMAGE_OVERRIDE"
+
+cluster_domain              = "$CLUSTER_DOMAIN"
+cluster_id                  = "ocp$SANITIZED_OCP_VERSION"
+
+dns_forwarders              = "192.168.88.1;$DNS_BACKUP_SERVER"
+
+install_playbook_tag        = "9a5128fc58ed86aa332128314181dc9ab86334c6"
+
+storage_type                = ""
+volume_size                 = 0

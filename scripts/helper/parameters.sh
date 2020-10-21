@@ -40,6 +40,11 @@ export IMAGES_PATH=${IMAGES_PATH:="/var/lib/libvirt/images"}
 export BASTION_IMAGE=${BASTION_IMAGE:="rhel-8.2-update-2-ppc64le-kvm.qcow2"}
 
 
+# A second DNS forwarder - can and should be overridden if deployment will
+# happen behind a firewall
+export DNS_BACKUP_SERVER=${DNS_BACKUP_SERVER:="9.9.9.9"}
+
+
 ############################## Validate Input Parameters ###############################
 
 # Validate DATA_DISK_LIST so that mistakes are captured early
@@ -88,7 +93,7 @@ fi
 # confuses DHCP.  For example, bastion-test-ocp4.6.tt.testing.  The dot in ocp version is
 # changed to a dash(-) to solve this problem
 
-SANITIZED_OCP_VERSION=${OCP_VERSION/./-}
+export SANITIZED_OCP_VERSION=${OCP_VERSION/./-}
 
 # WORKSPACE is a jenkins environment variable denoting a dedicated execution environment
 # that does not overlap with other jobs.  For this project, there are required input and
