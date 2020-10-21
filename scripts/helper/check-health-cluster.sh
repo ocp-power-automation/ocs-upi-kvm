@@ -20,8 +20,8 @@ if [ "$user" != "root" ]; then
 fi
 
 if [ ! -e helper/parameters.sh ]; then
-        echo "Please invoke this script from the directory ocs-upi-kvm/scripts"
-        exit 1
+	echo "Please invoke this script from the directory ocs-upi-kvm/scripts"
+	exit 1
 fi
 
 source helper/parameters.sh
@@ -31,8 +31,8 @@ function wait_vm_reboot ( ) {
 
 	echo "Looking up IP Address of VM $vm"
 
-        success=false
-        for ((cnt=0; cnt<3; cnt++))
+	success=false
+	for ((cnt=0; cnt<3; cnt++))
 	do
 		ip=$($WORKSPACE/bin/oc get nodes -o wide | grep $vm | tail -n 1 | awk '{print $6}')
 		if [ -n "$ip" ]; then
@@ -53,25 +53,25 @@ function wait_vm_reboot ( ) {
 
 	echo "Trying to connect to VM $vm"
 
-        success=false
-        for ((cnt=0; cnt<6; cnt++))
-        do
-                sleep 10
+	success=false
+	for ((cnt=0; cnt<6; cnt++))
+	do
+		sleep 10
 
-                set +e
-                ls_out=$(ssh -o StrictHostKeyChecking=no core@$ip ls /)
-                set -e
+		set +e
+		ls_out=$(ssh -o StrictHostKeyChecking=no core@$ip ls /)
+		set -e
 
 		if [ -n "$ls_out" ]; then
-                        cnt=6
-                        success=true
+			cnt=6
+			success=true
 			echo "Connected to VM $vm"
 		else
 			if [ "$cnt" == "0" ]; then
 				echo "Waiting for SSH connection ..."
 			fi
 			sleep 10
-                fi
+		fi
 	done
 
 	if [ "$success" == false ]; then
@@ -98,7 +98,7 @@ done
 declare -i master_success=0
 for (( i=0; i<3; i++ ))
 do
-        for (( cnt=0; cnt<3; cnt++ ))
+	for (( cnt=0; cnt<3; cnt++ ))
 	do
 		state=$($WORKSPACE/bin/oc get nodes -o wide | grep master-$i | tail -n 1 | awk '{print $2}')
 		if [ "$state" == "Ready" ]; then
@@ -134,7 +134,7 @@ done
 declare -i worker_success=0
 for (( i=0; i<$WORKERS; i++ ))
 do
-        for (( cnt=0; cnt<3; cnt++ ))
+	for (( cnt=0; cnt<3; cnt++ ))
 	do
 		state=$($WORKSPACE/bin/oc get nodes -o wide | grep worker-$i | tail -n 1 | awk '{print $2}')
 		if [ "$state" == "Ready" ]; then

@@ -1,0 +1,6 @@
+# https://EditorConfig.org
+
+root = true
+
+[*.sh]
+indent_style = tab
