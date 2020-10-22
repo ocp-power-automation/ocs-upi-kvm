@@ -266,22 +266,30 @@ pushd ..
 set -x
 
 # Remove files from previous cluster creation
+
 rm -rf ~/.kube
 
-# Reset submodule
+# Reset submodule so that the patch below can be applied
+
 git submodule deinit --force src/ocp4-upi-kvm
 git submodule update --init  src/ocp4-upi-kvm
 
 pushd src/ocp4-upi-kvm
 
-# Patch ocp4-upi-kvm submodule to enable the use of environment
-# variables and manage ocp differences between releases
+# Patch ocp4-upi-kvm submodule to manage differences across ocp releases.
+# This mostly comes down to managing terraform modules.  A different version
+# of the ignition module is required for ocp 4.6.
+
 case "$OCP_VERSION" in
 4.4|4.5)
-	patch -p1 < $WORKSPACE/ocs-upi-kvm/files/ocp4-upi-kvm.legacy.patch
+	if [ -e $WORKSPACE/ocs-upi-kvm/files/ocp4-upi-kvm.legacy.patch ]; then
+		patch -p1 < $WORKSPACE/ocs-upi-kvm/files/ocp4-upi-kvm.legacy.patch
+	fi
 	;;
 *)
-	patch -p1 < $WORKSPACE/ocs-upi-kvm/files/ocp4-upi-kvm.patch
+	if [ -e $WORKSPACE/ocs-upi-kvm/files/ocp4-upi-kvm.patch ]; then
+		patch -p1 < $WORKSPACE/ocs-upi-kvm/files/ocp4-upi-kvm.patch
+	fi
 	;;
 esac
 
