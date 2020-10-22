@@ -8,6 +8,8 @@
 # along with the cluster domain, so if the underlying projects change
 # this script will have to change as well.
 
+# IMPORTANT: Increment KVM_SETUP_GENCNT if you change code logic in this file
+
 set -e
 
 export WIPE_VERSION=${WIPE_VERSION:=2.3.1-17.15}
@@ -89,7 +91,6 @@ firewall-cmd --reload
 
 echo -e "[main]\ndns=dnsmasq" | tee /etc/NetworkManager/conf.d/openshift.conf
 echo server=/$CLUSTER_DOMAIN/$BASTION_IP | tee /etc/NetworkManager/dnsmasq.d/openshift.conf
-echo dns-forward-max=1000 | tee -a /etc/NetworkManager/dnsmasq.d/openshift.conf
 
 systemctl restart NetworkManager
 systemctl restart libvirtd
