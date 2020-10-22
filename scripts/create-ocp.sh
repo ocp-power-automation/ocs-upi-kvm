@@ -63,11 +63,23 @@ fi
 
 # Setup kvm on the host
 
+invoke_kvm_setup=false
 if [ ! -e ~/.kvm_setup ]; then
+	invoke_kvm_setup=true
+else
+	source ~/.kvm_setup
+	if [[ -z "$KVM_SETUP_GENCNT_INSTALLED" ]] || [[ "$KVM_SETUP_GENCNT_INSTALLED" -lt "$KVM_SETUP_GENCNT" ]]; then
+		invoke_kvm_setup=true
+	fi
+fi
+
+if [ "$invoke_kvm_setup" == "true" ]; then
 	echo "Invoking setup-kvm-host.sh"
 	sudo -sE helper/setup-kvm-host.sh
-	touch ~/.kvm_setup
+	echo "KVM_SETUP_GENCNT_INSTALLED=$KVM_SETUP_GENCNT" > ~/.kvm_setup
 fi
+
+# Remove pre-existing clusters
 
 if [ "$retry" == false ]; then
 	echo "Invoking virsh-cleanup.sh"
