@@ -27,6 +27,8 @@ export SANITIZED_OCP_VERSION
 
 function terraform_apply () {
 	cat $WORKSPACE/ocs-upi-kvm/files/site.tfvars.in | envsubst > $WORKSPACE/site.tfvars
+	echo "site.tfvars:"
+	cat $WORKSPACE/site.tfvars 
 	terraform apply -var-file var.tfvars -var-file $WORKSPACE/site.tfvars -auto-approve -parallelism=3
 }
 
@@ -62,10 +64,9 @@ if [[ -e $WORKSPACE/$BASTION_IMAGE ]] && [[ "$file_rc" != 0 ]]; then
 	sudo -sE mv -f $WORKSPACE/$BASTION_IMAGE $IMAGES_PATH
 fi
 
-# openshift install images are publically released with every minor update.  RHCOS
-# boot images are released less frequently, but follow the same version numbering scheme
-
-INSTALLER_VERSION="latest-$OCP_VERSION"		# https://mirror.openshift.com/pub/openshift-v4/ppc64le/clients/ocp/$INSTALLER_VERSION
+# openshift install images are publically released with every minor update at
+# https://mirror.openshift.com/pub/openshift-v4/ppc64le/clients/ocp/$OCP_RELEASE
+# RHCOS boot images are released less frequently, but follow the same version numbering scheme
 
 case "$OCP_VERSION" in
 	4.4)
@@ -81,11 +82,10 @@ case "$OCP_VERSION" in
 		RHCOS_SUFFIX="-$RHCOS_RELEASE"	# denotes the use of older ignition format
 		;;
 	4.6)
-		unset OCP_RELEASE
+		OCP_RELEASE="4.6.1"		# Latest release of OCP 4.6 at this time
 		RHCOS_VERSION="4.6"
 		unset RHCOS_RELEASE		# TODO: Pre-release when not set.  Update after GA
 		RHCOS_SUFFIX="-$RHCOS_VERSION"	# TODO: Reset to RHCOS release after GA
-		INSTALLER_VERSION="latest"
 		;;
 	*)
 		echo "Invalid OCP_VERSION=$OCP_VERSION.  Supported versions are 4.4, 4.5, and 4.6"
@@ -295,6 +295,8 @@ esac
 
 if [ -n "$RHCOS_RELEASE" ]; then
 	export OCP_INSTALLER_SUBPATH="ocp/latest-$OCP_VERSION"
+elif [ -n "$OCP_RELEASE" ]; then
+	export OCP_INSTALLER_SUBPATH="ocp/$OCP_RELEASE"
 else
 	export OCP_INSTALLER_SUBPATH="ocp-dev-preview/latest-$OCP_VERSION"
 fi
