@@ -35,18 +35,27 @@ Non-root users must use the **sudo** command with **virsh** to see VMs.
 - deploy-ocs-ci.sh
 - test-ocs-ci.sh [ --tier <0,1,...> ]
 - teardown-ocs-ci.sh
+- destroy-ocp.sh
 
 The scripts above correspond to high level tasks of OCS-CI.  They are intended to
-be invoked from an automation test script such as Jenkins
+be invoked from an automation test script such as *Jenkins*
 and are designed to run unattended.  The scripts are listed in the order that
 they are expected to be run.
 
-This project uses git submodules: github.com/ocp-power-automation/ocp4-upi-kvm and
-github.com/red-hat-storage/ocs-ci.  This project should be cloned to instantiate
-submodules as shown below.
-  
+This project uses git submodules:
+
+- github.com/ocp-power-automation/ocp4-upi-kvm 
+- github.com/red-hat-storage/ocs-ci
+
+These underlying projects must be instantiated before the create, setup, deploy,
+test, and teardown scripts are used.  The user is expected to setup the submodules
+before invoking these scripts.  The *sample* scripts described in the next section
+instantiate the submodules as they invoke create, setup, and deploy in a sequence.
+
+There are two ways to instantiate submodules as shown below:
 ```
 git clone https://github.com/ocp-power-automation/ocs-upi-kvm --recursive
+cd ocs-upi-kvm/scripts
 ```
 **OR**
 ```
@@ -57,17 +66,26 @@ git submodule update --init
 The majority of the **create-ocp.sh** command is spent running terraform (and ansible).
 On occasion, a transient error will occur while creating the cluster.  In this case,
 the operation can be restarted by specifying the  **--retry** argument.  This can save
-up to an hour of execution time.  If this argument is not specified, the existing
+half an hour of execution time.  If this argument is not specified, the existing
 cluster will be torn down automatically assuming there is one.
 
-If the failure occurs while running the **deploy-ocs-ci.sh** script, the operation has to be
+If a failure occurs while running the **deploy-ocs-ci.sh** script, the operation has to be
 restarted from the beginning.  That is to say with **creat-ocp.sh**.  Do not specify
 the --retry argument as the OCP cluster has to be completely removed before trying to deploy
-OCS.  The deploy-ocs-ci.sh changes the internal state of the OCP cluster which may not
-be reset if the --retry option is specified.  Further, the deploy-ocs-ci.sh has never been
-run successfully except with a clean OCP cluster.
+OCS.  The ocs-ci project alters the state of the OCP cluster.
 
-### Sample scripts
+Further, the **teardown-ocs-ci.sh** script has never been obcserved to work cleanly.  This
+simply invokes the underlying ocs-ci function.  It is provided as it may be fixed in time
+and it is a valuable function, if only in theory now.
+
+The script **destroy-ocp.sh** which recompletely removes ocp and ocs.
+
+The script **create-ocp.sh** will also remove an existing OCP cluster if one is present
+before creating a new one as *only one OCP cluster is supported on the host KVM server
+at a time*.  This is true even if the cluster was created by another user, so if you are
+concerned with impacting other users run this command first, *sudo virsh list --all*.
+
+## Sample scripts
 
 ```
 samples/dev-ocs.sh [--retry-ocp] [--latest-ocs] 
@@ -75,10 +93,13 @@ samples/test-ocs.sh [--retry-ocp] [--latest-ocs]
 ```
 
 These scripts are useful in getting started.  They implement the full sequence of
-high level tasks defined above.  The difference between these scripts is that the
-**dev-ocs.sh** script uses files and the script **test-ocs.sh** uses
-physical disk partions for the extra data disks that are attached to worker nodes.
-In addition, the latter script will invoke ocs-ci tier 0 and 1 tests automatically.
+high level tasks defined above.  The **test-ocs.sh** invokes **ocs-ci** tier tests
+2, 3, 4, 4a, 4b, and 4c.  Both scripts designate the use of file backed Ceph disks
+which are based on qcow2 files.  These files are sparsely populated enabling the 
+use of servers with as little as 256 GBs of storage, depending on the number of 
+worker nodes that are requested.  The use of file backed data disks is the default.
+The test-ocs scripts include comments showing how physical disk partitions may
+be used instead which may improve performance and resilience.
 
 ## Required Environment Variables
 
@@ -139,8 +160,8 @@ When preparing the bastion image above, the root password must be set to **12345
 - WORKER_DESIRED_MEM=${WORKER_DESIRED_MEM:="65536"}
 - WORKERS=${WORKERS:=3}
 - IMAGES_PATH=${IMAGES_PATH:="/var/lib/libvirt/images"}
-- OPENSHIFT_INSTALL_RELEASE_IMAGE_OVERRIDE=${OPENSHIFT_INSTALL_RELEASE_IMAGE_OVERRIDE=""}
-- DATA_DISK_SIZE=${DATA_DISK_SIZE:=100}
+- OPENSHIFT_INSTALL_RELEASE_IMAGE_OVERRIDE=${OPENSHIFT_INSTALL_RELEASE_IMAGE_OVERRIDE:=""}
+- DATA_DISK_SIZE=${DATA_DISK_SIZE:=256}
 - DATA_DISK_LIST=${DATA_DISK_LIST:=""}
 - FORCE_DISK_PARTITION_WIPE=${FORCE_DISK_PARTITION_WIPE:="false"}
 
@@ -184,6 +205,7 @@ the scripts **setup-ocs-ci.sh** or **deploy-ocs-ci.sh** as they will fail.
 The environment variable FORCE_DISK_PARTITION_WIPE may be set to 'true' to wipe
 the data on a hard disk partition assuming the environment variable DATA_DISK_LIST is
 specified.  The wipe may take an hour or more to complete.
+
 
 ## Post Install
 
