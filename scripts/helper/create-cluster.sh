@@ -319,7 +319,7 @@ if [[ ! -e ~/.ssh/id_rsa ]] || [[ ! -e ~/.ssh/id_rsa.pub ]]; then
 	USER=$(whoami)
 	ssh-keygen -t rsa -f ~/.ssh/id_rsa -N '' -C $USER@$HOSTNAME -q
 	chmod 600 ~/.ssh/id_rsa*
-	restorecon -Rv ~/.ssh
+	/usr/sbin/restorecon -Rv ~/.ssh
 fi
 
 cp ~/.ssh/id_rsa* data
