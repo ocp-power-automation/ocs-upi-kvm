@@ -21,14 +21,18 @@ provided that a large enough LPAR is allocated.
 ## User Requirements
 
 This project may be run by non-root users with **sudo** authority.
-*passwordless* sudo access should be setup for this user, so that the scripts
-don't prompt for a password while running.  A helper script is provided
+*passwordless* sudo access should be enabled, so that the scripts
+don't prompt for a password.  A helper script is provided
 for this purpose at **scripts/helper/set-passwordless-sudo.sh**.  There are no
 command arguments for this script and it should be run once during initial setup.
 
-Non-root users must use the **sudo** command with **virsh** to see VMs.
+*Note: Non-root users must use the **sudo** command with **virsh** to see VMs*
 
 ## Scripts
+
+The scripts below correspond to high level tasks of OCS-CI.  They are intended to
+be invoked from an automation test framework such as *Jenkins*.
+The scripts are listed in the order that they are expected to be run.
 
 - create-ocp.sh [ --retry ]
 - setup-ocs-ci.sh
@@ -37,27 +41,26 @@ Non-root users must use the **sudo** command with **virsh** to see VMs.
 - teardown-ocs-ci.sh
 - destroy-ocp.sh
 
-The scripts above correspond to high level tasks of OCS-CI.  They are intended to
-be invoked from an automation test script such as *Jenkins*
-and are designed to run unattended.  The scripts are listed in the order that
-they are expected to be run.
-
-This project uses git submodules:
+This project uses the following git submodules:
 
 - github.com/ocp-power-automation/ocp4-upi-kvm 
 - github.com/red-hat-storage/ocs-ci
 
 These underlying projects must be instantiated before the create, setup, deploy,
 test, and teardown scripts are used.  The user is expected to setup the submodules
-before invoking these scripts.  The *sample* scripts described in the next section
-instantiate the submodules as they invoke create, setup, and deploy in a sequence.
+before invoking these scripts.  The **workflow sample** scripts described in the next section
+provide some end to end work flows which of necessity instantiate submodules. These
+sample scripts may be copied to the workspace directory and edited as desired to
+customize a work flow.  Most users are expected to do this.  The information
+provided below describes some of the dynamics surrounding the create, deploy,
+and test scripts.
 
-There are two ways to instantiate submodules as shown below:
+First, there are two ways to instantiate submodules as shown below:
 ```
 git clone https://github.com/ocp-power-automation/ocs-upi-kvm --recursive
 cd ocs-upi-kvm/scripts
 ```
-**OR**
+*OR*
 ```
 git clone https://github.com/ocp-power-automation/ocs-upi-kvm.sh
 cd ocs-upi-kvm
@@ -85,7 +88,7 @@ before creating a new one as *only one OCP cluster is supported on the host KVM 
 at a time*.  This is true even if the cluster was created by another user, so if you are
 concerned with impacting other users run this command first, *sudo virsh list --all*.
 
-## Sample scripts
+## Workflow Sample Scripts
 
 ```
 samples/dev-ocs.sh [--retry-ocp] [--latest-ocs] 
@@ -100,6 +103,9 @@ use of servers with as little as 256 GBs of storage, depending on the number of
 worker nodes that are requested.  The use of file backed data disks is the default.
 The test-ocs scripts include comments showing how physical disk partitions may
 be used instead which may improve performance and resilience.
+
+As noted above, these scripts may be relocated, customized, and invoked from the
+*workspace* directory.
 
 ## Required Environment Variables
 
@@ -207,53 +213,54 @@ the data on a hard disk partition assuming the environment variable DATA_DISK_LI
 specified.  The wipe may take an hour or more to complete.
 
 
-## Post Install
+## Post Creation of The OpenShift Cluster
 
-### Configure the use of the **oc** command
+Build artifacts are placed in the *workspace* directory which is defined as the
+parent directory of this github project **ocs-upi-kvm**.  The examples shown below
+use a dedicated directory for this purpose as there are quite a few output
+files, some of which are not shown below such as rpms and tar files that are
+downloaded during cluster creation.
 
-Add the following to the user's profile to enable the use of the **oc** command.
-```
-export KUBECONFIG=<path-to-workspace>/auth/kubeconfig
-```
-As noted above, the parameter <path-to-workspace> is the *parent* directory
-of the **ocs-upi-kvm** directory.  For example, if ocs-upi-kvm is installed at
-~/workspace/ocs/ocs-upi-kvm, then the export statement would be:
+### The **oc** Command
 
+Upon successful completion of the **create-ocp.sh** script, the **oc** command
+may be invoked in the following way:
 ```
-export KUBECONFIG=~/workspace/ocs/auth/kubeconfig
+[user@kvm-host workspace]; source env-ocp.sh
+[user@kvm-host workspace]; oc get nodes
+NAME       STATUS   ROLES    AGE   VERSION
+master-0   Ready    master   40h   v1.19.0+d59ce34
+master-1   Ready    master   40h   v1.19.0+d59ce34
+master-2   Ready    master   40h   v1.19.0+d59ce34
+worker-0   Ready    worker   39h   v1.19.0+d59ce34
+worker-1   Ready    worker   39h   v1.19.0+d59ce34
+worker-2   Ready    worker   39h   v1.19.0+d59ce34
 ```
+The **env-ocp.sh** script exports **KUBECONFIG** and updates the **PATH** environment
+variable.  It may be useful in some cases to stick these in your user profile.
 
 ### Log Files
 
-Several log files are located in the workspace.
-
-### Build artificacts including oc command and kubeconfig
-
-This project downloads and installs GO into the workspace.  It uses the go command to
-compile terraform and terraform Modules that are used during the creation of the OCP cluster.
-The versions of GO and Terraform are specific to the OCP release.  The scripts will
-automatically download and update these binaries as required.
-
-If you remove the workspace after the cluster is created, then you will not be able 
-to run the oc command as it is included in the workspace along with kubeconfig.  These
-are the relevant commands that should be relocated if you want to destroy the workspace
-after creating a cluster.  Again using the example cluster above:
-
+The following log files are produced:
 ```
-cp ~workspace/ocs/bin ~/bin
-cp -r ~workspace/ocs/auth ~
+[user@kvm-host-ahv workspace]$ ls -lt *log
+-rw-rw-r--. 1 luke luke   409491 Oct 23 18:36 create-ocp.log
+-rw-rw-r--. 1 luke luke   654998 Oct 23 19:06 deploy-ocs-ci.log
+-rw-rw-r--. 1 luke luke  1144731 Oct 22 23:23 ocs-ci.git.log
+-rw-rw-r--. 1 luke luke    18468 Oct 23 18:38 setup-ocs-ci.log
+-rw-rw-r--. 1 luke luke 23431620 Oct 23 18:35 terraform.log
+-rw-rw-r--. 1 luke luke 29235845 Oct 25 00:30 test-ocs-ci.log
 ```
 
 ### Remote Webconsole Support
 
-The cluster create command should output webconsole information which should look something
-like the first entry below.  The second entry which is related to oauth you will have to produce
-following the pattern shown below.  On the your laptop, you should add the console URL to your
-/etc/hosts file or MacOS equivalent defining the IP Address of the KVM server.
-
+The cluster create command outputs webconsole information which should look something
+like the first entry below.  This information needs to be added to your /etc/hosts file
+or MacOS equivalent defining the IP Address of the KVM host server.  You must generate
+the companion *oauth* definition as shown below following the same pattern.
 ```
 <ip kvm host server> console-openshift-console.apps.test-ocp4-5.tt.testing oauth-openshift.apps.test-ocp4-5.tt.testing
 ```
-The browser should prompt you to login to the OCP cluster.  The user name is kubeadmin and
-the password is located in the file <path-to-workspace>/auth/kubeadmin-password on the KVM host server.
+The browser should prompt you to login to the OCP cluster.  The user name is **kubeadmin** and
+the password is located in the file **<path-to-workspace>/auth/kubeadmin-password**.
 
