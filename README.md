@@ -264,20 +264,27 @@ the companion *oauth* definition as shown below following the same pattern.
 The browser should prompt you to login to the OCP cluster.  The user name is **kubeadmin** and
 the password is located in the file **<path-to-workspace>/auth/kubeadmin-password**.
 
-## CHRONTAB Automation
+## Chrontab Automation
 
 The following two files have been provided:
 
 * chron-ocs.sh 
 * test-chron-ocs.sh
 
-**chron-ocs.sh** is available in scripts/helper directory. This script is the master chron-tab commandline script.
+The **chron-ocs.sh** script is the master chrontab commandline script.  It is located
+in the scripts/helper directory.
 
-**test-chron-ocs.sh** is available in samples directory. This script is invoked by chron-ocs.sh and provides 
-the end-to-end flow. Presently, this script invokes tier tests 2, 3, 4, 4a, 4b and 4c. If you prefer, you can limit
-the tests to a subset by editing this file.
+The **test-chron-ocs.sh** script is invoked by chron-ocs.sh and provides the
+end-to-end OCP/OCS command flow.  Presently, this script invokes tier tests
+2, 3, 4, 4a, 4b and 4c.  You can limit the tests to a subset by editing this file.
+This file is located in the samples directory. 
 
-To enable, copy these two files to your home directory. In this file, edit these four lines:
+To setup chrontab automation, you must:
+
+1.  Create *test* user account and login to it
+2.  git clone this project and invoke **scripts/helper/set-passwordless-sudo.sh**
+3.  Copy the two chron scripts listed above to your home directory
+4.  Edit the four lines below in *test-chron-ocs.sh*:
 
 ```
 export RHID_USERNAME=<Your RedHat Subscription id>
@@ -286,13 +293,13 @@ export OCP_VERSION=4.5
 export IMAGES_PATH=/home/libvirt/images
 ```
 
-To setup crontab, execute **crontab -e** and enter the following two lines:
+5.  Invoke **crontab -e** and enter the following two lines:
 
 ```
 SHELL=/bin/bash 
 0 0 * * * ~/chron-ocs.sh > ocp_ocs_deploy_`date "+\%d\%H\%M"`.log
 ```
 
-Above example will execute automation every 24 hours at midnight local time.
+The example above will invoke chron-ocs.sh every 24 hours at midnight local time.
 
-Scripts will produce log files in **logs** directory under the users's home directory.
+Log files are written to the **logs** directory under the user's home directory.
