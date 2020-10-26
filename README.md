@@ -264,3 +264,35 @@ the companion *oauth* definition as shown below following the same pattern.
 The browser should prompt you to login to the OCP cluster.  The user name is **kubeadmin** and
 the password is located in the file **<path-to-workspace>/auth/kubeadmin-password**.
 
+## CHRONTAB Automation
+
+The following two files have been provided:
+
+* chron-ocs.sh 
+* test-chron-ocs.sh
+
+**chron-ocs.sh** is available in scripts/helper directory. This script is the master chron-tab commandline script.
+
+**test-chron-ocs.sh** is available in samples directory. This script is invoked by chron-ocs.sh and provides 
+the end-to-end flow. Presently, this script invokes tier tests 2, 3, 4, 4a, 4b and 4c. If you prefer, you can limit
+the tests to a subset by editing this file.
+
+To enable, copy these two files to your home directory. In this file, edit these four lines:
+
+```
+export RHID_USERNAME=<Your RedHat Subscription id>
+export RHID_PASSWORD=<RedHat Subscription password>
+export OCP_VERSION=4.5
+export IMAGES_PATH=/home/libvirt/images
+```
+
+To setup crontab, execute **crontab -e** and enter the following two lines:
+
+```
+SHELL=/bin/bash 
+0 0 * * * ~/chron-ocs.sh > ocp_ocs_deploy_`date "+\%d\%H\%M"`.log
+```
+
+Above example will execute automation every 24 hours at midnight local time.
+
+Scripts will produce log files in **logs** directory under the users's home directory.
