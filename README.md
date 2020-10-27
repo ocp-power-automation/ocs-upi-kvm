@@ -272,19 +272,20 @@ The following two files have been provided:
 * test-chron-ocs.sh
 
 The **chron-ocs.sh** script is the master chrontab commandline script.  It is located
-in the scripts/helper directory.
+in the **scripts/helper** directory.
 
 The **test-chron-ocs.sh** script is invoked by chron-ocs.sh and provides the
 end-to-end OCP/OCS command flow.  Presently, this script invokes tier tests
 2, 3, 4, 4a, 4b and 4c.  You can limit the tests to a subset by editing this file.
-This file is located in the samples directory. 
+This file is located in the **samples** directory. 
 
 To setup chrontab automation, you must:
 
-1.  Create *test* user account and login to it
-2.  git clone this project and invoke **scripts/helper/set-passwordless-sudo.sh**
-3.  Copy the two chron scripts listed above to your home directory
-4.  Edit the four lines below in *test-chron-ocs.sh*:
+1.  Create *test* user account with sudo authority and login to it
+2.  git clone this project in $HOME and invoke **scripts/helper/set-passwordless-sudo.sh**
+3.  Place the required files defined by the ocs-upi-kvm project in $HOME
+4.  Copy the two chron scripts listed above to $HOME
+5.  Edit the four lines below in *test-chron-ocs.sh*:
 
 ```
 export RHID_USERNAME=<Your RedHat Subscription id>
@@ -293,7 +294,7 @@ export OCP_VERSION=4.5
 export IMAGES_PATH=/home/libvirt/images
 ```
 
-5.  Invoke **crontab -e** and enter the following two lines:
+6.  Invoke **crontab -e** and enter the following two lines:
 
 ```
 SHELL=/bin/bash 
