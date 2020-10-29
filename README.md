@@ -171,6 +171,7 @@ When preparing the bastion image above, the root password must be set to **12345
 - DATA_DISK_LIST=${DATA_DISK_LIST:=""}
 - FORCE_DISK_PARTITION_WIPE=${FORCE_DISK_PARTITION_WIPE:="false"}
 - CHRONY_CONFIG=${CHRONY_CONFIG:="true"}
+- RHCOS_RELEASE=${RHCOS_RELEASE:=""}
 
 Disk sizes are in GBs.
 
@@ -178,9 +179,14 @@ The **CHRONY_CONFIG** parameter above enables NTP servers as OCS CI expects them
 to be configured.  If that is not applicable, then this parameter should probably
 be set to false.
 
+The **RHCOS_RELEASE** parameter is specific to the **OCP_VERSION** and is set internally
+to the [latest available *rhcos* image available](https://mirror.openshift.com/pub/openshift-v4/ppc64le/dependencies/rhcos/)
+at the time provided that it is not set by the user.  The internal setting may be outdated.
+
 Set a new value like this:
 ```
 export OCP_VERSION=4.6
+export RHCOS_RELEASE=4.6.1
 ```
 
 The environment variable OPENSHIFT_INSTALL_RELEASE_IMAGE_OVERRIDE is defined by
