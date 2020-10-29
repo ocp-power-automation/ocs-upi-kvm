@@ -72,20 +72,26 @@ case "$OCP_VERSION" in
 	4.4)
 		OCP_RELEASE="4.4.23"		# Latest release of OCP 4.4 at this time
 		RHCOS_VERSION="4.4"
-		RHCOS_RELEASE="4.4.9"
-		RHCOS_SUFFIX="-$RHCOS_RELEASE"	# denotes the use of older ignition format
+		if [ -z "$RHCOS_RELEASE" ]; then
+			RHCOS_RELEASE="4.4.9"	# Latest release of RHCOS 4.4 at this time
+		fi
+		RHCOS_SUFFIX="-$RHCOS_RELEASE"
 		;;
 	4.5)
 		OCP_RELEASE="4.5.11"		# Latest release of OCP 4.5 at this time
 		RHCOS_VERSION="4.5"
-		RHCOS_RELEASE="4.5.4"
-		RHCOS_SUFFIX="-$RHCOS_RELEASE"	# denotes the use of older ignition format
+		if [ -z "$RHCOS_RELEASE" ]; then
+			RHCOS_RELEASE="4.5.4"	# Latest release of RHCOS 4.5 at this time
+		fi
+		RHCOS_SUFFIX="-$RHCOS_RELEASE"
 		;;
 	4.6)
 		OCP_RELEASE="4.6.1"		# Latest release of OCP 4.6 at this time
 		RHCOS_VERSION="4.6"
-		unset RHCOS_RELEASE		# TODO: Pre-release when not set.  Update after GA
-		RHCOS_SUFFIX="-$RHCOS_VERSION"	# TODO: Reset to RHCOS release after GA
+		if [ -z "$RHCOS_RELEASE" ]; then
+			RHCOS_RELEASE="4.6.1"	# Latest release of RHCOS 4.6 at this time
+		fi
+		RHCOS_SUFFIX="-$RHCOS_RELEASE"
 		;;
 	*)
 		echo "Invalid OCP_VERSION=$OCP_VERSION.  Supported versions are 4.4, 4.5, and 4.6"
@@ -118,7 +124,7 @@ if [ "$file_rc" != 0 ]; then
 	pushd $WORKSPACE
 	rm -f rhcos*qcow2.gz
 	if [ -n "$RHCOS_RELEASE" ]; then
-		wget -nv https://mirror.openshift.com/pub/openshift-v4/ppc64le/dependencies/rhcos/$RHCOS_VERSION/latest/rhcos-$RHCOS_RELEASE-ppc64le-qemu.ppc64le.qcow2.gz
+		wget -nv https://mirror.openshift.com/pub/openshift-v4/ppc64le/dependencies/rhcos/$RHCOS_VERSION/$RHCOS_RELEASE/rhcos-$RHCOS_RELEASE-ppc64le-qemu.ppc64le.qcow2.gz
 	else
 		wget -nv https://mirror.openshift.com/pub/openshift-v4/ppc64le/dependencies/rhcos/pre-release/latest-$RHCOS_VERSION/rhcos-qemu.ppc64le.qcow2.gz
 	fi
