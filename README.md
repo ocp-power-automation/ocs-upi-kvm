@@ -170,8 +170,13 @@ When preparing the bastion image above, the root password must be set to **12345
 - DATA_DISK_SIZE=${DATA_DISK_SIZE:=256}
 - DATA_DISK_LIST=${DATA_DISK_LIST:=""}
 - FORCE_DISK_PARTITION_WIPE=${FORCE_DISK_PARTITION_WIPE:="false"}
+- CHRONY_CONFIG=${CHRONY_CONFIG:="true"}
 
 Disk sizes are in GBs.
+
+The **CHRONY_CONFIG** parameter above enables NTP servers as OCS CI expects them
+to be configured.  If that is not applicable, then this parameter should probably
+be set to false.
 
 Set a new value like this:
 ```
