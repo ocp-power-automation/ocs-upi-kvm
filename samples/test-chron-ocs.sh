@@ -111,5 +111,8 @@ echo "Invoking ./deploy-ocs-ci.sh"
 
 set +e
 
-echo "Invoking ./test-ocs-ci.sh --tier 4,4a,4b,4c"
-./test-ocs-ci.sh --tier 4,4a,4b,4c | tee $LOGDIR/test-ocs-ci-$LOGDATE.log
+echo "Invoking ./test-ocs-ci.sh --tier 2,3,4a,4b,4c"
+for i in 2 3 4a 4b 4c
+do
+	./test-ocs-ci.sh --tier $i | tee $LOGDIR/test-ocs-ci-tier-$i-$LOGDATE.log
+done
