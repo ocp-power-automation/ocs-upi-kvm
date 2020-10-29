@@ -122,4 +122,4 @@ oc get nodes -o wide 2>&1 | tee -a $WORKSPACE/create-ocp.log
 ./setup-ocs-ci.sh 2>&1 | tee $WORKSPACE/setup-ocs-ci.log
 ./deploy-ocs-ci.sh 2>&1 | tee $WORKSPACE/deploy-ocs-ci.log
 
-nohup ./test-ocs-ci.sh --tier 2,3,4,4a,4b,4c 2>&1 > $WORKSPACE/test-ocs-ci.log
+nohup ./test-ocs-ci.sh --tier 2,3,4a,4b,4c 2>&1 > $WORKSPACE/test-ocs-ci.log
