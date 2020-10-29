@@ -42,7 +42,13 @@ export BASTION_IMAGE=${BASTION_IMAGE:="rhel-8.2-update-2-ppc64le-kvm.qcow2"}
 
 # A second DNS forwarder - can and should be overridden if deployment will
 # happen behind a firewall
+
 export DNS_BACKUP_SERVER=${DNS_BACKUP_SERVER:="1.1.1.1"}
+
+# If chrony is enabled, then the list of ntp servers must be specified
+
+export CHRONY_CONFIG=${CHRONY_CONFIG:="false"}
+export CHRONY_CONFIG_SERVERS=${CHRONY_CONFIG_SERVERS:="{\"server\": \"0.rhel.pool.ntp.org\",\"options\": \"iburst\"},{\"server\": \"1.rhel.pool.ntp.org\",\"options\": \"iburst\"}"}
 
 
 ############################## Validate Input Parameters ###############################
