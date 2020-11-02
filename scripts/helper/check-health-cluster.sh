@@ -98,11 +98,11 @@ done
 declare -i master_success=0
 for (( i=0; i<3; i++ ))
 do
-	for (( cnt=0; cnt<3; cnt++ ))
+	for (( cnt=0; cnt<6; cnt++ ))
 	do
 		state=$($WORKSPACE/bin/oc get nodes -o wide | grep master-$i | tail -n 1 | awk '{print $2}')
 		if [ "$state" == "Ready" ]; then
-			cnt=3
+			cnt=6
 			(( master_success = master_success + 1 ))
 		else
 			sleep 10
@@ -134,11 +134,11 @@ done
 declare -i worker_success=0
 for (( i=0; i<$WORKERS; i++ ))
 do
-	for (( cnt=0; cnt<3; cnt++ ))
+	for (( cnt=0; cnt<6; cnt++ ))
 	do
 		state=$($WORKSPACE/bin/oc get nodes -o wide | grep worker-$i | tail -n 1 | awk '{print $2}')
 		if [ "$state" == "Ready" ]; then
-			cnt=3
+			cnt=6
 			(( worker_success = worker_success + 1 ))
 		else
 			sleep 10
@@ -148,7 +148,7 @@ done
 if [ "$worker_success" -eq "$WORKERS" ]; then
 	echo "Worker nodes healthy"
 else
-	echo "ERROR: all requested worker nodes must be not ready"
+	echo "ERROR: all requested worker nodes must be ready"
 	$WORKSPACE/bin/oc get nodes
 	exit 1
 fi
