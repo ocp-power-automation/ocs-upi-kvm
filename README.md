@@ -181,23 +181,21 @@ be set to false.
 
 The **RHCOS_RELEASE** parameter is specific to the **OCP_VERSION** and is set internally
 to the [latest available *rhcos* image available](https://mirror.openshift.com/pub/openshift-v4/ppc64le/dependencies/rhcos/)
-at the time provided that it is not set by the user.  The internal setting may be outdated.
+provided that it is not set by the user.  The internal setting may be outdated.
+
+The supported **OCP_VERSION**s are 4.4 - 4.7.
 
 Set a new value like this:
 ```
 export OCP_VERSION=4.6
 export RHCOS_RELEASE=4.6.1
 ```
-
-The environment variable OPENSHIFT_INSTALL_RELEASE_IMAGE_OVERRIDE is defined by
-Red Hat.  It instructs the openshift installer to use a specific image.  This is
-necessary for OCP 4.4 and 4.5 as the
-[latest available image](https://mirror.openshift.com/pub/openshift-v4/ppc64le/clients/ocp-dev-preview/)
-is installed by default.  That is, the latest available image for the release under development.
-
-The **create_ocp.sh** script internally sets this environment variable for OCP 4.4 and OCP 4.5
-provided that it is not set by the user.  This environment variable is not set
-automatically for OCP 4.6 as this release is still under development.
+The OpenShift installer uses the latest available image which by default is
+a development build.  For released OCP versions, this tool will chose a recently
+released image based on the environment OCP_VERSION.  This image may not be
+latest available version.  This internal selection may be overriden by setting
+the environment variable **OPENSHIFT_INSTALL_RELEASE_IMAGE_OVERRIDE**
+to a [development preview image](https://mirror.openshift.com/pub/openshift-v4/ppc64le/clients/ocp-dev-preview/).
 
 Set a specific daily build like this:
 ```
