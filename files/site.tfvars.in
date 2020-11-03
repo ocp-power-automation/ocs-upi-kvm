@@ -24,7 +24,7 @@ dns_forwarders              = "192.168.88.1;$DNS_BACKUP_SERVER"
 chrony_config               = "$CHRONY_CONFIG"
 chrony_config_servers       = [$CHRONY_CONFIG_SERVERS]
 
-install_playbook_tag        = "c6e6038dba0856e621697c876bd3a65927f46166"
+install_playbook_tag        = "$INSTALL_PLAYBOOK_TAG"
 
 storage_type                = ""
 volume_size                 = 0

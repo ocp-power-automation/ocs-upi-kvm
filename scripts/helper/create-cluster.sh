@@ -64,7 +64,7 @@ if [[ -e $WORKSPACE/$BASTION_IMAGE ]] && [[ "$file_rc" != 0 ]]; then
 	sudo -sE mv -f $WORKSPACE/$BASTION_IMAGE $IMAGES_PATH
 fi
 
-# openshift install images are publically released with every minor update at
+# openshift install images are publicly released with every minor update at
 # https://mirror.openshift.com/pub/openshift-v4/ppc64le/clients/ocp/$OCP_RELEASE
 # RHCOS boot images are released less frequently, but follow the same version numbering scheme
 
@@ -76,6 +76,7 @@ case "$OCP_VERSION" in
 			RHCOS_RELEASE="4.4.9"	# Latest release of RHCOS 4.4 at this time
 		fi
 		RHCOS_SUFFIX="-$RHCOS_RELEASE"
+		export INSTALL_PLAYBOOK_TAG=b07c89deacb04f996834403b1efdafb1f9a3d7c4
 		;;
 	4.5)
 		OCP_RELEASE="4.5.11"		# Latest release of OCP 4.5 at this time
@@ -84,6 +85,7 @@ case "$OCP_VERSION" in
 			RHCOS_RELEASE="4.5.4"	# Latest release of RHCOS 4.5 at this time
 		fi
 		RHCOS_SUFFIX="-$RHCOS_RELEASE"
+		export INSTALL_PLAYBOOK_TAG=b07c89deacb04f996834403b1efdafb1f9a3d7c4
 		;;
 	4.6)
 		OCP_RELEASE="4.6.1"		# Latest release of OCP 4.6 at this time
@@ -92,6 +94,7 @@ case "$OCP_VERSION" in
 			RHCOS_RELEASE="4.6.1"	# Latest release of RHCOS 4.6 at this time
 		fi
 		RHCOS_SUFFIX="-$RHCOS_RELEASE"
+		export INSTALL_PLAYBOOK_TAG=c6e6038dba0856e621697c876bd3a65927f46166
 		;;
 	*)
 		echo "Invalid OCP_VERSION=$OCP_VERSION.  Supported versions are 4.4, 4.5, and 4.6"
