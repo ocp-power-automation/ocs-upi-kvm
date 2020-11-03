@@ -24,7 +24,7 @@ fi
 
 # This script creates an ocp cluster for OCS CI which expects ntp servers for all platforms
 
-#export CHRONY_CONFIG=${CHRONY_CONFIG:="true"}
+export CHRONY_CONFIG=${CHRONY_CONFIG:="true"}
 export WORKERS=${WORKERS:=3}
 export WORKER_DESIRED_MEM=${WORKER_DESIRED_MEM:="65536"}
 export WORKER_DESIRED_CPU=${WORKER_DESIRED_CPU:="16"}
