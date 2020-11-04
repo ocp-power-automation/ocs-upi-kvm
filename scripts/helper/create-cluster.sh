@@ -96,8 +96,15 @@ case "$OCP_VERSION" in
 		RHCOS_SUFFIX="-$RHCOS_RELEASE"
 		export INSTALL_PLAYBOOK_TAG=c6e6038dba0856e621697c876bd3a65927f46166
 		;;
+	4.7)						# TODO: Update after GA
+		unset OCP_RELEASE
+		RHCOS_VERSION="4.6"
+		unset RHCOS_RELEASE
+		RHCOS_SUFFIX="-$RHCOS_VERSION"
+		export INSTALL_PLAYBOOK_TAG=c6e6038dba0856e621697c876bd3a65927f46166
+		;;
 	*)
-		echo "Invalid OCP_VERSION=$OCP_VERSION.  Supported versions are 4.4, 4.5, and 4.6"
+		echo "Invalid OCP_VERSION=$OCP_VERSION.  Supported versions are 4.4 - 4.7"
 		exit 1
 esac
 

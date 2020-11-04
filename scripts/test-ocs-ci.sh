@@ -41,14 +41,25 @@ pushd ../src/ocs-ci
 
 source $WORKSPACE/venv/bin/activate		# enter 'deactivate' in venv shell to exit
 
+# Create supplemental config if it doesn't exist.  User may edit file after ocs deploy
+
+if [ ! -e $WORKSPACE/ocs-ci-conf.yaml ]; then
+        cp ../../files/ocs-ci-conf.yaml $WORKSPACE/ocs-ci-conf.yaml
+        export LOGDIR=$WORKSPACE/logs-ocs-ci/$OCP_VERSION
+        mkdir -p $LOGDIR
+        yq -y -i '.RUN.log_dir |= env.LOGDIR' $WORKSPACE/ocs-ci-conf.yaml
+fi
+
 for i in ${tests[@]}
 do
 	echo "========================================================================================="
 	echo "============================= run-ci -m \"tier$i and manage\" ============================="
 	echo "========================================================================================="
 
-	time run-ci -m "tier$i and manage" --ocsci-conf conf/ocsci/production_powervs_upi.yaml \
-		--cluster-name ocstest --cluster-path $WORKSPACE --collect-logs tests/
+	time run-ci -m "tier$i and manage" --cluster-name ocstest \
+		--ocsci-conf conf/ocsci/production_powervs_upi.yaml \
+		--ocsci-conf $WORKSPACE/ocs-ci-conf.yaml \
+	        --cluster-path $WORKSPACE --collect-logs tests/
 	rc=$?
 	echo "TEST RESULT: run-ci tier$i rc=$rc" 
 done
