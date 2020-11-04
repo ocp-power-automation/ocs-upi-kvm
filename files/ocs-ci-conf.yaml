@@ -1,0 +1,3 @@
+---
+ENV_DATA:
+  local_storage_allow_rotational_disks: true
