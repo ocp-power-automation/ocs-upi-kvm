@@ -77,7 +77,5 @@ fi
 
 echo "Remove ocs-ci supplemental config file"
 
-rm -f $WORKSPACE/ocs-ci-conf.yaml
-
 systemctl restart libvirtd
 systemctl restart firewalld
