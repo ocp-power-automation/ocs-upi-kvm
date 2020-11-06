@@ -172,6 +172,7 @@ When preparing the bastion image above, the root password must be set to **12345
 - FORCE_DISK_PARTITION_WIPE=${FORCE_DISK_PARTITION_WIPE:="false"}
 - CHRONY_CONFIG=${CHRONY_CONFIG:="true"}
 - RHCOS_RELEASE=${RHCOS_RELEASE:=""}
+- DNS_BACKUP_SERVER=${DNS_BACKUP_SERVER:="1.1.1.1"}
 
 Disk sizes are in GBs.
 
@@ -182,6 +183,9 @@ be set to false.
 The **RHCOS_RELEASE** parameter is specific to the **OCP_VERSION** and is set internally
 to the [latest available *rhcos* image available](https://mirror.openshift.com/pub/openshift-v4/ppc64le/dependencies/rhcos/)
 provided that it is not set by the user.  The internal setting may be outdated.
+
+The **DNS_BACKUP_SERVER** parameter names a secondary DNS server.  The default
+value should be overridden if the cluster to be deployed is behind a firewall.
 
 The supported **OCP_VERSION**s are 4.4 - 4.7.
 
