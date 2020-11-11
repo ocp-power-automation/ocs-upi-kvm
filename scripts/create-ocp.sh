@@ -96,6 +96,9 @@ export PATH=$WORKSPACE/bin:$PATH
 
 helper/create-cluster.sh $arg1
 
+rm -f $WORKSPACE/bin/oc
+rm -rf $WORKSPACE/auth
+
 scp -o StrictHostKeyChecking=no root@192.168.88.2:/usr/local/bin/oc $WORKSPACE/bin
 scp -o StrictHostKeyChecking=no -r root@192.168.88.2:openstack-upi/auth $WORKSPACE
 
@@ -103,7 +106,9 @@ echo "export KUBECONFIG=$WORKSPACE/auth/kubeconfig" | tee -a $WORKSPACE/env-ocp.
 
 export KUBECONFIG=$WORKSPACE/auth/kubeconfig
 
-sudo -sE helper/add-data-disks.sh
+export VDISK=vdc
+sudo -sE helper/add-vdisk-workers.sh
+
 sudo -sE helper/check-health-cluster.sh
 
 echo ""

@@ -37,6 +37,7 @@ The scripts are listed in the order that they are expected to be run.
 - create-ocp.sh [ --retry ]
 - setup-ocs-ci.sh
 - deploy-ocs-ci.sh
+- add-data-disk-workers.sh
 - test-ocs-ci.sh [ --tier <0,1,...> ]
 - teardown-ocs-ci.sh
 - destroy-ocp.sh
@@ -87,6 +88,17 @@ The script **create-ocp.sh** will also remove an existing OCP cluster if one is 
 before creating a new one as *only one OCP cluster is supported on the host KVM server
 at a time*.  This is true even if the cluster was created by another user, so if you are
 concerned with impacting other users run this command first, *sudo virsh list --all*.
+
+The script **add-data-disk-workers.sh** may be used to add a data disk
+to each worker node based on the value of the environment variable VDISK
+which by default is initialized to vdd.  The first data disk is added
+by the script **create-ocp.sh** at /dev/vdc, so the environment variable
+VDISK does not need to be set by the user for the second data disk,
+but it does for the third, fourth, ...  Please note this is a disruptive
+operation, each worker node is rebooted once to make the disk visible
+inside the VM, and possibly a second time to recover ceph services.  You
+may have to wait 10 minutes after this script completes to identify
+the extra disk with the command 'oc get pv'.
 
 ## Workflow Sample Scripts
 
@@ -173,6 +185,7 @@ When preparing the bastion image above, the root password must be set to **12345
 - CHRONY_CONFIG=${CHRONY_CONFIG:="true"}
 - RHCOS_RELEASE=${RHCOS_RELEASE:=""}
 - DNS_BACKUP_SERVER=${DNS_BACKUP_SERVER:="1.1.1.1"}
+- VDISK=${VDISK:="vdd"}
 
 Disk sizes are in GBs.
 
