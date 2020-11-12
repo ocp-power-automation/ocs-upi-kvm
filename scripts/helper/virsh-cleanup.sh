@@ -75,5 +75,6 @@ if [ -e $WORKSPACE/.images_path ]; then
 	fi
 fi
 
-systemctl restart libvirtd
-systemctl restart firewalld
+# Remove orhpaned virbrxxx on libvirt zone
+
+firewall-cmd --reload

@@ -29,6 +29,8 @@ function terraform_apply () {
 	cat $WORKSPACE/ocs-upi-kvm/files/site.tfvars.in | envsubst > $WORKSPACE/site.tfvars
 	echo "site.tfvars:"
 	cat $WORKSPACE/site.tfvars 
+	sudo systemctl restart libvirtd
+	sudo -sE nft insert rule ip filter INPUT ip saddr $CLUSTER_CIDR ip daddr 192.168.122.1 tcp dport 16509 counter accept comment \"Allow insecure libvirt clients\"
 	terraform apply -var-file var.tfvars -var-file $WORKSPACE/site.tfvars -auto-approve -parallelism=3
 }
 
