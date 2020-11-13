@@ -94,11 +94,13 @@ fi
 
 ############################## Internal variables & functions ###############################
 
+export CLUSTER_CIDR=${CLUSTER_CIDR:="192.168.88.0/24"}
+export CLUSTER_GATEWAY=${CLUSTER_GATEWAY:="192.168.88.1"}
 export BASTION_IP=${BASTION_IP:="192.168.88.2"}
 
-# Increment this generation count every time that the kvm_setup_host.sh file is changed
+# IMPORTANT: Increment this generation count every time that the kvm_setup_host.sh file is changed
 
-export KVM_SETUP_GENCNT=1
+export KVM_SETUP_GENCNT=2
 
 # Sanitize the user specified ocp version which is included in the cluster name.  The cluster
 # name should not include dots (.) as this is reflected in the fully qualified hostname which
