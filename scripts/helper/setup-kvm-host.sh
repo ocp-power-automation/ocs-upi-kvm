@@ -23,7 +23,8 @@ yum -y install https://dl.fedoraproject.org/pub/epel/epel-release-latest-$(rpm -
 yum -y install kernel dracut systemd dbus powerpc-utils net-tools nftables
 yum -y install wget git patch gcc-c++ make libgcrypt yum-utils ansible tmux
 yum -y module install virt container-tools
-yum -y install libvirt libvirt-devel qemu-kvm libguestfs libguestfs-tools virt-install haproxy jq
+yum -y install libvirt libvirt-devel qemu-kvm libguestfs libguestfs-tools virt-install 
+yum -y install python3-libvirt haproxy jq
 
 # Workaround bad SELinux labeling of virt.module after installing rhel 8.3 packages above
 
