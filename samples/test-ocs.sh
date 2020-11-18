@@ -70,12 +70,14 @@ set +x
 if [ -z "$WORKSPACE" ]; then
 	cwdir=$(pwd)
 	cmdpath=$(dirname $0)
-	if [[ "$cmdpath" =~ "ocs-upi-kvm/samples" ]]; then
-		if [[ "$cmdpath" =~ ^/ ]]; then
-			export WORKSPACE=$cmdpath/../..
+	if [ "$cmdpath" == "." ]; then
+		if [ -d ocs-upi-kvm ]; then
+			export WORKSPACE=$cwdir
 		else
-			export WORKSPACE=$cwdir/$cmdpath/../..
+			export WORKSPACE=$cwdir/../..
 		fi
+	elif [[ "$cmdpath" =~ "ocs-upi-kvm/samples" ]]; then
+		export WORKSPACE=$cwdir/$cmdpath/../..
 	elif [[ "$cmdpath" =~ "samples" ]]; then
 		export WORKSPACE=$cwdir/..
 	elif [ -d ocs-upi-kvm ]; then
@@ -123,3 +125,7 @@ oc get nodes -o wide 2>&1 | tee -a $WORKSPACE/create-ocp.log
 ./deploy-ocs-ci.sh 2>&1 | tee $WORKSPACE/deploy-ocs-ci.log
 
 nohup ./test-ocs-ci.sh --tier 2,3,4a,4b,4c 2>&1 > $WORKSPACE/test-ocs-ci.log
+
+#nohup ./test-ocs-ci.sh --performance 2>&1 > $WORKSPACE/perf-ocs-ci.log
+#nohup ./test-ocs-ci.sh --workloads 2>&1 > $WORKSPACE/workloads-ocs-ci.log
+#nohup ./test-ocs-ci.sh --scale 2>&1 > $WORKSPACE/scale-ocs-ci.log
