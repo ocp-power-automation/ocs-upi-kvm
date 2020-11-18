@@ -22,6 +22,17 @@ export LOGDIR="/home/test/logs/" #Dir for the logs.
 export LOGDATE=`date "+\%d\%H\%M"`
 export TESTUSR="test" # Test User
 
+# Check if another instance of the same script is running, if so quit.
+
+CHRONOCS="chron-ocs"
+if pgrep "$CHRONOCS" >/dev/null
+then
+    echo "$CHRONOCS is running. Wait for it to complete before starting again."
+    exit 1
+else
+    echo "$CHRONOCS stopped"
+fi
+
 # Before launching the steps we need to check prerequisites and credentials:
 #  set -x #comment out or remove this once the script is ready for delivery. 
 # We need to make sure that the test directory for the test account exists.
