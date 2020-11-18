@@ -26,7 +26,7 @@ pushd ../src/ocs-ci
 
 # WORKAROUND for ocs-ci bug that downloads x86 binary
 
-cp $WORKSPACE/bin/oc bin
+cp -f $WORKSPACE/bin/oc bin
 
 mkdir -p data
 
@@ -37,8 +37,9 @@ source $WORKSPACE/venv/bin/activate	# enter 'deactivate' in venv shell to exit
 
 echo "Creating supplemental ocs-ci config - $WORKSPACE/ocs-ci-conf.yaml"
 
-cp -f ../../files/ocs-ci-conf.yaml $WORKSPACE/ocs-ci-conf.yaml
 export LOGDIR=$WORKSPACE/logs-ocs-ci/$OCP_VERSION
+
+cp -f ../../files/ocs-ci-conf.yaml $WORKSPACE/ocs-ci-conf.yaml
 mkdir -p $LOGDIR
 yq -y -i '.RUN.log_dir |= env.LOGDIR' $WORKSPACE/ocs-ci-conf.yaml
 

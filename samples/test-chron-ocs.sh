@@ -51,12 +51,14 @@ done
 if [ -z "$WORKSPACE" ]; then
 	cwdir=$(pwd)
 	cmdpath=$(dirname $0)
-	if [[ "$cmdpath" =~ "ocs-upi-kvm/samples" ]]; then
-		if [[ "$cmdpath" =~ ^/ ]]; then
-			export WORKSPACE=$cmdpath/../..
+	if [ "$cmdpath" == "." ]; then
+		if [ -d ocs-upi-kvm ]; then
+			export WORKSPACE=$cwdir
 		else
-			export WORKSPACE=$cwdir/$cmdpath/../..
+			export WORKSPACE=$cwdir/../..
 		fi
+	elif [[ "$cmdpath" =~ "ocs-upi-kvm/samples" ]]; then
+		export WORKSPACE=$cwdir/$cmdpath/../..
 	elif [[ "$cmdpath" =~ "samples" ]]; then
 		export WORKSPACE=$cwdir/..
 	elif [ -d ocs-upi-kvm ]; then
