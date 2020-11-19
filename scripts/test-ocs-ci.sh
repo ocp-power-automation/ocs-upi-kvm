@@ -79,7 +79,7 @@ if [[ -n "${tests[@]}" ]]; then
 			--ocsci-conf $WORKSPACE/ocs-ci-conf.yaml \
 		        --cluster-path $WORKSPACE --collect-logs \
 			--self-contained-html --junit-xml=$LOGDIR/test_results.xml \
-			--html=$LOGDIR/test_${run_id}_report.html tests/
+			--html=$LOGDIR/test_${i}_${run_id}_report.html tests/
 		rc=$?
 		set +x
 		echo "TEST RESULT: run-ci tier$i rc=$rc"
@@ -89,11 +89,15 @@ else
 	echo "============================= run-ci -m \"$ocsci_cmd\" ============================="
 	echo "========================================================================================="
 
+	pytest --junitxml=$LOGDIR/test_results.xml
+
 	set -x
 	time run-ci -m "$ocsci_cmd" --cluster-name ocstest \
 		--ocsci-conf conf/ocsci/production_powervs_upi.yaml \
 		--ocsci-conf $WORKSPACE/ocs-ci-conf.yaml \
-		--cluster-path $WORKSPACE --collect-logs tests/
+		--cluster-path $WORKSPACE --collect-logs \
+		--self-contained-html --junit-xml=$LOGDIR/test_results.xml \
+		--html=$LOGDIR/test_${ocsci_cmd}_${run_id}_report.html
 	rc=$?
 	set +x
 	echo "OCS-CI $ocsci_cmd RESULT: run-ci rc=$rc"
