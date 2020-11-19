@@ -62,9 +62,11 @@ if [ ! -e $WORKSPACE/ocs-ci-conf.yaml ]; then
         yq -y -i '.RUN.log_dir |= env.LOGDIR' $WORKSPACE/ocs-ci-conf.yaml
 fi
 
+# Relate the report generated below with the ocs-ci deployment via run_id 
+
+run_id=$(ls -t -1 $LOGDIR/run*.yaml | head -n 1 | xargs grep run_id | awk '{print $2}')
+
 if [[ -n "${tests[@]}" ]]; then
-	# The run-<timestamp>-config.yaml is created by deploy ocs ci and included in file as run_id
-	run_id=$(ls -t -1 $LOGDIR/run*.yaml | head -n 1 | xargs grep run_id | awk '{print $2}')
 	for i in "${tests[@]}"
 	do
 		pytest --junitxml=$LOGDIR/test_results.xml
@@ -79,7 +81,7 @@ if [[ -n "${tests[@]}" ]]; then
 			--ocsci-conf $WORKSPACE/ocs-ci-conf.yaml \
 		        --cluster-path $WORKSPACE --collect-logs \
 			--self-contained-html --junit-xml=$LOGDIR/test_results.xml \
-			--html=$LOGDIR/test_${i}_${run_id}_report.html tests/
+			--html=$LOGDIR/tier${i}_${run_id}_report.html tests/
 		rc=$?
 		set +x
 		echo "TEST RESULT: run-ci tier$i rc=$rc"
