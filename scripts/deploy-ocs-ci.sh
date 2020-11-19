@@ -44,10 +44,10 @@ mkdir -p $LOGDIR
 yq -y -i '.RUN.log_dir |= env.LOGDIR' $WORKSPACE/ocs-ci-conf.yaml
 
 run-ci -m deployment --deploy \
-	--ocs-version $OCS_VERSION --cluster-name=ocstest \
-	--ocsci-conf=conf/ocsci/production_powervs_upi.yaml \
-	--ocsci-conf=$WORKSPACE/ocs-ci-conf.yaml \
-        --cluster-path=$WORKSPACE --collect-logs tests/
+	--ocs-version $OCS_VERSION --cluster-name ocstest \
+	--ocsci-conf conf/ocsci/production_powervs_upi.yaml \
+	--ocsci-conf $WORKSPACE/ocs-ci-conf.yaml \
+        --cluster-path $WORKSPACE --collect-logs tests/
 
 deactivate
 

@@ -15,8 +15,9 @@ pushd ../src/ocs-ci
 
 source $WORKSPACE/venv/bin/activate		# enter 'deactivate' in venv shell to exit
 
-run-ci -m deployment --teardown --ocsci-conf=conf/ocsci/production_powervs_upi.yaml \
-	--cluster-name=ocstest --cluster-path=$WORKSPACE --collect-logs
+run-ci -m deployment --teardown --cluster-name ocstest --cluster-path $WORKSPACE \
+        --ocsci-conf conf/ocsci/production_powervs_upi.yaml \
+        --ocsci-conf $WORKSPACE/ocs-ci-conf.yaml --collect-logs
 
 deactivate
 
