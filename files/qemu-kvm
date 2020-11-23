@@ -1,0 +1,79 @@
+#!/bin/bash
+
+# This script is a command wrapper for qemu-kvm when the processor firmware cannot
+# be updated.  The default values defined below (bcap-cfpc=broken, ...) were tested
+# on a very old IBM P8 Saba server.
+#
+# You can discover which capabilities need to be disabled by: 
+#
+# export QEMU_KVM_APPEND_NAMES=-machinexxxxx.
+# Run your testcase that created VMs
+# Analyze logs to identify the hypervisor failure
+# Specify the command argument (-machine) and value to be appended via environment variables
+#
+# The hypervisor identifies one failure at a time, so you may have to iterate over
+# the above sequence to ultimately fix the problem.
+#
+# Obviously, this script should be used only as a last resort.  It is installed and
+# uninstalled by the helper script qemu-kvm-workaround.sh
+
+ARGS="$@"
+NARGS=$#
+
+if [[ ! "$ARGS" =~ "-smp" ]]; then
+	exec /usr/libexec/qemu-kvm.bin $ARGS
+fi
+
+
+# A semicolon separated lists of user specified argument names and values
+# to append to those cmd arguments.  -machine x -> -machine x,y
+
+export QEMU_KVM_APPEND_NAMES=${QEMU_KVM_APPEND_NAMES:="-machine"}
+export QEMU_KVM_APPEND_VALS=${QEMU_KVM_APPEND_VALS:="cap-cfpc=broken,cap-sbbc=broken,cap-ibs=broken,cap-ccf-assist=off"}
+
+export QEMU_KVM_TRACE=${QEMU_KVM_TRACE:="true"}
+export QEMU_KVM_TRACE_LOG=${QEMU_KVM_TRACE_LOG:="/tmp/qemu-kvm.log"}
+
+function trace () {
+	if [ "$QEMU_KVM_TRACE" == "true" ]; then
+		echo $1 >> $QEMU_KVM_TRACE_LOG
+	fi
+}
+
+append_names=(${QEMU_KVM_APPEND_NAMES//;/ })
+append_vals=(${QEMU_KVM_APPEND_VALS//;/ })
+
+n_append_names="${#append_names[@]}"
+n_append_vals="${#append_vals[@]}"
+
+if (( n_append_names != n_append_vals )); then
+	append_names=()
+	append_vals=()
+fi
+
+collect_args=
+while (( NARGS > 0 ))
+do
+	name=$1
+	collect_args="$collect_args $name"
+	if [[ "${append_names[@]}" =~ "$name" ]]; then
+		shift
+		if (( --NARGS > 0 )); then
+			curval=$1
+			for i in "${!append_names[@]}"
+			do
+				if [ "$name" == "${append_names[i]}" ]; then
+					curval="$curval,${append_vals[i]}"
+				fi
+			done
+			collect_args="$collect_args $curval"
+		fi
+	fi
+	shift
+	(( NARGS-- ))
+done
+
+trace "args: ${ARGS}"
+trace "args+: ${collect_args}"
+
+exec /usr/libexec/qemu-kvm.bin ${collect_args}

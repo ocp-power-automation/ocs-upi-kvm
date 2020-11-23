@@ -37,6 +37,7 @@ The scripts are listed in the order that they are expected to be run.
 - create-ocp.sh [ --retry ]
 - setup-ocs-ci.sh
 - deploy-ocs-ci.sh
+- add-data-disk-workers.sh
 - test-ocs-ci.sh [ --tier <0,1,...> ]
 - teardown-ocs-ci.sh
 - destroy-ocp.sh
@@ -87,6 +88,17 @@ The script **create-ocp.sh** will also remove an existing OCP cluster if one is 
 before creating a new one as *only one OCP cluster is supported on the host KVM server
 at a time*.  This is true even if the cluster was created by another user, so if you are
 concerned with impacting other users run this command first, *sudo virsh list --all*.
+
+The script **add-data-disk-workers.sh** may be used to add a data disk
+to each worker node based on the value of the environment variable VDISK
+which by default is initialized to vdd.  The first data disk is added
+by the script **create-ocp.sh** at /dev/vdc, so the environment variable
+VDISK does not need to be set by the user for the second data disk,
+but it does for the third, fourth, ...  Please note this is a disruptive
+operation, each worker node is rebooted once to make the disk visible
+inside the VM, and possibly a second time to recover ceph services.  You
+may have to wait 10 minutes after this script completes to identify
+the extra disk with the command 'oc get pv'.
 
 ## Workflow Sample Scripts
 
@@ -170,23 +182,37 @@ When preparing the bastion image above, the root password must be set to **12345
 - DATA_DISK_SIZE=${DATA_DISK_SIZE:=256}
 - DATA_DISK_LIST=${DATA_DISK_LIST:=""}
 - FORCE_DISK_PARTITION_WIPE=${FORCE_DISK_PARTITION_WIPE:="false"}
+- CHRONY_CONFIG=${CHRONY_CONFIG:="true"}
+- RHCOS_RELEASE=${RHCOS_RELEASE:=""}
+- DNS_BACKUP_SERVER=${DNS_BACKUP_SERVER:="1.1.1.1"}
+- VDISK=${VDISK:="vdd"}
 
 Disk sizes are in GBs.
+
+The **CHRONY_CONFIG** parameter above enables NTP servers as OCS CI expects them
+to be configured.  If that is not applicable, then this parameter should probably
+be set to false.
+
+The **RHCOS_RELEASE** parameter is specific to the **OCP_VERSION** and is set internally
+to the [latest available *rhcos* image available](https://mirror.openshift.com/pub/openshift-v4/ppc64le/dependencies/rhcos/)
+provided that it is not set by the user.  The internal setting may be outdated.
+
+The **DNS_BACKUP_SERVER** parameter names a secondary DNS server.  The default
+value should be overridden if the cluster to be deployed is behind a firewall.
+
+The supported **OCP_VERSION**s are 4.4 - 4.7.
 
 Set a new value like this:
 ```
 export OCP_VERSION=4.6
+export RHCOS_RELEASE=4.6.1
 ```
-
-The environment variable OPENSHIFT_INSTALL_RELEASE_IMAGE_OVERRIDE is defined by
-Red Hat.  It instructs the openshift installer to use a specific image.  This is
-necessary for OCP 4.4 and 4.5 as the
-[latest available image](https://mirror.openshift.com/pub/openshift-v4/ppc64le/clients/ocp-dev-preview/)
-is installed by default.  That is, the latest available image for the release under development.
-
-The **create_ocp.sh** script internally sets this environment variable for OCP 4.4 and OCP 4.5
-provided that it is not set by the user.  This environment variable is not set
-automatically for OCP 4.6 as this release is still under development.
+The OpenShift installer uses the latest available image which by default is
+a development build.  For released OCP versions, this tool will chose a recently
+released image based on the environment OCP_VERSION.  This image may not be
+latest available version.  This internal selection may be overriden by setting
+the environment variable **OPENSHIFT_INSTALL_RELEASE_IMAGE_OVERRIDE**
+to a [development preview image](https://mirror.openshift.com/pub/openshift-v4/ppc64le/clients/ocp-dev-preview/).
 
 Set a specific daily build like this:
 ```
@@ -264,20 +290,28 @@ the companion *oauth* definition as shown below following the same pattern.
 The browser should prompt you to login to the OCP cluster.  The user name is **kubeadmin** and
 the password is located in the file **<path-to-workspace>/auth/kubeadmin-password**.
 
-## CHRONTAB Automation
+## Chrontab Automation
 
 The following two files have been provided:
 
 * chron-ocs.sh 
 * test-chron-ocs.sh
 
-**chron-ocs.sh** is available in scripts/helper directory. This script is the master chron-tab commandline script.
+The **chron-ocs.sh** script is the master chrontab commandline script.  It is located
+in the **scripts/helper** directory.
 
-**test-chron-ocs.sh** is available in samples directory. This script is invoked by chron-ocs.sh and provides 
-the end-to-end flow. Presently, this script invokes tier tests 2, 3, 4, 4a, 4b and 4c. If you prefer, you can limit
-the tests to a subset by editing this file.
+The **test-chron-ocs.sh** script is invoked by chron-ocs.sh and provides the
+end-to-end OCP/OCS command flow.  Presently, this script invokes tier tests
+2, 3, 4, 4a, 4b and 4c.  You can limit the tests to a subset by editing this file.
+This file is located in the **samples** directory. 
 
-To enable, copy these two files to your home directory. In this file, edit these four lines:
+To setup chrontab automation, you must:
+
+1.  Create *test* user account with sudo authority and login to it
+2.  git clone this project in $HOME and invoke **scripts/helper/set-passwordless-sudo.sh**
+3.  Place the required files defined by the ocs-upi-kvm project in $HOME
+4.  Copy the two chron scripts listed above to $HOME
+5.  Edit the four lines below in *test-chron-ocs.sh*:
 
 ```
 export RHID_USERNAME=<Your RedHat Subscription id>
@@ -286,13 +320,13 @@ export OCP_VERSION=4.5
 export IMAGES_PATH=/home/libvirt/images
 ```
 
-To setup crontab, execute **crontab -e** and enter the following two lines:
+6.  Invoke **crontab -e** and enter the following two lines:
 
 ```
 SHELL=/bin/bash 
-0 0 * * * ~/chron-ocs.sh > ocp_ocs_deploy_`date "+\%d\%H\%M"`.log
+0 0 * * * ~/chron-ocs.sh
 ```
 
-Above example will execute automation every 24 hours at midnight local time.
+The example above will invoke chron-ocs.sh every 24 hours at midnight local time.
 
-Scripts will produce log files in **logs** directory under the users's home directory.
+Log files are written to the **logs** directory under the user's home directory.
