@@ -10,7 +10,7 @@ export RHID_PASSWORD=${RHID_PASSWORD:=""}
 export RHID_ORG=${RHID_ORG:=""}
 export RHID_KEY=${RHID_KEY:=""}
 
-export OCP_VERSION=${OCP_VERSION:="4.5"}
+export OCP_VERSION=${OCP_VERSION:="4.6"}
 
 export CLUSTER_DOMAIN=${CLUSTER_DOMAIN:="tt.testing"}
 
