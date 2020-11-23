@@ -19,17 +19,14 @@ fi
 
 set -e
 
+export OCS_VERSION=${OCS_VERSION:=4.6}
 export KUBECONFIG=$WORKSPACE/auth/kubeconfig
-
-# WORKAROUND for ocs-ci powerpc bug in conf/ocsci/production_powervs_upi.yaml
-
-sudo -sE cp -f $WORKSPACE/bin/oc /usr/local/bin/oc
 
 pushd ../src/ocs-ci
 
 # WORKAROUND for ocs-ci bug that downloads x86 binary
 
-cp $WORKSPACE/bin/oc bin
+cp -f $WORKSPACE/bin/oc bin
 
 mkdir -p data
 
@@ -38,8 +35,19 @@ cp $WORKSPACE/pull-secret.txt data/pull-secret
 
 source $WORKSPACE/venv/bin/activate	# enter 'deactivate' in venv shell to exit
 
-run-ci -m deployment --deploy --ocsci-conf=conf/ocsci/production_powervs_upi.yaml --ocs-version 4.6 \
-	--cluster-name=ocstest --cluster-path=$WORKSPACE --collect-logs
+echo "Creating supplemental ocs-ci config - $WORKSPACE/ocs-ci-conf.yaml"
+
+export LOGDIR=$WORKSPACE/logs-ocs-ci/$OCP_VERSION
+
+cp -f ../../files/ocs-ci-conf.yaml $WORKSPACE/ocs-ci-conf.yaml
+mkdir -p $LOGDIR
+yq -y -i '.RUN.log_dir |= env.LOGDIR' $WORKSPACE/ocs-ci-conf.yaml
+
+run-ci -m deployment --deploy \
+	--ocs-version $OCS_VERSION --cluster-name ocstest \
+	--ocsci-conf conf/ocsci/production_powervs_upi.yaml \
+	--ocsci-conf $WORKSPACE/ocs-ci-conf.yaml \
+        --cluster-path $WORKSPACE --collect-logs tests/
 
 deactivate
 

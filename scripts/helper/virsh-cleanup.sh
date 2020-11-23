@@ -66,7 +66,7 @@ do
 	virsh net-undefine $i
 done
 
-# Remove files created by add-data-disk.sh
+echo "Remove worker node data disk files"
 
 if [ -e $WORKSPACE/.images_path ]; then
 	FILES=$(cat $WORKSPACE/.images_path)
@@ -75,5 +75,6 @@ if [ -e $WORKSPACE/.images_path ]; then
 	fi
 fi
 
-systemctl restart libvirtd
-systemctl restart firewalld
+# Remove orhpaned virbrxxx on libvirt zone
+
+firewall-cmd --reload

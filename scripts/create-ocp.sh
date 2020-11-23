@@ -22,6 +22,9 @@ elif [[ -z "$RHID_ORG" && -n "$RHID_KEY" ]] || [[ -n "$RHID_ORG" && -z "$RHID_KE
 	exit 1
 fi
 
+# This script creates an ocp cluster for OCS CI which expects ntp servers for all platforms
+
+export CHRONY_CONFIG=${CHRONY_CONFIG:="true"}
 export WORKERS=${WORKERS:=3}
 export WORKER_DESIRED_MEM=${WORKER_DESIRED_MEM:="65536"}
 export WORKER_DESIRED_CPU=${WORKER_DESIRED_CPU:="16"}
@@ -93,6 +96,9 @@ export PATH=$WORKSPACE/bin:$PATH
 
 helper/create-cluster.sh $arg1
 
+rm -f $WORKSPACE/bin/oc
+rm -rf $WORKSPACE/auth
+
 scp -o StrictHostKeyChecking=no root@192.168.88.2:/usr/local/bin/oc $WORKSPACE/bin
 scp -o StrictHostKeyChecking=no -r root@192.168.88.2:openstack-upi/auth $WORKSPACE
 
@@ -100,7 +106,9 @@ echo "export KUBECONFIG=$WORKSPACE/auth/kubeconfig" | tee -a $WORKSPACE/env-ocp.
 
 export KUBECONFIG=$WORKSPACE/auth/kubeconfig
 
-sudo -sE helper/add-data-disks.sh
+export VDISK=vdc
+sudo -sE helper/add-vdisk-workers.sh
+
 sudo -sE helper/check-health-cluster.sh
 
 echo ""

@@ -21,8 +21,11 @@ cluster_domain              = "$CLUSTER_DOMAIN"
 cluster_id                  = "ocp$SANITIZED_OCP_VERSION"
 
 dns_forwarders              = "192.168.88.1;$DNS_BACKUP_SERVER"
+chrony_config               = "$CHRONY_CONFIG"
+chrony_config_servers       = [$CHRONY_CONFIG_SERVERS]
 
-install_playbook_tag        = "9a5128fc58ed86aa332128314181dc9ab86334c6"
+helpernode_tag              = "e18574164cbb2185c97fda6c7a66e4a358e78d0f"
+install_playbook_tag        = "$INSTALL_PLAYBOOK_TAG"
 
 storage_type                = ""
 volume_size                 = 0

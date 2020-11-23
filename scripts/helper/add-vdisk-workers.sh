@@ -23,11 +23,26 @@ fi
 
 source helper/parameters.sh
 
+VDISK=${VDISK:="vdc"}
+
 echo KUBECONFIG=$KUBECONFIG
+echo WORKSPACE=$WORKSPACE
 
 if [[ "$DATA_DISK_SIZE" -le "0" ]]; then
 	echo "No data disks will be created"
 	exit
+fi
+
+# If OCS is configured, give more time for each node to recover
+# before modifying the next one
+
+set +e
+ocs_configured=$($WORKSPACE/bin/oc get projects | grep ^openshift-storage)
+set -e
+if [ -n "$ocs_configured" ]; then
+	delay=60
+else
+	delay=10
 fi
 
 if [ -z "$DATA_DISK_ARRAY" ]; then
@@ -49,24 +64,25 @@ do
 			DATA_DISK_SIZE=${DATA_DISK_SIZE/\.*/}
 		fi
 	else
-		disk_path=$IMAGES_PATH/test-ocp$SANITIZED_OCP_VERSION/disk-worker${i}.data
+		disk_path=$IMAGES_PATH/test-ocp$SANITIZED_OCP_VERSION/disk-worker${i}.data-$VDISK
+		if [ -e $disk_path ]; then
+			echo "WARNING: Overwriting data disk file $disk_path"
+		fi
 	fi
 
 	echo "Creating data disk $disk_path of size ${DATA_DISK_SIZE}G"
 	qemu-img create -f raw $disk_path ${DATA_DISK_SIZE}G
 
 	vm=$(virsh list --all | grep worker-$i | tail -n 1 | awk '{print $2}')
-	echo "Attaching data disk to $vm"
-	virsh attach-disk $vm --source $disk_path --target vdc --persistent
+	echo "Attaching data disk to $vm at $VDISK"
+	virsh attach-disk $vm --source $disk_path --target $VDISK --persistent
 	virsh reboot $vm
-	sleep 5
+	sleep $delay
 done
-
-sleep 30
 
 # Wait for each node to become ready
 
-echo "Waiting up to a minute for each worker node to become ssh accessible"
+echo "Waiting up to ${delay}0 seconds for each worker node to become ssh accessible"
 
 for (( i=0; i<$WORKERS; i++ ))
 do
@@ -85,27 +101,29 @@ do
 	done
 
 	if [ "$success" == false ]; then
-		echo "WARNING: IP Address for worker VM $vm is not known, continuing anyway"
+		echo "WARNING: IP Address for VM $vm is not known, continuing anyway"
 		continue
 	fi
 
 	success=false
-	for ((cnt=0; cnt<3; cnt++))
+	for ((cnt=0; cnt<10; cnt++))
 	do
-		sleep 10
+		sleep $delay
 
 		set +e
 		ls_out=$(su - $SUDO_USER -c "ssh -o StrictHostKeyChecking=no core@$ip ls /")
 		set -e
 
 		if [ -n "$ls_out" ]; then
-			cnt=3
+			cnt=10
 			success=true
 		fi
 	done
 
 	if [ "$success" == false ]; then
-		echo "WARNING: worker VM $vm at $ip is not ssh accessible, continuing anyway"
+		echo "WARNING: VM $vm at $ip is not ssh accessible, continuing anyway"
+	else
+		echo "VM $vm at $ip is ssh accessible"
 	fi
 done
 

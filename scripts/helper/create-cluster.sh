@@ -29,6 +29,8 @@ function terraform_apply () {
 	cat $WORKSPACE/ocs-upi-kvm/files/site.tfvars.in | envsubst > $WORKSPACE/site.tfvars
 	echo "site.tfvars:"
 	cat $WORKSPACE/site.tfvars 
+	sudo systemctl restart libvirtd
+	sudo -sE nft insert rule ip filter INPUT ip saddr $CLUSTER_CIDR ip daddr 192.168.122.1 tcp dport 16509 counter accept comment \"Allow insecure libvirt clients\"
 	terraform apply -var-file var.tfvars -var-file $WORKSPACE/site.tfvars -auto-approve -parallelism=3
 }
 
@@ -64,7 +66,7 @@ if [[ -e $WORKSPACE/$BASTION_IMAGE ]] && [[ "$file_rc" != 0 ]]; then
 	sudo -sE mv -f $WORKSPACE/$BASTION_IMAGE $IMAGES_PATH
 fi
 
-# openshift install images are publically released with every minor update at
+# openshift install images are publicly released with every minor update at
 # https://mirror.openshift.com/pub/openshift-v4/ppc64le/clients/ocp/$OCP_RELEASE
 # RHCOS boot images are released less frequently, but follow the same version numbering scheme
 
@@ -72,23 +74,39 @@ case "$OCP_VERSION" in
 	4.4)
 		OCP_RELEASE="4.4.23"		# Latest release of OCP 4.4 at this time
 		RHCOS_VERSION="4.4"
-		RHCOS_RELEASE="4.4.9"
-		RHCOS_SUFFIX="-$RHCOS_RELEASE"	# denotes the use of older ignition format
+		if [ -z "$RHCOS_RELEASE" ]; then
+			RHCOS_RELEASE="4.4.9"	# Latest release of RHCOS 4.4 at this time
+		fi
+		RHCOS_SUFFIX="-$RHCOS_RELEASE"
+		export INSTALL_PLAYBOOK_TAG=b07c89deacb04f996834403b1efdafb1f9a3d7c4
 		;;
 	4.5)
 		OCP_RELEASE="4.5.11"		# Latest release of OCP 4.5 at this time
 		RHCOS_VERSION="4.5"
-		RHCOS_RELEASE="4.5.4"
-		RHCOS_SUFFIX="-$RHCOS_RELEASE"	# denotes the use of older ignition format
+		if [ -z "$RHCOS_RELEASE" ]; then
+			RHCOS_RELEASE="4.5.4"	# Latest release of RHCOS 4.5 at this time
+		fi
+		RHCOS_SUFFIX="-$RHCOS_RELEASE"
+		export INSTALL_PLAYBOOK_TAG=b07c89deacb04f996834403b1efdafb1f9a3d7c4
 		;;
 	4.6)
 		OCP_RELEASE="4.6.1"		# Latest release of OCP 4.6 at this time
 		RHCOS_VERSION="4.6"
-		unset RHCOS_RELEASE		# TODO: Pre-release when not set.  Update after GA
-		RHCOS_SUFFIX="-$RHCOS_VERSION"	# TODO: Reset to RHCOS release after GA
+		if [ -z "$RHCOS_RELEASE" ]; then
+			RHCOS_RELEASE="4.6.1"	# Latest release of RHCOS 4.6 at this time
+		fi
+		RHCOS_SUFFIX="-$RHCOS_RELEASE"
+		export INSTALL_PLAYBOOK_TAG=c6e6038dba0856e621697c876bd3a65927f46166
+		;;
+	4.7)						# TODO: Update after GA
+		unset OCP_RELEASE
+		RHCOS_VERSION="4.6"
+		unset RHCOS_RELEASE
+		RHCOS_SUFFIX="-$RHCOS_VERSION"
+		export INSTALL_PLAYBOOK_TAG=c6e6038dba0856e621697c876bd3a65927f46166
 		;;
 	*)
-		echo "Invalid OCP_VERSION=$OCP_VERSION.  Supported versions are 4.4, 4.5, and 4.6"
+		echo "Invalid OCP_VERSION=$OCP_VERSION.  Supported versions are 4.4 - 4.7"
 		exit 1
 esac
 
@@ -118,7 +136,7 @@ if [ "$file_rc" != 0 ]; then
 	pushd $WORKSPACE
 	rm -f rhcos*qcow2.gz
 	if [ -n "$RHCOS_RELEASE" ]; then
-		wget -nv https://mirror.openshift.com/pub/openshift-v4/ppc64le/dependencies/rhcos/$RHCOS_VERSION/latest/rhcos-$RHCOS_RELEASE-ppc64le-qemu.ppc64le.qcow2.gz
+		wget -nv https://mirror.openshift.com/pub/openshift-v4/ppc64le/dependencies/rhcos/$RHCOS_VERSION/$RHCOS_RELEASE/rhcos-$RHCOS_RELEASE-ppc64le-qemu.ppc64le.qcow2.gz
 	else
 		wget -nv https://mirror.openshift.com/pub/openshift-v4/ppc64le/dependencies/rhcos/pre-release/latest-$RHCOS_VERSION/rhcos-qemu.ppc64le.qcow2.gz
 	fi

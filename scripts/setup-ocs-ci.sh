@@ -22,6 +22,7 @@ source $WORKSPACE/venv/bin/activate		# activate named python venv
 
 pip3 install --upgrade pip setuptools wheel
 pip3 install -r requirements.txt
+pip3 install yq
 
 deactivate					# exit venv shell
 
