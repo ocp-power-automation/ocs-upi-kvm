@@ -100,7 +100,7 @@ export BASTION_IP=${BASTION_IP:="192.168.88.2"}
 
 # IMPORTANT: Increment this generation count every time that the kvm_setup_host.sh file is changed
 
-export KVM_SETUP_GENCNT=3
+export KVM_SETUP_GENCNT=4
 
 # Sanitize the user specified ocp version which is included in the cluster name.  The cluster
 # name should not include dots (.) as this is reflected in the fully qualified hostname which
