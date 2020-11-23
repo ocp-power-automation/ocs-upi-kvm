@@ -4,7 +4,7 @@
 
 export RHID_USERNAME=<your rh subscription id>
 export RHID_PASSWORD=<your rh subscription password>
-export OCP_VERSION=4.5
+export OCP_VERSION=4.6
 export IMAGES_PATH=/home/libvirt/images
 
 # LOG variables are supposed to be preset

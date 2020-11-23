@@ -169,7 +169,7 @@ When preparing the bastion image above, the root password must be set to **12345
 
 ## Optional Environment Variables with Default Values
 
-- OCP_VERSION=${OCP_VERSION:="4.5"}
+- OCP_VERSION=${OCP_VERSION:="4.6"}
 - CLUSTER_DOMAIN=${CLUSTER_DOMAIN:="tt.testing"}
 - BASTION_IMAGE=${BASTION_IMAGE:="rhel-8.2-update-2-ppc64le-kvm.qcow2"}
 - MASTER_DESIRED_CPU=${MASTER_DESIRED_CPU:="4"}
@@ -316,7 +316,7 @@ To setup chrontab automation, you must:
 ```
 export RHID_USERNAME=<Your RedHat Subscription id>
 export RHID_PASSWORD=<RedHat Subscription password>
-export OCP_VERSION=4.5
+export OCP_VERSION=4.6
 export IMAGES_PATH=/home/libvirt/images
 ```
 

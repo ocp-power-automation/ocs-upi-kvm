@@ -42,7 +42,7 @@ fi
 
 set -x
 
-#export OCP_VERSION=4.6 			# 4.5 is default.  4.4 and 4.6 also supported
+#export OCP_VERSION=4.6 			# 4.6 is default.  4.4 - 4.7 also supported
 
 export WORKERS=3
 
