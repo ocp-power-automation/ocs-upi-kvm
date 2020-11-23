@@ -10,6 +10,17 @@
 
 VERSION="202010191400";
 
+# Check if another instance of the same script is running, if so quit.
+
+CHRONOCS="test-chron-ocs"
+if pgrep "$CHRONOCS" >/dev/null
+then
+    echo "$CHRONOCS is running. Wait for it to complete before starting again."
+    exit 1
+else
+    echo "$CHRONOCS stopped"
+fi
+
 if [ "$( whoami )" == "root" ]; then
     echo "This is the root account which is not allowed for this chron job" 
     exit 1
