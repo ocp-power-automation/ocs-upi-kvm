@@ -20,7 +20,7 @@ if [ ! -e helper/parameters.sh ]; then
 fi
 
 yum -y install https://dl.fedoraproject.org/pub/epel/epel-release-latest-$(rpm -E %rhel).noarch.rpm
-yum -y install kernel dracut systemd dbus powerpc-utils net-tools nftables
+yum -y install kernel dracut systemd dbus powerpc-utils net-tools nftables iptables firewalld
 yum -y install wget git patch gcc-c++ make libgcrypt yum-utils ansible tmux
 yum -y module install virt container-tools
 yum -y install libvirt libvirt-devel qemu-kvm libguestfs libguestfs-tools virt-install 
@@ -66,6 +66,7 @@ systemctl start libvirtd
 
 systemctl enable nftables
 systemctl restart nftables
+systemctl restart firewalld
 
 if [ ! -e /etc/sysconfig/nftables.conf.orig ]; then
 	cp /etc/sysconfig/nftables.conf /etc/sysconfig/nftables.conf.orig
@@ -105,9 +106,9 @@ echo -e "[main]\ndns=dnsmasq" | tee /etc/NetworkManager/conf.d/openshift.conf
 echo server=/$CLUSTER_DOMAIN/$BASTION_IP | tee /etc/NetworkManager/dnsmasq.d/openshift.conf
 
 systemctl restart NetworkManager
-systemctl restart firewalld
 systemctl restart libvirtd
 systemctl restart nftables
+systemctl restart firewalld
 
 set +e
 
