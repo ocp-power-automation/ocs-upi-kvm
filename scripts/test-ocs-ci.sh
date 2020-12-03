@@ -80,8 +80,8 @@ if [[ -n "${tests[@]}" ]]; then
 			--ocsci-conf conf/ocsci/production_powervs_upi.yaml \
 			--ocsci-conf $WORKSPACE/ocs-ci-conf.yaml \
 		        --cluster-path $WORKSPACE --collect-logs \
-			--self-contained-html --junit-xml=$LOGDIR/test_results.xml \
-			--html=$LOGDIR/tier${i}_${run_id}_report.html tests/
+			--self-contained-html --junit-xml $LOGDIR/test_results.xml \
+			--html $LOGDIR/tier${i}_${run_id}_report.html tests/
 		rc=$?
 		set +x
 		echo "TEST RESULT: run-ci tier$i rc=$rc"
@@ -98,8 +98,8 @@ else
 		--ocsci-conf conf/ocsci/production_powervs_upi.yaml \
 		--ocsci-conf $WORKSPACE/ocs-ci-conf.yaml \
 		--cluster-path $WORKSPACE --collect-logs \
-		--self-contained-html --junit-xml=$LOGDIR/test_results.xml \
-		--html=$LOGDIR/test_${ocsci_cmd}_${run_id}_report.html
+		--self-contained-html --junit-xml $LOGDIR/test_results.xml \
+		--html $LOGDIR/test_${ocsci_cmd}_${run_id}_report.html tests/
 	rc=$?
 	set +x
 	echo "OCS-CI $ocsci_cmd RESULT: run-ci rc=$rc"

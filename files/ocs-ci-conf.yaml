@@ -1,3 +1,7 @@
 ---
 ENV_DATA:
   local_storage_allow_rotational_disks: true
+REPORTING:
+  ocp_must_gather_image: quay.io/rhceph-dev/ocs-must-gather
+UPGRADE:
+  ocp_arch: ppc64le
