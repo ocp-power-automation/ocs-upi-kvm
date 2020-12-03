@@ -1,0 +1,13 @@
+diff --git a/ocs_ci/ocs/ripsaw.py b/ocs_ci/ocs/ripsaw.py
+index d1bf325b..406aad0b 100644
+--- a/ocs_ci/ocs/ripsaw.py
++++ b/ocs_ci/ocs/ripsaw.py
+@@ -41,7 +41,7 @@ class RipSaw(object):
+         """
+         self.args = kwargs
+         self.repo = self.args.get(
+-            "repo", "https://github.com/cloud-bulldozer/benchmark-operator"
++            "repo", "https://github.com/lukebrowning/benchmark-operator"
+         )
+         self.branch = self.args.get("branch", "master")
+         self.namespace = self.args.get("namespace", RIPSAW_NAMESPACE)
