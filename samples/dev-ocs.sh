@@ -116,3 +116,21 @@ oc get nodes 2>&1 | tee -a $WORKSPACE/create-ocp.log
 ./setup-ocs-ci.sh 2>&1 | tee $WORKSPACE/setup-ocs-ci.log
 
 ./deploy-ocs-ci.sh 2>&1 | tee $WORKSPACE/deploy-ocs-ci.log
+
+exit
+
+# This is an example of an individual test case run.  Note the exit statement above
+
+pushd ../src/ocs-ci
+
+source $WORKSPACE/venv/bin/activate             # enter 'deactivate' in venv shell to exit
+
+# The 'tests/e2e/...' can be obtained from the html report of performance, workloads, tier tests, ...
+
+run-ci -m "performance" --cluster-name ocstest --cluster-path $WORKSPACE \
+        --ocsci-conf conf/ocsci/production_powervs_upi.yaml \
+        --ocsci-conf $WORKSPACE/ocs-ci-conf.yaml \
+        --collect-logs \
+        tests/e2e/performance/test_fio_benchmark.py::TestFIOBenchmark::test_fio_workload_simple[CephBlockPool-random] 2>&1 | tee $WORKSPACE/test-fio.log
+
+deactivate
