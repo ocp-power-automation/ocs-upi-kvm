@@ -1,5 +1,123 @@
+diff --git a/ocs_ci/framework/pytest_customization/marks.py b/ocs_ci/framework/pytest_customization/marks.py
+index 24e460d5..f4da5b93 100644
+--- a/ocs_ci/framework/pytest_customization/marks.py
++++ b/ocs_ci/framework/pytest_customization/marks.py
+@@ -176,7 +176,10 @@ skipif_aws_i3 = pytest.mark.skipif(
+ )
+ 
+ skipif_bm = pytest.mark.skipif(
+-    config.ENV_DATA["platform"].lower() == "baremetal"
++    (
++        config.ENV_DATA["platform"].lower() == "baremetal"
++        or config.ENV_DATA["platform"].lower() == "powervs"
++    )
+     and config.DEPLOYMENT.get("local_storage") is True,
+     reason="Test will not run on Bare Metal",
+ )
+diff --git a/ocs_ci/ocs/ocp.py b/ocs_ci/ocs/ocp.py
+index 5b1079d9..108d06ae 100644
+--- a/ocs_ci/ocs/ocp.py
++++ b/ocs_ci/ocs/ocp.py
+@@ -656,7 +656,7 @@ class OCP(object):
+ 
+         return False
+ 
+-    def wait_for_delete(self, resource_name="", timeout=60, sleep=3):
++    def wait_for_delete(self, resource_name="", timeout=60, sleep=6):
+         """
+         Wait for a resource to be deleted
+ 
+diff --git a/ocs_ci/ocs/platform_nodes.py b/ocs_ci/ocs/platform_nodes.py
+index 95b3ff45..9608b183 100644
+--- a/ocs_ci/ocs/platform_nodes.py
++++ b/ocs_ci/ocs/platform_nodes.py
+@@ -13,7 +13,7 @@ from ocs_ci.deployment.terraform import Terraform
+ from ocs_ci.deployment.vmware import update_machine_conf
+ from ocs_ci.ocs.exceptions import TimeoutExpiredError
+ from ocs_ci.framework import config, merge_dict
+-from ocs_ci.utility import aws, vsphere, templating, baremetal, azure_utils
++from ocs_ci.utility import aws, vsphere, templating, baremetal, azure_utils, powernodes
+ from ocs_ci.utility.retry import retry
+ from ocs_ci.utility.csr import approve_pending_csr
+ from ocs_ci.ocs import constants, ocp, exceptions
+@@ -65,6 +65,7 @@ class PlatformNodesFactory:
+             "baremetal": BaremetalNodes,
+             "azure": AZURENodes,
+             "gcp": NodesBase,
++            "powervs": IBMPowerNodes,
+         }
+ 
+     def get_nodes_platform(self):
+@@ -1685,6 +1686,67 @@ class BaremetalNodes(NodesBase):
+         return default_config_dict
+ 
+ 
++class IBMPowerNodes(NodesBase):
++    """
++    IBM Power Nodes class
++    """
++
++    def __init__(self):
++        super(IBMPowerNodes, self).__init__()
++        self.powernodes = powernodes.POWERNODES()
++
++    def stop_nodes(self, nodes, force=True):
++        """
++        Stop PowerNode
++
++        Args:
++            nodes (list): The OCS objects of the nodes
++            force (bool): True for force nodes stop, False otherwise
++
++        """
++        self.powernodes.stop_powernodes_machines(nodes, force=force)
++
++    def start_nodes(self, nodes, force=True):
++        """
++        Start PowerNode
++
++        Args:
++            nodes (list): The OCS objects of the nodes
++            wait (bool): Wait for node status
++
++        """
++        self.powernodes.start_powernodes_machines(nodes, force=force)
++
++    def restart_nodes(self, nodes, timeout=540, wait=True, force=True):
++        """
++        Restart PowerNode
++
++        Args:
++            nodes (list): The OCS objects of the nodes
++            force (bool): True for force BM stop, False otherwise
++
++        """
++        self.powernodes.restart_powernodes_machines(nodes, force=force)
++
++    def restart_nodes_teardown(self):
++        """
++        Make sure all PowerNodes are up by the end of the test
++
++        """
++        self.cluster_nodes = get_node_objs()
++        stopped_powernodes = [
++            powernode
++            for powernode in self.cluster_nodes
++            if self.powernodes.verify_machine_is_down(powernode) is True
++        ]
++
++        if stopped_powernodes:
++            logger.info(
++                f"The following PowerNodes are powered off: {stopped_powernodes}"
++            )
++            self.powernodes.start_powernodes_machines(stopped_powernodes)
++
++
+ class AZURENodes(NodesBase):
+     """
+     Azure Nodes class
 diff --git a/ocs_ci/ocs/ripsaw.py b/ocs_ci/ocs/ripsaw.py
-index d1bf325b..406aad0b 100644
+index d1bf325b..14dce6ac 100644
 --- a/ocs_ci/ocs/ripsaw.py
 +++ b/ocs_ci/ocs/ripsaw.py
 @@ -41,7 +41,7 @@ class RipSaw(object):
@@ -7,7 +125,126 @@ index d1bf325b..406aad0b 100644
          self.args = kwargs
          self.repo = self.args.get(
 -            "repo", "https://github.com/cloud-bulldozer/benchmark-operator"
-+            "repo", "https://github.com/lukebrowning/benchmark-operator"
++            "repo", "https://github.com/ocp-power-automation/benchmark-operator"
          )
          self.branch = self.args.get("branch", "master")
          self.namespace = self.args.get("namespace", RIPSAW_NAMESPACE)
+diff --git a/ocs_ci/templates/workloads/fio/benchmark_fio.yaml b/ocs_ci/templates/workloads/fio/benchmark_fio.yaml
+index 3284fede..897ddeea 100644
+--- a/ocs_ci/templates/workloads/fio/benchmark_fio.yaml
++++ b/ocs_ci/templates/workloads/fio/benchmark_fio.yaml
+@@ -12,6 +12,7 @@ spec:
+   workload:
+     name: "fio_distributed"
+     args:
++      image: quay.io/piyushgupta1551/fio:master
+       prefill: true
+       samples: 3
+       servers: 50
+diff --git a/ocs_ci/utility/powernodes.py b/ocs_ci/utility/powernodes.py
+new file mode 100644
+index 00000000..62b9f112
+--- /dev/null
++++ b/ocs_ci/utility/powernodes.py
+@@ -0,0 +1,101 @@
++import logging
++
++from ocs_ci.ocs import constants
++from ocs_ci.ocs.exceptions import UnexpectedBehaviour
++from ocs_ci.ocs.node import wait_for_nodes_status, get_worker_nodes, get_master_nodes
++from ocs_ci.ocs.ocp import wait_for_cluster_connectivity
++from ocs_ci.utility.utils import TimeoutSampler, exec_cmd
++
++logger = logging.getLogger(__name__)
++
++
++class POWERNODES(object):
++    """
++    Wrapper for PowerNodes
++    """
++
++    def verify_machine_is_down(self, node):
++        """
++        Verify if PowerNode is completely powered off
++
++        Args:
++            node (object): Node objects
++
++        Returns:
++            bool: True if machine is down, False otherwise
++
++        """
++        result = exec_cmd(f"sudo virsh domstate test-ocp4-6-{node.name}")
++        if result.stdout.lower().rstrip() == b"running":
++            return False
++        else:
++            return True
++
++    def stop_powernodes_machines(self, powernode_machines, force=True):
++        """
++        Stop PowerNode Machines
++
++        Args:
++            powernode_machines (list): PowerNode objects
++            force (bool): True for PowerNode ungraceful power off, False for
++                graceful PowerNode shutdown - for future use
++
++        Raises:
++            UnexpectedBehaviour: If PowerNode machine is still up
++
++        """
++        for node in powernode_machines:
++            cmd = f"sudo virsh shutdown test-ocp4-6-{node.name}"
++            result = exec_cmd(cmd)
++            """
++            if result.returncode == 0:
++                return False
++            else
++                return True
++            """
++            logger.info(f"Result of shutdown {result}")
++            logger.info("Verifying node is down")
++            ret = TimeoutSampler(
++                timeout=300,
++                sleep=3,
++                func=self.verify_machine_is_down,
++                node=node,
++            )
++            logger.info(ret)
++            if not ret.wait_for_func_status(result=True):
++                raise UnexpectedBehaviour("Node {node.name} is still Running")
++
++    def start_powernodes_machines(self, powernode_machines, force=True):
++        """
++        Start PowerNode Machines
++
++        Args:
++            powernode_machines (list): List of PowerNode machines
++            wait (bool): Wait for PowerNodes to start - for future use
++
++        """
++        for node in powernode_machines:
++            result = exec_cmd(f"sudo virsh start test-ocp4-6-{node.name}")
++            logger.info(f"Result of shutdown {result}")
++
++        wait_for_cluster_connectivity(tries=400)
++        wait_for_nodes_status(
++            node_names=get_master_nodes(), status=constants.NODE_READY, timeout=800
++        )
++        wait_for_nodes_status(
++            node_names=get_worker_nodes(), status=constants.NODE_READY, timeout=800
++        )
++
++    def restart_powernodes_machines(self, powernode_machines, force=True):
++        """
++
++        Restart PowerNode Machines
++
++        Args:
++            powernode_machines (list): PowerNode objects
++            force (bool): True for PowerNode ungraceful power off, False for
++                graceful PowerNode shutdown - for future use
++
++        """
++        self.stop_powernodes_machines(powernode_machines, force=force)
++        self.start_powernodes_machines(powernode_machines, force=force)

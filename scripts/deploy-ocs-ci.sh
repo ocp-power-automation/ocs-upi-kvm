@@ -35,10 +35,8 @@ if [ -e $WORKSPACE/ocs-upi-kvm/files/ocs-ci.patch ]; then
 
 	if [ "$rc" == "0" ]; then
 		echo "Patching ocs-ci/ocs/ripsaw.py to use alternative repo containing ppc64le images..."
-		echo "This patch should be removed when a fix is merged into ocs-ci"
+		echo "This patch should be modified or removed as necessary to converge with ocs-ci"
 		echo "--> $WORKSPACE/ocs-upi-kvm/files/ocs-ci.patch"
-		# Checkout each file in the patch to ensure that it is clean
-		git checkout -- ocs_ci/ocs/ripsaw.py
 		patch -p1 < $WORKSPACE/ocs-upi-kvm/files/ocs-ci.patch
 	else
 		echo "WARNING: Failed to patch ocs-ci..."
