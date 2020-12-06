@@ -117,6 +117,8 @@ oc get nodes 2>&1 | tee -a $WORKSPACE/create-ocp.log
 
 ./deploy-ocs-ci.sh 2>&1 | tee $WORKSPACE/deploy-ocs-ci.log
 
+./deploy-ocp-logging.sh 2>&1 | tee $WORKSPACE/deploy-ocp-logging.log
+
 exit
 
 # This is an example of an individual test case run.  Note the exit statement above
