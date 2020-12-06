@@ -111,6 +111,9 @@ echo "Invoking ./setup-ocs-ci.sh"
 echo "Invoking ./deploy-ocs-ci.sh"
 ./deploy-ocs-ci.sh 2>&1 | tee $LOGDIR/deploy-ocs-ci-$LOGDATE.log
 
+echo "Invoking ./deploy-ocp-logging.sh"
+./deploy-ocp-logging.sh 2>&1 | tee $LOGDIR/deploy-ocp-logging-$LOGDATE.log
+
 set +e
 
 echo "Invoking ./test-ocs-ci.sh --tier 2,3,4a,4b,4c"
