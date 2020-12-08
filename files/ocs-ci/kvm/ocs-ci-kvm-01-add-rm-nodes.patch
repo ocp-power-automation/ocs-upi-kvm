@@ -1,3 +1,15 @@
+commit a243706dd1a41bf0f7ee31e5e040ff236ea9c9be
+Author: gitsridhar <svenkat@us.ibm.com>
+Date:   Thu Dec 3 11:30:43 2020 -0500
+
+    WIP - Add code to handle teardown errors and disruptive tests
+    
+    These changes add to the platform nodes framework to fix teardown
+    errors and relevant disruptive tests
+    
+    Signed-off-by: Sridhar Venkat <svenkat@MacBook-Pro-4.attlocal.net>
+    Signed-off-by: gitsridhar <svenkat@us.ibm.com>
+
 diff --git a/ocs_ci/framework/pytest_customization/marks.py b/ocs_ci/framework/pytest_customization/marks.py
 index 24e460d5..f4da5b93 100644
 --- a/ocs_ci/framework/pytest_customization/marks.py
@@ -14,19 +26,6 @@ index 24e460d5..f4da5b93 100644
      and config.DEPLOYMENT.get("local_storage") is True,
      reason="Test will not run on Bare Metal",
  )
-diff --git a/ocs_ci/ocs/ocp.py b/ocs_ci/ocs/ocp.py
-index 5b1079d9..108d06ae 100644
---- a/ocs_ci/ocs/ocp.py
-+++ b/ocs_ci/ocs/ocp.py
-@@ -656,7 +656,7 @@ class OCP(object):
- 
-         return False
- 
--    def wait_for_delete(self, resource_name="", timeout=60, sleep=3):
-+    def wait_for_delete(self, resource_name="", timeout=60, sleep=6):
-         """
-         Wait for a resource to be deleted
- 
 diff --git a/ocs_ci/ocs/platform_nodes.py b/ocs_ci/ocs/platform_nodes.py
 index 95b3ff45..9608b183 100644
 --- a/ocs_ci/ocs/platform_nodes.py
@@ -116,34 +115,9 @@ index 95b3ff45..9608b183 100644
  class AZURENodes(NodesBase):
      """
      Azure Nodes class
-diff --git a/ocs_ci/ocs/ripsaw.py b/ocs_ci/ocs/ripsaw.py
-index d1bf325b..14dce6ac 100644
---- a/ocs_ci/ocs/ripsaw.py
-+++ b/ocs_ci/ocs/ripsaw.py
-@@ -41,7 +41,7 @@ class RipSaw(object):
-         """
-         self.args = kwargs
-         self.repo = self.args.get(
--            "repo", "https://github.com/cloud-bulldozer/benchmark-operator"
-+            "repo", "https://github.com/ocp-power-automation/benchmark-operator"
-         )
-         self.branch = self.args.get("branch", "master")
-         self.namespace = self.args.get("namespace", RIPSAW_NAMESPACE)
-diff --git a/ocs_ci/templates/workloads/fio/benchmark_fio.yaml b/ocs_ci/templates/workloads/fio/benchmark_fio.yaml
-index 3284fede..897ddeea 100644
---- a/ocs_ci/templates/workloads/fio/benchmark_fio.yaml
-+++ b/ocs_ci/templates/workloads/fio/benchmark_fio.yaml
-@@ -12,6 +12,7 @@ spec:
-   workload:
-     name: "fio_distributed"
-     args:
-+      image: quay.io/piyushgupta1551/fio:master
-       prefill: true
-       samples: 3
-       servers: 50
 diff --git a/ocs_ci/utility/powernodes.py b/ocs_ci/utility/powernodes.py
 new file mode 100644
-index 00000000..62b9f112
+index 00000000..2f3a6fba
 --- /dev/null
 +++ b/ocs_ci/utility/powernodes.py
 @@ -0,0 +1,101 @@
@@ -205,7 +179,7 @@ index 00000000..62b9f112
 +            logger.info(f"Result of shutdown {result}")
 +            logger.info("Verifying node is down")
 +            ret = TimeoutSampler(
-+                timeout=300,
++                timeout=900,
 +                sleep=3,
 +                func=self.verify_machine_is_down,
 +                node=node,
@@ -227,12 +201,12 @@ index 00000000..62b9f112
 +            result = exec_cmd(f"sudo virsh start test-ocp4-6-{node.name}")
 +            logger.info(f"Result of shutdown {result}")
 +
-+        wait_for_cluster_connectivity(tries=400)
++        wait_for_cluster_connectivity(tries=900)
 +        wait_for_nodes_status(
-+            node_names=get_master_nodes(), status=constants.NODE_READY, timeout=800
++            node_names=get_master_nodes(), status=constants.NODE_READY, timeout=900
 +        )
 +        wait_for_nodes_status(
-+            node_names=get_worker_nodes(), status=constants.NODE_READY, timeout=800
++            node_names=get_worker_nodes(), status=constants.NODE_READY, timeout=900
 +        )
 +
 +    def restart_powernodes_machines(self, powernode_machines, force=True):
