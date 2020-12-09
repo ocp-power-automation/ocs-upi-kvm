@@ -25,14 +25,14 @@ index d1bf325b..14dce6ac 100644
          self.branch = self.args.get("branch", "master")
          self.namespace = self.args.get("namespace", RIPSAW_NAMESPACE)
 diff --git a/ocs_ci/templates/workloads/fio/benchmark_fio.yaml b/ocs_ci/templates/workloads/fio/benchmark_fio.yaml
-index 3284fede..897ddeea 100644
+index 3284fede..2a8a595e 100644
 --- a/ocs_ci/templates/workloads/fio/benchmark_fio.yaml
 +++ b/ocs_ci/templates/workloads/fio/benchmark_fio.yaml
 @@ -12,6 +12,7 @@ spec:
    workload:
      name: "fio_distributed"
      args:
-+      image: quay.io/piyushgupta1551/fio:master
++      image: quay.io/piyushgupta1551/fio-m:ppc64le
        prefill: true
        samples: 3
        servers: 50
