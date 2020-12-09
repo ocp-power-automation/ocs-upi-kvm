@@ -36,3 +36,15 @@ index 3284fede..2a8a595e 100644
        prefill: true
        samples: 3
        servers: 50
+diff --git a/ocs_ci/templates/workloads/smallfile/SmallFile.yaml b/ocs_ci/templates/workloads/smallfile/SmallFile.yaml
+index 69a490c1..fb1d334f 100644
+--- a/ocs_ci/templates/workloads/smallfile/SmallFile.yaml
++++ b/ocs_ci/templates/workloads/smallfile/SmallFile.yaml
+@@ -21,6 +21,7 @@ spec:
+   workload:
+     name: smallfile
+     args:
++      image: quay.io/piyushgupta1551/smallfile-m:ppc64le
+       clients: 1
+       samples: 1
+       pause: 50
