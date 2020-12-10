@@ -1,0 +1,12 @@
+diff --git a/tests/e2e/scale/test_cephfs_many_files.py b/tests/e2e/scale/test_cephfs_many_files.py
+index 4df4a2d3..2ede70bc 100644
+--- a/tests/e2e/scale/test_cephfs_many_files.py
++++ b/tests/e2e/scale/test_cephfs_many_files.py
+@@ -88,7 +88,6 @@ class MillionFilesOnCephfs(object):
+             interface_type=constants.CEPHFILESYSTEM,
+             namespace=config.ENV_DATA["cluster_namespace"],
+             pvc_name=pvc_name,
+-            node_name="compute-0",
+             pod_name=self.pod_name,
+         )
+         helpers.wait_for_resource_state(
