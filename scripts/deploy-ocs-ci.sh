@@ -26,7 +26,7 @@ pushd ../src/ocs-ci
 
 patchfiles=(../../files/ocs-ci/ocs-ci-[0-9][0-9]-*.patch)
 
-kvm_present=$(lsmod | grep kvm)
+kvm_present=$(/usr/sbin/lsmod | grep kvm)
 if [ -n "$kvm_present" ]; then
 	platform=kvm
 else
