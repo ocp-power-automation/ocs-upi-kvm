@@ -137,6 +137,12 @@ and internally generated files are restricted to the specific workspace instance
 is allocated to run the job.  For this project, that workspace is assumed to be 
 the *parent* directory of the cloned project **ocs-upi-kvm** itself.
 
+**IMPORTANT NOTE**: Do not set the WORKSPACE environment variable unless you know what you are
+doing.  The only tested configuration is as stated -- the parent directory of ocs-upi-kvm.
+Terraform and GO modules are built in the workspace directory.  We encountered an incompatibility
+with another project that uses terraform.  If you encounter a terraform module missing problem,
+see the Trouble Shooting section.
+
 ## Required Files
 
 These files should be placed in the workspace directory.
@@ -160,7 +166,7 @@ also need to add the secret for **registry.svc.ci.openshift.org** which may be o
 5.  Execute the oc registry login --registry registry.svc.ci.openshift.org which will store your token in ~/.docker/config.json.
 
 The bastion image is a prepared image downloaded from the Red Hat Customer Portal following these
-[instructions](https://github.com/ocp-power-automation/ocp4-upi-kvm/blob/master/docs/prepare-images.md).
+[instructions](https://github.com/ocp-power-automation/ocp4-upi-kvm/blob/master/docs/automation_host_prereqs.md).
 It is named by the environment variable BASTION_IMAGE which has a default
 value of "rhel-8.2-update-2-ppc64le-kvm.qcow2".  This is the name of the file downloaded
 from the RedHat website.
@@ -238,8 +244,27 @@ The environment variable FORCE_DISK_PARTITION_WIPE may be set to 'true' to wipe
 the data on a hard disk partition assuming the environment variable DATA_DISK_LIST is
 specified.  The wipe may take an hour or more to complete.
 
+## Pre Creation
 
-## Post Creation of The OpenShift Cluster
+Beyond placing required files, setting environment variables, and invoking scripts, you
+may need to modify the number of worker nodes that are listed in the ***HAProxy** config file*
+located at *ocs-upi-kvm/files/haproxy.cfg*.
+
+By default, this file includes IP Addresses for 6 worker nodes.  If you are creating a
+cluster with more worker nodes, then you should edit this file within the project to accomodate
+the extra worker nodes as this file is copied to the target location by this toolset
+potentially multiple times depending on how long lived the cloned instance of the project is.
+
+The first time that the *create cluster* script is run the host server is installed and
+configured to run virtual machines.  Subsequently, the host may be reconfigured as fixes
+and new capabilities are delivered.  It is fairly rare for the host to be reconfigured
+but it does happen.  The last time this occurred when RHEL 8.3 was released.
+
+Editing the local copy of the HAProxy config file within this project ensures that your desired
+changes are always applied.  You do not need to edit this file if you are creating less than
+6 worker nodes.
+
+## Post Creation
 
 Build artifacts are placed in the *workspace* directory which is defined as the
 parent directory of this github project **ocs-upi-kvm**.  The examples shown below
@@ -252,8 +277,8 @@ downloaded during cluster creation.
 Upon successful completion of the **create-ocp.sh** script, the **oc** command
 may be invoked in the following way:
 ```
-[user@kvm-host workspace]; source env-ocp.sh
-[user@kvm-host workspace]; oc get nodes
+[user@kvm-host workspace]$ source env-ocp.sh
+[user@kvm-host workspace]$ oc get nodes
 NAME       STATUS   ROLES    AGE   VERSION
 master-0   Ready    master   40h   v1.19.0+d59ce34
 master-1   Ready    master   40h   v1.19.0+d59ce34
@@ -269,13 +294,21 @@ variable.  It may be useful in some cases to stick these in your user profile.
 
 The following log files are produced:
 ```
-[user@kvm-host-ahv workspace]$ ls -lt *log
+[user@kvm-host workspace]$ ls -lt *log
 -rw-rw-r--. 1 luke luke   409491 Oct 23 18:36 create-ocp.log
 -rw-rw-r--. 1 luke luke   654998 Oct 23 19:06 deploy-ocs-ci.log
 -rw-rw-r--. 1 luke luke  1144731 Oct 22 23:23 ocs-ci.git.log
 -rw-rw-r--. 1 luke luke    18468 Oct 23 18:38 setup-ocs-ci.log
 -rw-rw-r--. 1 luke luke 23431620 Oct 23 18:35 terraform.log
 -rw-rw-r--. 1 luke luke 29235845 Oct 25 00:30 test-ocs-ci.log
+```
+
+OCS-CI log files are located here per OCP release:
+```
+[user@kvm-host workspace]$ ll logs-ocs-ci/4.6/
+drwxrwxr-x. 3 luke luke      19 Dec  1 20:01 logs-ocs-ci/4.6/ocs-ci-logs-1606874505
+-rw-rw-r--. 1 luke luke    3513 Dec  1 20:01 logs-ocs-ci/4.6/run-1606874505-config.yaml
+-rw-rw-r--. 1 luke luke 8500450 Dec  2 10:31 logs-ocs-ci/4.6/test_workloads_1606874505_report.html
 ```
 
 ### Remote Webconsole Support
@@ -330,3 +363,38 @@ SHELL=/bin/bash
 The example above will invoke chron-ocs.sh every 24 hours at midnight local time.
 
 Log files are written to the **logs** directory under the user's home directory.
+
+## Troubleshooting
+
+This project may use a different version of **Terraform** and **GO** than other projects, so it is a
+best practice not to switch back and forth between different terraform projects.
+
+This project supports multiple versions of OCP requiring the use of multiple versions of the same
+Terraform module.  As a result, this project builds more Terraform modules than a lot of
+other OCP projects and it has more Terraform dependencies.  These modules are placed in the 
+local terraform registry **~/.terraform.d**.  This local registry is defined by Terraform, so the
+terraform modules created by one project may be used by another.
+
+This project only builds Terraform modules when the locally registry is missing to save time.
+If a Terraform module is missing, then you can force the tool to rebuild the requisite Terraform
+modules by removing the local terraform repository like this:
+
+```
+rm -rf ~/.terraform.d
+rm -rf terraform
+```
+
+This tool also automates the installation of the **libvirt** and **KVM**.  Other subsystems configured
+are **networking**, **ports**, **nftables**, **dns overlays**, **ip forwarding**, **firewalls** which disables
+**iptables**, and **haproxy**.  This also is just performed once based on the presence of a file.  You
+can force this toolset to reconfigure these items by removing the following file.
+
+```
+rm -f ~/.kvm_setup
+```
+
+Note if a *ocs-upi-kvm code change introduces a change to the host configuration*, it will automatically
+be applied when the ocs-upi-kvm project is refreshed.  The **.kvm_setup** file contains a generation count
+controlling when the code is re-run.
+
+It is safe to re-run these steps between every build.  It will just take longer.
