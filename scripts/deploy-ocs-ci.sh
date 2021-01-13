@@ -80,6 +80,10 @@ cp -f ../../files/ocs-ci-conf.yaml $WORKSPACE/ocs-ci-conf.yaml
 mkdir -p $LOGDIR
 yq -y -i '.RUN.log_dir |= env.LOGDIR' $WORKSPACE/ocs-ci-conf.yaml
 
+if [ "$platform" == "powervs" ]; then
+	yq -y -i '.ENV_DATA.number_of_storage_disks = 8' $WORKSPACE/ocs-ci-conf.yaml
+fi
+
 run-ci -m deployment --deploy \
 	--ocs-version $OCS_VERSION --cluster-name ocstest \
 	--ocsci-conf conf/ocsci/production_powervs_upi.yaml \
