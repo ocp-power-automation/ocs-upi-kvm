@@ -74,9 +74,27 @@ do
 	qemu-img create -f raw $disk_path ${DATA_DISK_SIZE}G
 
 	vm=$(virsh list --all | grep worker-$i | tail -n 1 | awk '{print $2}')
+
 	echo "Attaching data disk to $vm at $VDISK"
 	virsh attach-disk $vm --source $disk_path --target $VDISK --persistent
-	virsh reboot $vm
+
+	set -x
+	if [ "$ENABLE_HUGE_PAGES" == "true" ]; then
+		freeHugePages=$(cat /proc/meminfo | grep HugePages_Free | awk '{print $2}')
+		numHugePagesNeeded=$(( WORKER_DESIRED_MEM * 1024 * 1024 / HugePageBytes ))
+
+		if (( numHugePagesNeeded <= freeHugePages )); then
+			echo "Enabling huge pages"
+			virt-xml $vm --edit --memory hugepages=yes
+		fi
+		virsh destroy $vm
+		sync && sleep 5
+		virsh start $vm
+	else
+		virsh reboot $vm
+	fi
+	set +x
+
 	sleep $delay
 done
 

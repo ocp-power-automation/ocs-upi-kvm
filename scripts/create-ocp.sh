@@ -89,6 +89,10 @@ if [ "$retry" == false ]; then
 	sudo -sE helper/virsh-cleanup.sh
 fi
 
+# Validate after VMs are they are destroyed and hugepages freed
+
+enable_hugepages
+
 echo "export PATH=$WORKSPACE/bin/:$PATH" | tee $WORKSPACE/env-ocp.sh
 chmod a+x $WORKSPACE/env-ocp.sh
 
