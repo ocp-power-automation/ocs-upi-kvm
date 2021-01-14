@@ -24,6 +24,10 @@ fi
 
 export VDISK=${VDISK:="vdd"}
 
+# Do not re-deploy VMs with huge pages as that is only done when the cluster is created
+
+export ENABLE_HUGE_PAGES=false
+
 sudo -sE helper/add-vdisk-workers.sh
 
 $WORKSPACE/bin/oc get pv

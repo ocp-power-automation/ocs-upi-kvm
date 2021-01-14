@@ -160,3 +160,42 @@ else
         PLATFORM=powervs
 fi
 
+# The memory image of VMs can be backed by hugepages greatly improving
+# memory performance.  This capability is only applied for worker nodes
+# as the memory is inot reusable for other purposes.  This should only
+# be enabled on servers with 512 GBs of memory.  The minimum required
+# to activate this support is three worker nodes worth of hugepages.
+
+export HUGE_PAGE_POOL_TOTAL=${HUGE_PAGE_POOL_TOTAL:="200"}
+
+ARCH=$(lscpu | grep "^Model name" | awk '{print $3}' | sed 's/,//')
+
+# HugePageSize is the expected page size that we configure.  If a different
+# value is configured assume it is for other purposes.
+
+if [ "$ARCH" == "POWER8" ]; then
+        HugePageSize=16M
+        (( HugePageBytes = 16 * 1024 * 1024 ))
+else
+        HugePageSize=1G
+        (( HugePageBytes = 1024 * 1024 * 1024 ))
+fi
+
+actualHugePageSize=$(grep Hugepagesize /proc/meminfo | awk '{print $2}') 
+
+if (( (actualHugePageSize * 1024) != HugePageBytes )); then
+	export ENABLE_HUGE_PAGES=false
+fi
+
+function enable_hugepages ( ) {
+
+	freeHugePages=$(cat /proc/meminfo | grep HugePages_Free | awk '{print $2}')
+	minHugePages=$(( WORKER_DESIRED_MEM * 1024 * 1024 * 3 / HugePageBytes ))
+
+	if (( freeHugePages >= minHugePages )); then
+		export ENABLE_HUGE_PAGES=${ENABLE_HUGE_PAGES:="true"}
+	else
+		export ENABLE_HUGE_PAGES=${ENABLE_HUGE_PAGES:="false"}
+	fi
+	echo "ENABLE_HUGE_PAGES=$ENABLE_HUGE_PAGES"
+}
