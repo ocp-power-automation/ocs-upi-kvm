@@ -1,4 +1,4 @@
-commit 14c94b27b28a2cab381636be5f9794961d53aea8
+commit a243706dd1a41bf0f7ee31e5e040ff236ea9c9be
 Author: gitsridhar <svenkat@us.ibm.com>
 Date:   Thu Dec 3 11:30:43 2020 -0500
 
@@ -11,7 +11,7 @@ Date:   Thu Dec 3 11:30:43 2020 -0500
     Signed-off-by: gitsridhar <svenkat@us.ibm.com>
 
 diff --git a/ocs_ci/framework/pytest_customization/marks.py b/ocs_ci/framework/pytest_customization/marks.py
-index c2daa724..2f807f08 100644
+index 24e460d5..f4da5b93 100644
 --- a/ocs_ci/framework/pytest_customization/marks.py
 +++ b/ocs_ci/framework/pytest_customization/marks.py
 @@ -176,7 +176,10 @@ skipif_aws_i3 = pytest.mark.skipif(
@@ -27,7 +27,7 @@ index c2daa724..2f807f08 100644
      reason="Test will not run on Bare Metal",
  )
 diff --git a/ocs_ci/ocs/platform_nodes.py b/ocs_ci/ocs/platform_nodes.py
-index 76fb9dd5..cbb4cb7f 100644
+index 95b3ff45..9608b183 100644
 --- a/ocs_ci/ocs/platform_nodes.py
 +++ b/ocs_ci/ocs/platform_nodes.py
 @@ -13,7 +13,7 @@ from ocs_ci.deployment.terraform import Terraform
@@ -38,16 +38,16 @@ index 76fb9dd5..cbb4cb7f 100644
 +from ocs_ci.utility import aws, vsphere, templating, baremetal, azure_utils, powernodes
  from ocs_ci.utility.retry import retry
  from ocs_ci.utility.csr import approve_pending_csr
- from ocs_ci.ocs import constants, ocp, exceptions, cluster
-@@ -66,6 +66,7 @@ class PlatformNodesFactory:
+ from ocs_ci.ocs import constants, ocp, exceptions
+@@ -65,6 +65,7 @@ class PlatformNodesFactory:
+             "baremetal": BaremetalNodes,
              "azure": AZURENodes,
              "gcp": NodesBase,
-             "vsphere_lso": VMWareLSONodes,
 +            "powervs": IBMPowerNodes,
          }
  
      def get_nodes_platform(self):
-@@ -1688,6 +1689,78 @@ class BaremetalNodes(NodesBase):
+@@ -1685,6 +1686,67 @@ class BaremetalNodes(NodesBase):
          return default_config_dict
  
  
@@ -93,18 +93,7 @@ index 76fb9dd5..cbb4cb7f 100644
 +        """
 +        self.powernodes.restart_powernodes_machines(nodes, force=force)
 +
-+    def restart_nodes_by_stop_and_start(self, nodes, force=True):
-+        """
-+        Restart PowerNodes with stop and start
-+
-+        Args:
-+            nodes (list): The OCS objects of the nodes
-+            force (bool): True for force node stop, False otherwise
-+
-+        """
-+        self.powernodes.restart_powernodes_machines(nodes, force=force)
-+
-+    def restart_nodes_by_stop_and_start_teardown(self):
++    def restart_nodes_teardown(self):
 +        """
 +        Make sure all PowerNodes are up by the end of the test
 +
