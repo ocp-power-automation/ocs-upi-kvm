@@ -150,3 +150,13 @@ function file_present ( ) {
 		file_rc=1
 	fi
 }
+
+# Determine the PLATFORM.  Used for applying patches and performance optimization
+
+kvm_present=$(/usr/sbin/lsmod | grep kvm)
+if [ -n "$kvm_present" ]; then
+        PLATFORM=kvm
+else
+        PLATFORM=powervs
+fi
+
