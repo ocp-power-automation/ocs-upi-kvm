@@ -47,7 +47,7 @@ NUM_HUGE_PAGES=$(( HugePagePoolBytes / HugePageBytes ))
 
 echo "Updating kernel boot parameters in /etc/default/grub"
 
-sed -i "s/rhgb quiet/rhgb quiet default_hugepagesz=$HugePageSize hugepages=$NUM_HUGE_PAGES/" /etc/default/grub
+sed -i "s/GRUB_CMDLINE_LINUX=\"/GRUB_CMDLINE_LINUX=\"default_hugepagesz=$HugePageSize hugepages=$NUM_HUGE_PAGES /" /etc/default/grub
 grub2-mkconfig > /boot/grub2/grub.cfg
 
 grep "vm.nr_hugepages" /etc/sysctl.conf
