@@ -34,7 +34,7 @@ if [[ "${#patchfiles[@]}" -gt 0 ]] || [[ "${#platform_patchfiles[@]}" -gt 0 ]]; 
         fi
 
         set +e
-        patch --dry-run -p1 < $WORKSPACE/ocs-ci.patch
+        patch --dry-run -f -p1 < $WORKSPACE/ocs-ci.patch
         rc=$?
         set -e
 
