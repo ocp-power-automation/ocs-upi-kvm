@@ -1,21 +1,31 @@
 diff --git a/ocs_ci/framework/pytest_customization/marks.py b/ocs_ci/framework/pytest_customization/marks.py
-index 24e460d..f4da5b9 100644
+index 24e460d5..4ada0aba 100644
 --- a/ocs_ci/framework/pytest_customization/marks.py
 +++ b/ocs_ci/framework/pytest_customization/marks.py
-@@ -176,7 +176,10 @@ skipif_aws_i3 = pytest.mark.skipif(
+@@ -176,7 +176,7 @@ skipif_aws_i3 = pytest.mark.skipif(
  )
  
  skipif_bm = pytest.mark.skipif(
 -    config.ENV_DATA["platform"].lower() == "baremetal"
-+    (
-+        config.ENV_DATA["platform"].lower() == "baremetal"
-+        or config.ENV_DATA["platform"].lower() == "powervs"
-+    )
++    (config.ENV_DATA["platform"].lower() == "baremetal")
      and config.DEPLOYMENT.get("local_storage") is True,
      reason="Test will not run on Bare Metal",
  )
+diff --git a/ocs_ci/ocs/constants.py b/ocs_ci/ocs/constants.py
+index fa99e7f3..1b24630d 100644
+--- a/ocs_ci/ocs/constants.py
++++ b/ocs_ci/ocs/constants.py
+@@ -586,7 +586,7 @@ BAREMETAL_PLATFORM = "baremetal"
+ IBM_POWER_PLATFORM = "powervs"
+ BAREMETALPSI_PLATFORM = "baremetalpsi"
+ RGW_PLATFORM = "rgw"
+-ON_PREM_PLATFORMS = [VSPHERE_PLATFORM, BAREMETAL_PLATFORM, BAREMETALPSI_PLATFORM]
++ON_PREM_PLATFORMS = [VSPHERE_PLATFORM, BAREMETAL_PLATFORM, BAREMETALPSI_PLATFORM, IBM_POWER_PLATFORM]
+ CLOUD_PLATFORMS = [AWS_PLATFORM, AZURE_PLATFORM, GCP_PLATFORM]
+ 
+ # ignition files
 diff --git a/ocs_ci/ocs/platform_nodes.py b/ocs_ci/ocs/platform_nodes.py
-index 95b3ff4..85a1f23 100644
+index 95b3ff45..48ac690f 100644
 --- a/ocs_ci/ocs/platform_nodes.py
 +++ b/ocs_ci/ocs/platform_nodes.py
 @@ -13,7 +13,7 @@ from ocs_ci.deployment.terraform import Terraform
@@ -35,7 +45,7 @@ index 95b3ff4..85a1f23 100644
          }
  
      def get_nodes_platform(self):
-@@ -1685,6 +1686,78 @@ class BaremetalNodes(NodesBase):
+@@ -1685,6 +1686,102 @@ class BaremetalNodes(NodesBase):
          return default_config_dict
  
  
@@ -57,7 +67,12 @@ index 95b3ff4..85a1f23 100644
 +            force (bool): True for force nodes stop, False otherwise
 +
 +        """
-+        self.powernodes.stop_powernodes_machines(nodes, force=force)
++        if self.powernodes.iskvm():
++            self.powernodes.stop_powernodes_machines(nodes, force=force)
++        else:
++            raise NotImplementedError(
++                "This is not libvirt environment. Stop nodes not implemented"
++            )
 +
 +    def start_nodes(self, nodes, force=True):
 +        """
@@ -68,7 +83,12 @@ index 95b3ff4..85a1f23 100644
 +            wait (bool): Wait for node status
 +
 +        """
-+        self.powernodes.start_powernodes_machines(nodes, force=force)
++        if self.powernodes.iskvm():
++            self.powernodes.start_powernodes_machines(nodes, force=force)
++        else:
++            raise NotImplementedError(
++                "This is not libvirt environment. Start nodes not implemented"
++            )
 +
 +    def restart_nodes(self, nodes, timeout=540, wait=True, force=True):
 +        """
@@ -79,7 +99,12 @@ index 95b3ff4..85a1f23 100644
 +            force (bool): True for force BM stop, False otherwise
 +
 +        """
-+        self.powernodes.restart_powernodes_machines(nodes, force=force)
++        if self.powernodes.iskvm():
++            self.powernodes.restart_powernodes_machines(nodes, force=force)
++        else:
++            raise NotImplementedError(
++                "This is not libvirt environment. Restart nodes not implemented"
++            )
 +
 +    def restart_nodes_by_stop_and_start(self, nodes, force=True):
 +        """
@@ -90,13 +115,22 @@ index 95b3ff4..85a1f23 100644
 +            force (bool): True for force node stop, False otherwise
 +
 +        """
-+        self.powernodes.restart_powernodes_machines(nodes, force=force)
++        if self.powernodes.iskvm():
++            self.powernodes.restart_powernodes_machines(nodes, force=force)
++        else:
++            raise NotImplementedError(
++                "This is not libvirt environment. Restart nodes by stop and start not implemented"
++            )
 +
 +    def restart_nodes_by_stop_and_start_teardown(self):
 +        """
 +        Make sure all PowerNodes are up by the end of the test
-+
 +        """
++        if not self.powernodes.iskvm():
++            raise NotImplementedError(
++                "This is not libvirt environment. Restart nodes by stop and start teardown not implemented"
++            )
++
 +        self.cluster_nodes = get_node_objs()
 +        stopped_powernodes = [
 +            powernode
@@ -116,10 +150,10 @@ index 95b3ff4..85a1f23 100644
      Azure Nodes class
 diff --git a/ocs_ci/utility/powernodes.py b/ocs_ci/utility/powernodes.py
 new file mode 100644
-index 0000000..2f3a6fb
+index 00000000..8ca7129f
 --- /dev/null
 +++ b/ocs_ci/utility/powernodes.py
-@@ -0,0 +1,101 @@
+@@ -0,0 +1,121 @@
 +import logging
 +
 +from ocs_ci.ocs import constants
@@ -127,6 +161,7 @@ index 0000000..2f3a6fb
 +from ocs_ci.ocs.node import wait_for_nodes_status, get_worker_nodes, get_master_nodes
 +from ocs_ci.ocs.ocp import wait_for_cluster_connectivity
 +from ocs_ci.utility.utils import TimeoutSampler, exec_cmd
++from ocs_ci.utility.utils import get_ocp_version
 +
 +logger = logging.getLogger(__name__)
 +
@@ -135,6 +170,19 @@ index 0000000..2f3a6fb
 +    """
 +    Wrapper for PowerNodes
 +    """
++
++    def iskvm(self):
++        """
++        Verify if this environment is libvirt or kvm.
++        Args: None
++        Returns:
++            bool: True if this is kvm environment, False otherwise
++        """
++        result = exec_cmd("sudo /usr/sbin/lsmod")
++        if b"kvm" in result.stdout.lower():
++            return True
++        else:
++            return False
 +
 +    def verify_machine_is_down(self, node):
 +        """
@@ -147,7 +195,9 @@ index 0000000..2f3a6fb
 +            bool: True if machine is down, False otherwise
 +
 +        """
-+        result = exec_cmd(f"sudo virsh domstate test-ocp4-6-{node.name}")
++        result = exec_cmd(
++            "sudo virsh domstate test-ocp" + get_ocp_version("-") + f"-{node.name}"
++        )
 +        if result.stdout.lower().rstrip() == b"running":
 +            return False
 +        else:
@@ -166,8 +216,9 @@ index 0000000..2f3a6fb
 +            UnexpectedBehaviour: If PowerNode machine is still up
 +
 +        """
++        ocpversion = get_ocp_version("-")
 +        for node in powernode_machines:
-+            cmd = f"sudo virsh shutdown test-ocp4-6-{node.name}"
++            cmd = "sudo virsh shutdown test-ocp" + ocpversion + f"-{node.name}"
 +            result = exec_cmd(cmd)
 +            """
 +            if result.returncode == 0:
@@ -196,8 +247,11 @@ index 0000000..2f3a6fb
 +            wait (bool): Wait for PowerNodes to start - for future use
 +
 +        """
++        ocpversion = get_ocp_version("-")
 +        for node in powernode_machines:
-+            result = exec_cmd(f"sudo virsh start test-ocp4-6-{node.name}")
++            result = exec_cmd(
++                "sudo virsh start test-ocp" + ocpversion + f"-{node.name}"
++            )
 +            logger.info(f"Result of shutdown {result}")
 +
 +        wait_for_cluster_connectivity(tries=900)
