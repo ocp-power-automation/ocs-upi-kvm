@@ -78,6 +78,9 @@ do
 	echo "Attaching data disk to $vm at $VDISK"
 	virsh attach-disk $vm --source $disk_path --target $VDISK --persistent
 
+	echo "Enabling vhost queues=4"
+	virt-xml $vm --edit --network driver.name=vhost,driver.queues=4
+
 	set -x
 	if [ "$ENABLE_HUGE_PAGES" == "true" ]; then
 		freeHugePages=$(cat /proc/meminfo | grep HugePages_Free | awk '{print $2}')
@@ -86,8 +89,6 @@ do
 		if (( numHugePagesNeeded <= freeHugePages )); then
 			echo "Enabling huge pages"
 			virt-xml $vm --edit --memory hugepages=yes
-			echo "Enabling vhost queues=4"
-			virt-xml $vm --edit --network driver.name=vhost,driver.queues=4
 		fi
 		virsh destroy $vm
 		sync && sleep 5
