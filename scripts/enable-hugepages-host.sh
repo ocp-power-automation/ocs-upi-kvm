@@ -55,7 +55,10 @@ if [ "$?" != 0 ]; then
 	echo "vm.nr_hugepages = $NUM_HUGE_PAGES" >> /etc/sysctl.conf
 	sysctl -p
 else
-	echo "Please check /etc/sysctl.conf to ensure 'vm.nr_hugepages = "$NUM_HUGE_PAGES"' or greater"
+	echo "Please ensure 'vm.nr_hugepages = "$NUM_HUGE_PAGES"' or greater in /etc/sysctl.conf"
 fi
+
+
+sysctl -w kernel.numa_balancing=1
 
 echo "Please reboot"
