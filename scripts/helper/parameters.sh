@@ -160,13 +160,24 @@ else
         PLATFORM=powervs
 fi
 
-# The memory image of VMs can be backed by hugepages greatly improving
-# memory performance.  This capability is only applied for worker nodes
-# as the memory is inot reusable for other purposes.  This should only
-# be enabled on servers with 512 GBs of memory.  The minimum required
-# to activate this support is three worker nodes worth of hugepages.
+# Virtual memory performance of VMs is greatly improved by using hugepages
+# as this memory is always resident and is not paged by the host kernel.
+# It is reserved for one applications use.  Accessing this memory is orders
+# of magnitude faster as 1 TLB needs to be mapped for each hugepage as opposed
+# to 100000s of TLBs of smaller pages that would otherwise need to be mapped.
+# This capability is provided only for worker nodes as it is non-sharable and
+# it adds up to a large amount.  Further, to get the best results, one needs
+# to over allocate by a worker node as the memory is split across 2 numa nodes.
+# If the extra memory is not pre-allocated, then the final worker node gets
+# a split of huge pages from 2 pools.  Whenever this node (many threads) is
+# scheduled, it pollutes the processor cache and the threads that are subsequently
+# scheduled pay the penalty as they have to rebuild memory affinity.  So, extra
+# memory should be allocated to avoid the situation to improve over all performance,
+# when there is an odd number of worker nodes.  This feature should only be
+# enabled on servers with 512 GBs of memory.  The minimum required is three worker
+# nodes worth of hugepages.
 
-export HUGE_PAGE_POOL_TOTAL=${HUGE_PAGE_POOL_TOTAL:="200"}
+export HUGE_PAGE_POOL_TOTAL=${HUGE_PAGE_POOL_TOTAL:="256"}
 
 ARCH=$(lscpu | grep "^Model name" | awk '{print $3}' | sed 's/,//')
 

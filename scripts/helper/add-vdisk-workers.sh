@@ -78,11 +78,18 @@ do
 	echo "Attaching data disk to $vm at $VDISK"
 	virsh attach-disk $vm --source $disk_path --target $VDISK --persistent
 
-	echo "Enabling vhost queues=4"
-	virt-xml $vm --edit --network driver.name=vhost,driver.queues=4
-
 	set -x
-	if [ "$ENABLE_HUGE_PAGES" == "true" ]; then
+        set +e
+	virsh dumpxml $vm | grep hugepages 
+	rc=$?
+	if [[ "$rc" != 0 ]] && [[ "$ENABLE_HUGE_PAGES" == "true" ]]; then
+
+		# These performance enhancements are done once per VM based on a user
+		# action -- enabling hugepages.  A complete power off operation is
+		# required to activate these changes.  virsh destroy is potentially
+		# destructive as cached file system data may be lost, but in this case
+		# there is none as the cluster has just been installed.
+
 		freeHugePages=$(cat /proc/meminfo | grep HugePages_Free | awk '{print $2}')
 		numHugePagesNeeded=$(( WORKER_DESIRED_MEM * 1024 * 1024 / HugePageBytes ))
 
@@ -90,12 +97,24 @@ do
 			echo "Enabling huge pages"
 			virt-xml $vm --edit --memory hugepages=yes
 		fi
+
+		virsh dumpxml $vm | grep "name='vhost'"
+        	rc=$?
+		if [ "$rc" != 0 ]; then
+			echo "Enabling vhost queues=4"
+			virt-xml $vm --edit --network driver.name=vhost,driver.queues=4
+		fi
+
 		virsh destroy $vm
-		sync && sleep 5
+		sync && sleep 2
 		virsh start $vm
 	else
+		# This script may also be invoked while OCS is running.  A reboot
+		# operation ensures that a clean shutdown is performed.
+
 		virsh reboot $vm
 	fi
+	set -e
 	set +x
 
 	sleep $delay
