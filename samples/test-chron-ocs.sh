@@ -99,22 +99,22 @@ pushd $WORKSPACE/ocs-upi-kvm/scripts
 
 set -o pipefail
 
-echo "Invoking ./create-ocp.sh $retry_ocp_arg" | tee -a $LOGDIR/create-ocp-$LOGDATE.log
-./create-ocp.sh $retry_ocp_arg 2>&1 | tee -a $LOGDIR/create-ocp-$LOGDATE.log
-
-source $WORKSPACE/env-ocp.sh
-oc get nodes -o wide 2>&1 | tee -a $LOGDIR/create-ocp-$LOGDATE.log
-
-echo "Invoking ./setup-ocs-ci.sh"
-./setup-ocs-ci.sh 2>&1 | tee $LOGDIR/setup-ocs-ci-$LOGDATE.log
-
-echo "Invoking ./deploy-ocs-ci.sh"
-./deploy-ocs-ci.sh 2>&1 | tee $LOGDIR/deploy-ocs-ci-$LOGDATE.log
-
-set +e
-
-echo "Invoking ./test-ocs-ci.sh --tier 2,3,4a,4b,4c"
 for i in 2 3 4a 4b 4c
 do
+	echo "Invoking ./create-ocp.sh $retry_ocp_arg" | tee -a $LOGDIR/create-ocp-$LOGDATE.log
+	./create-ocp.sh $retry_ocp_arg 2>&1 | tee -a $LOGDIR/create-ocp-$LOGDATE.log
+
+	source $WORKSPACE/env-ocp.sh
+	oc get nodes -o wide 2>&1 | tee -a $LOGDIR/create-ocp-$LOGDATE.log
+
+	echo "Invoking ./setup-ocs-ci.sh"
+	./setup-ocs-ci.sh 2>&1 | tee $LOGDIR/setup-ocs-ci-$LOGDATE.log
+
+	echo "Invoking ./deploy-ocs-ci.sh"
+	./deploy-ocs-ci.sh 2>&1 | tee $LOGDIR/deploy-ocs-ci-$LOGDATE.log
+
+	set +e
+
+	echo "Invoking ./test-ocs-ci.sh --tier $i"
 	./test-ocs-ci.sh --tier $i | tee $LOGDIR/test-ocs-ci-tier-$i-$LOGDATE.log
 done
