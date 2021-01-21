@@ -45,4 +45,4 @@ git clone https://github.com/ocp-power-automation/ocs-upi-kvm
 
 echo "Run ocs-ci tier tests in the background...  Log files in $LOGDIR"
 
-./test-chron-ocs.sh --latest-ocs
+./test-chron-ocs.sh
