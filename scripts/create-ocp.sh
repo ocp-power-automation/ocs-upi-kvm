@@ -26,9 +26,15 @@ fi
 
 export CHRONY_CONFIG=${CHRONY_CONFIG:="true"}
 export WORKERS=${WORKERS:=3}
+
+# Cores per socket is 10 for P8 and 20 for P9.  This maximizes the amount of CPU that 
+# can be provided to the VM while minimizing NUMA effects
+
+coresPerSocket=$(lscpu | grep "^Core(s) per socket" | awk '{print $4}')
+
 export MASTER_DESIRED_CPU=${MASTER_DESIRED_CPU:="8"}
 export WORKER_DESIRED_MEM=${WORKER_DESIRED_MEM:="65536"}
-export WORKER_DESIRED_CPU=${WORKER_DESIRED_CPU:="24"}
+export WORKER_DESIRED_CPU=${WORKER_DESIRED_CPU:="$coresPerSocket"}
 
 source helper/parameters.sh
 
