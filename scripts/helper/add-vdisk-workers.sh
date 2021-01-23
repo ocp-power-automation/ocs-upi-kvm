@@ -33,6 +33,9 @@ if [[ "$DATA_DISK_SIZE" -le "0" ]]; then
 	exit
 fi
 
+node0=$(lscpu | grep "NUMA node0 CPU" | awk '{print $4}')
+node8=$(lscpu | grep "NUMA node8 CPU" | awk '{print $4}')
+
 # If OCS is configured, give more time for each node to recover
 # before modifying the next one
 
@@ -51,6 +54,16 @@ if [ -z "$DATA_DISK_ARRAY" ]; then
 	# Remove old images in case virsh_cleanup.sh is not run
 	rm -f $IMAGES_PATH/test-ocp$SANITIZED_OCP_VERSION/*.data
 fi
+
+# Remove bootstrap node to free resources.  It is no longer needed
+
+bootstrap=$(virsh list --all | grep bootstrap | awk '{print $2}')
+if [ -n "$bootstrap" ]; then
+	virsh destroy $bootstrap
+	virsh undefine $bootstrap
+fi
+
+# Add vdisk to worker nodes and tune VM worker node performance, since they have to be rebooted
 
 for (( i=0; i<$WORKERS; i++ ))
 do
@@ -103,6 +116,18 @@ do
 		if [ "$rc" != 0 ]; then
 			echo "Enabling vhost queues=4"
 			virt-xml $vm --edit --network driver.name=vhost,driver.queues=4
+		fi
+
+		virsh dumpxml $vm | grep cpuset
+		rc=$?
+		if [ "$rc" != 0 ]; then
+			if (( i % 2 )); then
+				cpuset=$node8
+			else
+				cpuset=$node0
+			fi
+			echo "Binding to cpuset=$cpuset"
+			virt-xml $vm --edit --vcpu vcpu.cpuset=$cpuset
 		fi
 
 		virsh destroy $vm
