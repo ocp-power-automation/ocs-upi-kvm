@@ -16,7 +16,7 @@ do
 	((j++))
 done
 
-type numastat > /dev/null
+type numastat > /dev/null 2>&1
 if [ "$?" == 0 ]; then
 	sudo numastat -c qemu
 fi

@@ -33,8 +33,23 @@ if [[ "$DATA_DISK_SIZE" -le "0" ]]; then
 	exit
 fi
 
-node0=$(lscpu | grep "NUMA node0 CPU" | awk '{print $4}')
-node8=$(lscpu | grep "NUMA node8 CPU" | awk '{print $4}')
+# Schedule worker nodes on second NUMA node if disk are file backed
+# as the data is buffered.  Their proximity to storage adapters is
+# less important, so optimize towards network and master nodes.  This
+# means 2 worker nodes are placed on the second numa node along with
+# one master node.  The first numa node holds one worker and two
+# masters.  This placement results in the fewest number of soft irqs
+# which lowers latency.  If disks are backed by devices, the reverse
+# happens.  2 workers on the first NUMA node and 1 on the second.
+
+if [ -n "$DATA_DISK_ARRAY" ]; then
+	primary=$(lscpu | grep "NUMA node0 CPU" | awk '{print $4}')
+	secondary=$(lscpu | grep "NUMA node8 CPU" | awk '{print $4}')
+
+else
+	secondary=$(lscpu | grep "NUMA node0 CPU" | awk '{print $4}')
+	primary=$(lscpu | grep "NUMA node8 CPU" | awk '{print $4}')
+fi
 
 # If OCS is configured, give more time for each node to recover
 # before modifying the next one
@@ -118,13 +133,17 @@ do
 			virt-xml $vm --edit --network driver.name=vhost,driver.queues=4
 		fi
 
+		# Bias placement of worker nodes on the type of underlying storage.  If
+		# file backed disks are used, storage adapter IO is less important as data
+		# is cached in the host filesystem.
+
 		virsh dumpxml $vm | grep cpuset
 		rc=$?
 		if [ "$rc" != 0 ]; then
 			if (( i % 2 )); then
-				cpuset=$node8
+				cpuset=$secondary
 			else
-				cpuset=$node0
+				cpuset=$primary
 			fi
 			echo "Binding to cpuset=$cpuset"
 			virt-xml $vm --edit --vcpu vcpu.cpuset=$cpuset
