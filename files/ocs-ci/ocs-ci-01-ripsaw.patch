@@ -1,29 +1,19 @@
-diff --git a/ocs_ci/ocs/ocp.py b/ocs_ci/ocs/ocp.py
-index 5b1079d9..108d06ae 100644
---- a/ocs_ci/ocs/ocp.py
-+++ b/ocs_ci/ocs/ocp.py
-@@ -656,7 +656,7 @@ class OCP(object):
- 
-         return False
- 
--    def wait_for_delete(self, resource_name="", timeout=60, sleep=3):
-+    def wait_for_delete(self, resource_name="", timeout=60, sleep=6):
-         """
-         Wait for a resource to be deleted
- 
 diff --git a/ocs_ci/ocs/ripsaw.py b/ocs_ci/ocs/ripsaw.py
-index d1bf325b..14dce6ac 100644
+index d1bf325b..ee006484 100644
 --- a/ocs_ci/ocs/ripsaw.py
 +++ b/ocs_ci/ocs/ripsaw.py
-@@ -41,7 +41,7 @@ class RipSaw(object):
+@@ -41,9 +41,9 @@ class RipSaw(object):
          """
          self.args = kwargs
          self.repo = self.args.get(
 -            "repo", "https://github.com/cloud-bulldozer/benchmark-operator"
 +            "repo", "https://github.com/ocp-power-automation/benchmark-operator"
          )
-         self.branch = self.args.get("branch", "master")
+-        self.branch = self.args.get("branch", "master")
++        self.branch = self.args.get("branch", "dev-ppc64le")
          self.namespace = self.args.get("namespace", RIPSAW_NAMESPACE)
+         self.pgsql_is_setup = False
+         self.ocp = OCP()
 diff --git a/ocs_ci/templates/workloads/fio/benchmark_fio.yaml b/ocs_ci/templates/workloads/fio/benchmark_fio.yaml
 index 3284fede..2a8a595e 100644
 --- a/ocs_ci/templates/workloads/fio/benchmark_fio.yaml
