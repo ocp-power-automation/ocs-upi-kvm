@@ -93,6 +93,8 @@ firewall-cmd --zone=libvirt --add-service=libvirt  --permanent
 firewall-cmd --zone=libvirt --add-service=http     --permanent
 firewall-cmd --zone=libvirt --add-service=https    --permanent
 firewall-cmd --zone=libvirt --add-service=rpc-bind --permanent
+firewall-cmd --zone=libvirt --add-service=nfs      --permanent
+firewall-cmd --zone=libvirt --add-service=mountd   --permanent
 firewall-cmd --zone=libvirt --add-port=53/tcp      --permanent
 firewall-cmd --zone=libvirt --add-port=53/udp      --permanent
 firewall-cmd --zone=libvirt --add-port=623/udp     --permanent	# RMCP (ipmi / bmc)
