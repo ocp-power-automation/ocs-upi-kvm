@@ -90,10 +90,10 @@ case "$OCP_VERSION" in
 		export INSTALL_PLAYBOOK_TAG=b07c89deacb04f996834403b1efdafb1f9a3d7c4
 		;;
 	4.6)
-		OCP_RELEASE="4.6.5"		# Latest release of OCP 4.6 at this time
+		OCP_RELEASE="4.6.13"		# Latest release of OCP 4.6 at this time
 		RHCOS_VERSION="4.6"
 		if [ -z "$RHCOS_RELEASE" ]; then
-			RHCOS_RELEASE="4.6.1"	# Latest release of RHCOS 4.6 at this time
+			RHCOS_RELEASE="4.6.8"	# Latest release of RHCOS 4.6 at this time
 		fi
 		RHCOS_SUFFIX="-$RHCOS_RELEASE"
 		export INSTALL_PLAYBOOK_TAG=c6e6038dba0856e621697c876bd3a65927f46166
