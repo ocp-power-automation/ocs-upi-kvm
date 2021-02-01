@@ -12,7 +12,7 @@
 
 set -e
 
-export WIPE_VERSION=${WIPE_VERSION:=2.3.1-17.15}
+export WIPE_VERSION=${WIPE_VERSION:=2.3.1-18.1}
 
 if [ ! -e helper/parameters.sh ]; then
 	echo "Please invoke from the directory ocs-upi-kvm/scripts"
