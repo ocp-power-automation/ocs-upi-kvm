@@ -27,18 +27,18 @@ fi
 export CHRONY_CONFIG=${CHRONY_CONFIG:="true"}
 export WORKERS=${WORKERS:=3}
 
-# For worker nodes, scale up the number of VCPUs to the total number of cores in a NUMA
-# node as there is no single application workload, and there is in general no penalty to
-# over allocate as the underlying host kernel thread is not scheduled unless there is a
-# job waiting to run on the associated VCPU.  For P8, there are 10 cores per NUMA node,
-# and for P9 16-20.  Host threads associated with worker nodes are bound to NUMA nodes
-# in add-vdisk-workers.sh.  Host threads for master nodes are not bound, so the majority
-# of worker nodes end up on numa node A and master nodes on the numa node B.
+# Master node vcpus are not bound to a NUMA Node (socket) which can lead to poor
+# system performance as cpu contention grows, so the number of master vcpus should
+# be less than the number of cores per socket to minimize remote node scheduling.
+# P8 has 10 cores per socket and P9 has 16-22 depending on the model.  Unlike master
+# nodes, worker node vcpus are bound to NUMA sockets so they can be scaled higher.
 
 coresPerSocket=$(lscpu | grep "^Core(s) per socket" | awk '{print $4}')
 
-export WORKER_DESIRED_MEM=${WORKER_DESIRED_MEM:="65536"}
-export WORKER_DESIRED_CPU=${WORKER_DESIRED_CPU:="$coresPerSocket"}
+export MASTER_DESIRED_CPU=${MASTER_DESIRED_CPU:=8}
+export MASTER_DESIRED_MEM=${MASTER_DESIRED_MEM:=24576}
+export WORKER_DESIRED_CPU=${WORKER_DESIRED_CPU:=$coresPerSocket}
+export WORKER_DESIRED_MEM=${WORKER_DESIRED_MEM:=65536}
 
 source helper/parameters.sh
 
