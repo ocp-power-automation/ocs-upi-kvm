@@ -99,7 +99,10 @@ pushd $WORKSPACE/ocs-upi-kvm/scripts
 
 set -o pipefail
 
-for i in 2 3 4a 4b 4c
+# Recreate the cluster for each test.  A failed test may leave the
+# cluster in a compromised state
+
+for i in 1 2 3 4a 4b 4c
 do
 	echo "Invoking ./create-ocp.sh $retry_ocp_arg" | tee -a $LOGDIR/create-ocp-$LOGDATE.log
 	./create-ocp.sh $retry_ocp_arg 2>&1 | tee -a $LOGDIR/create-ocp-$LOGDATE.log

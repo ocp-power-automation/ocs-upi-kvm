@@ -116,16 +116,22 @@ pushd $WORKSPACE/ocs-upi-kvm/scripts
 
 set -o pipefail
 
-./create-ocp.sh $retry_ocp_arg 2>&1 | tee $WORKSPACE/create-ocp.log
+# Recreate the cluster for each test.  A failed test may leave the
+# cluster in a compromised state
 
-source $WORKSPACE/env-ocp.sh
-oc get nodes -o wide 2>&1 | tee -a $WORKSPACE/create-ocp.log
+for i in 1 2 3 4a 4b 4c
+do
+	./create-ocp.sh $retry_ocp_arg 2>&1 | tee $WORKSPACE/create-ocp.log
 
-./setup-ocs-ci.sh 2>&1 | tee $WORKSPACE/setup-ocs-ci.log
-./deploy-ocs-ci.sh 2>&1 | tee $WORKSPACE/deploy-ocs-ci.log
+	source $WORKSPACE/env-ocp.sh
+	oc get nodes -o wide 2>&1 | tee -a $WORKSPACE/create-ocp.log
 
-nohup ./test-ocs-ci.sh --tier 2,3,4a,4b,4c 2>&1 > $WORKSPACE/test-ocs-ci.log
+	./setup-ocs-ci.sh 2>&1 | tee $WORKSPACE/setup-ocs-ci.log
+	./deploy-ocs-ci.sh 2>&1 | tee $WORKSPACE/deploy-ocs-ci.log
 
-#nohup ./test-ocs-ci.sh --performance 2>&1 > $WORKSPACE/perf-ocs-ci.log
-#nohup ./test-ocs-ci.sh --workloads 2>&1 > $WORKSPACE/workloads-ocs-ci.log
-#nohup ./test-ocs-ci.sh --scale 2>&1 > $WORKSPACE/scale-ocs-ci.log
+	nohup ./test-ocs-ci.sh --tier $i 2>&1 > $WORKSPACE/test-ocs-ci.log
+
+	#nohup ./test-ocs-ci.sh --performance 2>&1 > $WORKSPACE/perf-ocs-ci.log
+	#nohup ./test-ocs-ci.sh --workloads 2>&1 > $WORKSPACE/workloads-ocs-ci.log
+	#nohup ./test-ocs-ci.sh --scale 2>&1 > $WORKSPACE/scale-ocs-ci.log
+done

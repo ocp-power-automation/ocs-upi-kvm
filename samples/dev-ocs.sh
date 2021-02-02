@@ -117,7 +117,9 @@ oc get nodes 2>&1 | tee -a $WORKSPACE/create-ocp.log
 
 ./deploy-ocs-ci.sh 2>&1 | tee $WORKSPACE/deploy-ocs-ci.log
 
-./deploy-ocp-logging.sh 2>&1 | tee $WORKSPACE/deploy-ocp-logging.log
+#./add-data-disk-workers.sh 2>&1 | tee $WORKSPACE/add-data-disk-workers.log
+
+#./deploy-ocp-logging.sh 2>&1 | tee $WORKSPACE/deploy-ocp-logging.log
 
 exit
 
@@ -130,6 +132,7 @@ source $WORKSPACE/venv/bin/activate             # enter 'deactivate' in venv she
 # The 'tests/e2e/...' can be obtained from the html report of performance, workloads, tier tests, ...
 
 run-ci -m "performance" --cluster-name ocstest --cluster-path $WORKSPACE \
+	--ocp-version $OCP_VERSION --ocs-version=4.6 \
         --ocsci-conf conf/ocsci/production_powervs_upi.yaml \
         --ocsci-conf $WORKSPACE/ocs-ci-conf.yaml \
         --collect-logs \
