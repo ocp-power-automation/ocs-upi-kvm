@@ -53,8 +53,8 @@ export PATH=$WORKSPACE/bin:$PATH
 set -e
 
 # Internal variables -- don't change unless you also modify the underlying projects
-export TERRAFORM_VERSION=${TERRAFORM_VERSION:="v0.13.3"}
-export GO_VERSION=${GO_VERSION:="go1.14.9"}
+export TERRAFORM_VERSION=${TERRAFORM_VERSION:="v0.13.6"}
+export GO_VERSION=${GO_VERSION:="go1.14.14"}
 
 file_present $IMAGES_PATH/$BASTION_IMAGE
 if [[ ! -e $WORKSPACE/$BASTION_IMAGE ]] && [[ "$file_rc" != 0 ]]; then
@@ -90,20 +90,20 @@ case "$OCP_VERSION" in
 		export INSTALL_PLAYBOOK_TAG=b07c89deacb04f996834403b1efdafb1f9a3d7c4
 		;;
 	4.6)
-		OCP_RELEASE="4.6.13"		# Latest release of OCP 4.6 at this time
+		OCP_RELEASE="4.6.12"		# Latest release of OCP 4.6 at this time
 		RHCOS_VERSION="4.6"
 		if [ -z "$RHCOS_RELEASE" ]; then
 			RHCOS_RELEASE="4.6.8"	# Latest release of RHCOS 4.6 at this time
 		fi
 		RHCOS_SUFFIX="-$RHCOS_RELEASE"
-		export INSTALL_PLAYBOOK_TAG=c6e6038dba0856e621697c876bd3a65927f46166
+		export INSTALL_PLAYBOOK_TAG=fc74d7ec06b2dd47c134c50b66b478abde32e295
 		;;
 	4.7)						# TODO: Update after GA
 		unset OCP_RELEASE
 		RHCOS_VERSION="4.6"
 		unset RHCOS_RELEASE
 		RHCOS_SUFFIX="-$RHCOS_VERSION"
-		export INSTALL_PLAYBOOK_TAG=c6e6038dba0856e621697c876bd3a65927f46166
+		export INSTALL_PLAYBOOK_TAG=fc74d7ec06b2dd47c134c50b66b478abde32e295
 		;;
 	*)
 		echo "Invalid OCP_VERSION=$OCP_VERSION.  Supported versions are 4.4 - 4.7"
@@ -252,10 +252,9 @@ if [[ "$INSTALLED_GO" == "true" ]] || [[ "$OLD_TERRAFORM_VERSION" != "$TERRAFORM
 	cp -f $GOPATH/bin/terraform-provider-null $PLUGIN_PATH/hashicorp/null/$VERSION/$PLATFORM/
 
 	# OCP 4.6 upgraded to Ignition Config Spec v3.0.0 which is incompatible with the
-	# format used by OCP 4.5 and 4.4, so use terraform versioning to specify which one
-	# should be loaded.  This is accomplished by conditionally patching a very small
-	# amount of terraform data and code based on the OCP version being deployed
-	# enabling bug fixes and enhancements to be more easily integrated.
+	# format used by OCP 4.5 and 4.4, so conditionally patch ocp4-upi-kvm terraform code
+	# based on the OCP version of the cluster being deployed.  files/ocp4-upi-kvm.legacy.patch
+	# is used for this purpose.
 
 	VERSION=2.1.0
 	mkdir -p $GOPATH/src/github.com/community-terraform-providers; cd $GOPATH/src/github.com/community-terraform-providers 
@@ -264,8 +263,10 @@ if [[ "$INSTALLED_GO" == "true" ]] || [[ "$OLD_TERRAFORM_VERSION" != "$TERRAFORM
 	make build
 	popd
 
-	mkdir -p $PLUGIN_PATH/terraform-providers/ignition/$VERSION/$PLATFORM/
-	cp -f $GOPATH/bin/terraform-provider-ignition $PLUGIN_PATH/terraform-providers/ignition/$VERSION/$PLATFORM/
+	mkdir -p $PLUGIN_PATH/community-terraform-providers/ignition/$VERSION/$PLATFORM/
+	cp -f $GOPATH/bin/terraform-provider-ignition $PLUGIN_PATH/community-terraform-providers/ignition/$VERSION/$PLATFORM/
+
+	# This is the legacy version
 
 	VERSION=1.2.1
 	mkdir -p $GOPATH/src/github.com/terraform-providers; cd $GOPATH/src/github.com/terraform-providers 

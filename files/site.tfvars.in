@@ -15,16 +15,20 @@ rhel_subscription_activationkey = "$RHID_KEY"
 openshift_install_tarball   = "https://mirror.openshift.com/pub/openshift-v4/ppc64le/clients/$OCP_INSTALLER_SUBPATH/openshift-install-linux.tar.gz"
 openshift_client_tarball    = "https://mirror.openshift.com/pub/openshift-v4/ppc64le/clients/$OCP_INSTALLER_SUBPATH/openshift-client-linux.tar.gz"
 
-release_image_override     = "$OPENSHIFT_INSTALL_RELEASE_IMAGE_OVERRIDE"
+release_image_override      = "$OPENSHIFT_INSTALL_RELEASE_IMAGE_OVERRIDE"
 
 cluster_domain              = "$CLUSTER_DOMAIN"
 cluster_id                  = "ocp$SANITIZED_OCP_VERSION"
+cluster_id_prefix           = "test"
+
+network_cidr                = "$CLUSTER_CIDR"
+rhel_password               = "123456"
 
 dns_forwarders              = "192.168.88.1;$DNS_BACKUP_SERVER"
 chrony_config               = "$CHRONY_CONFIG"
 chrony_config_servers       = [$CHRONY_CONFIG_SERVERS]
 
-helpernode_tag              = "e18574164cbb2185c97fda6c7a66e4a358e78d0f"
+helpernode_tag              = "1ac7f276b537cd734240eda9ed554a254ba80629"
 install_playbook_tag        = "$INSTALL_PLAYBOOK_TAG"
 
 storage_type                = ""
