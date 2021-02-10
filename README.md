@@ -1,32 +1,26 @@
 # Overview
 
-Provide scripts enabling the automation of OCS-CI on IBM Power Servers,
-including the ability to create an OCP cluster, run OCS-CI tests, and
-destroy OCS (and OCP).  OCS-CI provides a deployment option to install
-OpenShift Container Storage on the given worker nodes based on
-Red Hat Ceph Storage.
+This project provides scripts to create an OpenShift cluster,
+to deploy OpenShift Container Storage on that cluster, and to enable the
+project ocs-ci for testing purposes on Power Servers.  Environment variables
+are used to specify parameters such as the OpenShift Version,
+the OpenShift Container Storage Version, and the number and size of worker nodes.
+This project utilizes libvirt/KVM to create a OpenShift Cluster running in VMs
+on a single Linux ppc64le server.
 
-Parameters related to the definition of the cluster such as the
-OpenShift Version and the number and size of worker nodes are specified
-via environment variables to the scripts listed below.
+## User Setup
 
-The goal of this project is to provide the primitives that are needed
-to enable OCS-CI on Power Servers.  These scripts form a framework for the
-development and validation of OpenShift clusters and operators.
+This project is intended to be run unattended, so that it may be used in
+automated test frameworks like Jenkins and cron.  This project may
+be run by non-root users with **passwordless sudo** authority, so that scripts
+don't prompt for the root password when installing packages and performing
+other privileged operations.  A helper script is provided for this purpose at
+**scripts/helper/set-passwordless-sudo.sh**.  There are no command arguments
+for this script and it should be run once during initial setup which includes
+cloning this project and placing a few files as described below.
 
-This project utilizes KVM to create a OpenShift Cluster running in VMs.  This
-project runs on baremetal servers as well as PowerVM and PowerVS based servers
-provided that a large enough LPAR is allocated.
-
-## User Requirements
-
-This project may be run by non-root users with **sudo** authority.
-*passwordless* sudo access should be enabled, so that the scripts
-don't prompt for a password.  A helper script is provided
-for this purpose at **scripts/helper/set-passwordless-sudo.sh**.  There are no
-command arguments for this script and it should be run once during initial setup.
-
-*Note: Non-root users must use the **sudo** command with **virsh** to see VMs*
+*Note: When debugging or monitoring, non-root users must use
+the **sudo** command with **virsh** to see VMs*
 
 ## Scripts
 
@@ -47,10 +41,10 @@ This project uses the following git submodules:
 - github.com/ocp-power-automation/ocp4-upi-kvm 
 - github.com/red-hat-storage/ocs-ci
 
-These underlying projects must be instantiated before the create, setup, deploy,
-test, and teardown scripts are used.  The user is expected to setup the submodules
+These underlying projects must be instantiated before the create, setup, deploy, etc
+scripts above are used.  The user is expected to setup the submodules
 before invoking these scripts.  The **workflow sample** scripts described in the next section
-provide some end to end work flows which of necessity instantiate submodules. These
+provide some end to end work flows which of necessity instantiate submodules.  These
 sample scripts may be copied to the workspace directory and edited as desired to
 customize a work flow.  Most users are expected to do this.  The information
 provided below describes some of the dynamics surrounding the create, deploy,
@@ -176,6 +170,7 @@ When preparing the bastion image above, the root password must be set to **12345
 ## Optional Environment Variables with Default Values
 
 - OCP_VERSION=${OCP_VERSION:="4.6"}
+- OCS_VERSION=${OCS_VERSION:="4.6"}
 - CLUSTER_DOMAIN=${CLUSTER_DOMAIN:="tt.testing"}
 - BASTION_IMAGE=${BASTION_IMAGE:="rhel-8.2-update-2-ppc64le-kvm.qcow2"}
 - MASTER_DESIRED_CPU=${MASTER_DESIRED_CPU:="4"}
@@ -323,7 +318,7 @@ the companion *oauth* definition as shown below following the same pattern.
 The browser should prompt you to login to the OCP cluster.  The user name is **kubeadmin** and
 the password is located in the file **<path-to-workspace>/auth/kubeadmin-password**.
 
-## Chrontab Automation
+## Crontab Automation
 
 The following two files have been provided:
 

@@ -6,7 +6,7 @@ if [ ! -e helper/parameters.sh ]; then
 fi
 
 sudo yum -y install libffi-devel lapack atlas-devel openssl-devel gcc gcc-c++ gcc-gfortran make
-sudo yum -y install python36-devel python3-setuptools python3-virtualenv python3-docutils
+sudo yum -y install python36-devel python3-setuptools python3-virtualenv python3-docutils rust-toolset
 
 source helper/parameters.sh
 

@@ -19,7 +19,6 @@ fi
 
 set -e
 
-export OCS_VERSION=${OCS_VERSION:=4.6}
 export KUBECONFIG=$WORKSPACE/auth/kubeconfig
 
 pushd ../src/ocs-ci
