@@ -11,6 +11,7 @@ export RHID_ORG=${RHID_ORG:=""}
 export RHID_KEY=${RHID_KEY:=""}
 
 export OCP_VERSION=${OCP_VERSION:="4.6"}
+export OCS_VERSION=${OCS_VERSION:=4.6}
 
 export CLUSTER_DOMAIN=${CLUSTER_DOMAIN:="tt.testing"}
 

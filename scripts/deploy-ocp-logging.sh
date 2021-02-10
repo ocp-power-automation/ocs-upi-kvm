@@ -9,7 +9,6 @@ fi
 
 source helper/parameters.sh
 
-export OCS_VERSION=${OCS_VERSION:=4.6}
 export KUBECONFIG=$WORKSPACE/auth/kubeconfig
 
 mkdir -p $WORKSPACE/deploy-ocp-logging

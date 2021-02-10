@@ -1,6 +1,8 @@
 ---
 ENV_DATA:
   local_storage_allow_rotational_disks: true
+DEPLOYMENT:
+  image: quay.io/rhceph-dev/ocs-registry:latest
 REPORTING:
   ocp_must_gather_image: quay.io/rhceph-dev/ocs-must-gather:latest-4.6
 UPGRADE:
