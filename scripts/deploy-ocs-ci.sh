@@ -36,11 +36,13 @@ source $WORKSPACE/venv/bin/activate	# enter 'deactivate' in venv shell to exit
 
 echo "Creating supplemental ocs-ci config - $WORKSPACE/ocs-ci-conf.yaml"
 
-export LOGDIR=$WORKSPACE/logs-ocs-ci/$OCP_VERSION
+export LOGDIR=$WORKSPACE/logs-ocs-ci/$OCS_VERSION
 
 cp -f ../../files/ocs-ci-conf.yaml $WORKSPACE/ocs-ci-conf.yaml
 mkdir -p $LOGDIR
 yq -y -i '.RUN.log_dir |= env.LOGDIR' $WORKSPACE/ocs-ci-conf.yaml
+export ocp_must_gather=quay.io/rhceph-dev/ocs-must-gather:latest-$OCS_VERSION
+yq -y -i '.REPORTING.ocp_must_gather_image |= env.ocp_must_gather' $WORKSPACE/ocs-ci-conf.yaml
 
 if [ "$platform" == "powervs" ]; then
 	yq -y -i '.ENV_DATA.number_of_storage_disks = 8' $WORKSPACE/ocs-ci-conf.yaml
