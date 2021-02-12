@@ -36,11 +36,13 @@ source $WORKSPACE/venv/bin/activate	# enter 'deactivate' in venv shell to exit
 
 echo "Creating supplemental ocs-ci config - $WORKSPACE/ocs-ci-conf.yaml"
 
-export LOGDIR=$WORKSPACE/logs-ocs-ci/$OCS_VERSION
-
 cp -f ../../files/ocs-ci-conf.yaml $WORKSPACE/ocs-ci-conf.yaml
+
+export LOGDIR=$WORKSPACE/logs-ocs-ci/$OCS_VERSION
 mkdir -p $LOGDIR
 yq -y -i '.RUN.log_dir |= env.LOGDIR' $WORKSPACE/ocs-ci-conf.yaml
+yq -y -i '.DEPLOYMENT.ocs_registry_image |= env.OCS_REGISTRY_IMAGE' $WORKSPACE/ocs-ci-conf.yaml
+
 export ocp_must_gather=quay.io/rhceph-dev/ocs-must-gather:latest-$OCS_VERSION
 yq -y -i '.REPORTING.ocp_must_gather_image |= env.ocp_must_gather' $WORKSPACE/ocs-ci-conf.yaml
 

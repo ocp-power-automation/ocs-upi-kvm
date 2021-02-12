@@ -1,7 +1,5 @@
 ---
 ENV_DATA:
   local_storage_allow_rotational_disks: true
-DEPLOYMENT:
-  image: quay.io/rhceph-dev/ocs-registry:latest
 UPGRADE:
   ocp_arch: ppc64le
