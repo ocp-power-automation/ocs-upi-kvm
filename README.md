@@ -3,10 +3,10 @@
 This project provides scripts to create an OpenShift cluster,
 to deploy OpenShift Container Storage on that cluster, and to enable the
 project ocs-ci for testing purposes on Power Servers.  Environment variables
-are used to specify parameters such as the OpenShift Version,
-the OpenShift Container Storage Version, and the number and size of worker nodes.
-This project utilizes libvirt/KVM to create a OpenShift Cluster running in VMs
-on a single Linux ppc64le server.
+are used to specify parameters such as the OpenShift Version, the OpenShift
+Container Storage Version, and the number and size of worker nodes.  This
+project creates an OpenShift Cluster running in libvirt/KVM based VMs
+on a single RHEL 8 ppc64le server.
 
 ## User Setup
 
@@ -171,6 +171,7 @@ When preparing the bastion image above, the root password must be set to **12345
 
 - OCP_VERSION=${OCP_VERSION:="4.6"}
 - OCS_VERSION=${OCS_VERSION:="4.6"}
+- OCS_REGISTRY_IMAGE=${OCS_REGISTRY_IMAGE:="quay.io/rhceph-dev/ocs-registry:latest-$OCS_VERSION"}
 - CLUSTER_DOMAIN=${CLUSTER_DOMAIN:="tt.testing"}
 - BASTION_IMAGE=${BASTION_IMAGE:="rhel-8.2-update-2-ppc64le-kvm.qcow2"}
 - MASTER_DESIRED_CPU=${MASTER_DESIRED_CPU:="4"}
@@ -201,12 +202,13 @@ provided that it is not set by the user.  The internal setting may be outdated.
 The **DNS_BACKUP_SERVER** parameter names a secondary DNS server.  The default
 value should be overridden if the cluster to be deployed is behind a firewall.
 
-The supported **OCP_VERSION**s are 4.4 - 4.7.
+### Setting the OCP Version
 
-Set a new value like this:
+The supported OCP versions are 4.4 - 4.7.
+
+Set the desired OCP version like this:
 ```
-export OCP_VERSION=4.6
-export RHCOS_RELEASE=4.6.1
+export OCP_VERSION=4.7
 ```
 The OpenShift installer uses the latest available image which by default is
 a development build.  For released OCP versions, this tool will chose a recently
@@ -239,7 +241,15 @@ The environment variable FORCE_DISK_PARTITION_WIPE may be set to 'true' to wipe
 the data on a hard disk partition assuming the environment variable DATA_DISK_LIST is
 specified.  The wipe may take an hour or more to complete.
 
-## Pre Creation
+### Setting the OCS Version
+
+The supported OCS VERSIONs are 4.6 - 4.7.
+
+The **OCS_VERSION** variable identifies the version of OCS to be installed.  By default, the
+image with the tag *latest-$OCS_VERSION* is pulled from https://quay.io/repository/rhceph-dev/ocs-registry/.
+You may specify an alternative catalog source and image by setting the environment variable **OCS_REGISTRY_IMAGE**.
+
+## Pre OCP Cluster Creation
 
 Beyond placing required files, setting environment variables, and invoking scripts, you
 may need to modify the number of worker nodes that are listed in the ***HAProxy** config file*
@@ -259,7 +269,7 @@ Editing the local copy of the HAProxy config file within this project ensures th
 changes are always applied.  You do not need to edit this file if you are creating less than
 6 worker nodes.
 
-## Post Creation
+## Post OCP Cluster Creation
 
 Build artifacts are placed in the *workspace* directory which is defined as the
 parent directory of this github project **ocs-upi-kvm**.  The examples shown below
