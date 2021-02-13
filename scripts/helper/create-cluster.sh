@@ -206,7 +206,7 @@ if [[ "$INSTALLED_GO" == "true" ]] || [[ "$OLD_TERRAFORM_VERSION" != "$TERRAFORM
 	export PATH=$GOPATH/bin:$PATH
 	export CGO_ENABLED="1"
 
-	PLATFORM=linux_ppc64le
+	LPLATFORM=linux_ppc64le
 
 	pushd $GOPATH
 
@@ -228,8 +228,8 @@ if [[ "$INSTALLED_GO" == "true" ]] || [[ "$OLD_TERRAFORM_VERSION" != "$TERRAFORM
 	make install
 	popd
 
-	mkdir -p $PLUGIN_PATH/dmacvicar/libvirt/1.0.0/$PLATFORM/
-	cp -f $GOPATH/bin/terraform-provider-libvirt $PLUGIN_PATH/dmacvicar/libvirt/1.0.0/$PLATFORM/
+	mkdir -p $PLUGIN_PATH/dmacvicar/libvirt/1.0.0/$LPLATFORM/
+	cp -f $GOPATH/bin/terraform-provider-libvirt $PLUGIN_PATH/dmacvicar/libvirt/1.0.0/$LPLATFORM/
 
 	VERSION=2.3.0
 	mkdir -p $GOPATH/src/github.com/terraform-providers; cd $GOPATH/src/github.com/terraform-providers
@@ -238,8 +238,8 @@ if [[ "$INSTALLED_GO" == "true" ]] || [[ "$OLD_TERRAFORM_VERSION" != "$TERRAFORM
 	make build
 	popd
 
-	mkdir -p $PLUGIN_PATH/hashicorp/random/$VERSION/$PLATFORM/
-	cp -f $GOPATH/bin/terraform-provider-random $PLUGIN_PATH/hashicorp/random/$VERSION/$PLATFORM/
+	mkdir -p $PLUGIN_PATH/hashicorp/random/$VERSION/$LPLATFORM/
+	cp -f $GOPATH/bin/terraform-provider-random $PLUGIN_PATH/hashicorp/random/$VERSION/$LPLATFORM/
 
 	VERSION=2.1.2
 	mkdir -p $GOPATH/src/github.com/terraform-providers; cd $GOPATH/src/github.com/terraform-providers
@@ -248,8 +248,8 @@ if [[ "$INSTALLED_GO" == "true" ]] || [[ "$OLD_TERRAFORM_VERSION" != "$TERRAFORM
 	make build
 	popd
 
-	mkdir -p $PLUGIN_PATH/hashicorp/null/$VERSION/$PLATFORM/
-	cp -f $GOPATH/bin/terraform-provider-null $PLUGIN_PATH/hashicorp/null/$VERSION/$PLATFORM/
+	mkdir -p $PLUGIN_PATH/hashicorp/null/$VERSION/$LPLATFORM/
+	cp -f $GOPATH/bin/terraform-provider-null $PLUGIN_PATH/hashicorp/null/$VERSION/$LPLATFORM/
 
 	# OCP 4.6 upgraded to Ignition Config Spec v3.0.0 which is incompatible with the
 	# format used by OCP 4.5 and 4.4, so conditionally patch ocp4-upi-kvm terraform code
@@ -263,8 +263,8 @@ if [[ "$INSTALLED_GO" == "true" ]] || [[ "$OLD_TERRAFORM_VERSION" != "$TERRAFORM
 	make build
 	popd
 
-	mkdir -p $PLUGIN_PATH/community-terraform-providers/ignition/$VERSION/$PLATFORM/
-	cp -f $GOPATH/bin/terraform-provider-ignition $PLUGIN_PATH/community-terraform-providers/ignition/$VERSION/$PLATFORM/
+	mkdir -p $PLUGIN_PATH/community-terraform-providers/ignition/$VERSION/$LPLATFORM/
+	cp -f $GOPATH/bin/terraform-provider-ignition $PLUGIN_PATH/community-terraform-providers/ignition/$VERSION/$LPLATFORM/
 
 	# This is the legacy version
 
@@ -275,8 +275,8 @@ if [[ "$INSTALLED_GO" == "true" ]] || [[ "$OLD_TERRAFORM_VERSION" != "$TERRAFORM
 	make build
 	popd
 
-	mkdir -p $PLUGIN_PATH/terraform-providers/ignition/$VERSION/$PLATFORM/
-	cp -f $GOPATH/bin/terraform-provider-ignition $PLUGIN_PATH/terraform-providers/ignition/$VERSION/$PLATFORM/
+	mkdir -p $PLUGIN_PATH/terraform-providers/ignition/$VERSION/$LPLATFORM/
+	cp -f $GOPATH/bin/terraform-provider-ignition $PLUGIN_PATH/terraform-providers/ignition/$VERSION/$LPLATFORM/
 
 	popd
 fi

@@ -66,6 +66,8 @@ fi
 
 run_id=$(ls -t -1 $LOGDIR/run*.yaml | head -n 1 | xargs grep run_id | awk '{print $2}')
 
+export SANITIZED_OCS_VERSION=${OCS_VERSION/./_}
+
 if [[ -n "${tests[@]}" ]]; then
 	for i in "${tests[@]}"
 	do
@@ -81,7 +83,7 @@ if [[ -n "${tests[@]}" ]]; then
 			--ocsci-conf $WORKSPACE/ocs-ci-conf.yaml \
 		        --cluster-path $WORKSPACE --collect-logs \
 			--self-contained-html --junit-xml $LOGDIR/test_results.xml \
-			--html $LOGDIR/tier${i}_${run_id}_report.html tests/
+			--html $LOGDIR/tier${i}_ocs${SANITIZED_OCS_VERSION}_${PLATFORM}_${run_id}_report.html tests/
 		rc=$?
 		set +x
 		echo "TEST RESULT: run-ci tier$i rc=$rc"
@@ -99,7 +101,7 @@ else
 		--ocsci-conf $WORKSPACE/ocs-ci-conf.yaml \
 		--cluster-path $WORKSPACE --collect-logs \
 		--self-contained-html --junit-xml $LOGDIR/test_results.xml \
-		--html $LOGDIR/test_${ocsci_cmd}_${run_id}_report.html tests/
+		--html $LOGDIR/${ocsci_cmd}_ocs${SANITIZED_OCS_VERSION}_${PLATFORM}_${run_id}_report.html tests/
 	rc=$?
 	set +x
 	echo "OCS-CI $ocsci_cmd RESULT: run-ci rc=$rc"
