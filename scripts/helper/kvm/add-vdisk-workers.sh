@@ -70,14 +70,6 @@ if [ -z "$DATA_DISK_ARRAY" ]; then
 	rm -f $IMAGES_PATH/test-ocp$SANITIZED_OCP_VERSION/*.data
 fi
 
-# Remove bootstrap node to free resources.  It is no longer needed
-
-bootstrap=$(virsh list --all | grep bootstrap | awk '{print $2}')
-if [ -n "$bootstrap" ]; then
-	virsh destroy $bootstrap
-	virsh undefine $bootstrap
-fi
-
 # Add vdisk to worker nodes and tune VM worker node performance, since they have to be rebooted
 
 for (( i=0; i<$WORKERS; i++ ))

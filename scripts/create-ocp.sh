@@ -1,12 +1,5 @@
 #!/bin/bash
 
-set -e
-
-if [ ! -e helper/parameters.sh ]; then
-	echo "ERROR: This script should be invoked from the directory ocs-upi-kvm/scripts"
-	exit 1
-fi
-
 if [[ -z "$RHID_USERNAME" && -z "$RHID_PASSWORD" && -z "$RHID_ORG" && -z "$RHID_KEY" ]]; then
 	echo "ERROR: Environment variables RHID_USERNAME and RHID_PASSWORD must both be set"
 	echo "ERROR: OR"
@@ -22,23 +15,12 @@ elif [[ -z "$RHID_ORG" && -n "$RHID_KEY" ]] || [[ -n "$RHID_ORG" && -z "$RHID_KE
 	exit 1
 fi
 
-# This script creates an ocp cluster for OCS CI which expects ntp servers for all platforms
+if [ ! -e helper/parameters.sh ]; then
+	echo "ERROR: This script should be invoked from the directory ocs-upi-kvm/scripts"
+	exit 1
+fi
 
-export CHRONY_CONFIG=${CHRONY_CONFIG:="true"}
-export WORKERS=${WORKERS:=3}
-
-# Master node vcpus are not bound to a NUMA Node (socket) which can lead to poor
-# system performance as cpu contention grows, so the number of master vcpus should
-# be less than the number of cores per socket to minimize remote node scheduling.
-# P8 has 10 cores per socket and P9 has 16-22 depending on the model.  Unlike master
-# nodes, worker node vcpus are bound to NUMA sockets so they can be scaled higher.
-
-coresPerSocket=$(lscpu | grep "^Core(s) per socket" | awk '{print $4}')
-
-export MASTER_DESIRED_CPU=${MASTER_DESIRED_CPU:=8}
-export MASTER_DESIRED_MEM=${MASTER_DESIRED_MEM:=24576}
-export WORKER_DESIRED_CPU=${WORKER_DESIRED_CPU:=$coresPerSocket}
-export WORKER_DESIRED_MEM=${WORKER_DESIRED_MEM:=65536}
+set -e
 
 source helper/parameters.sh
 
@@ -47,82 +29,28 @@ if [ ! -e $WORKSPACE/pull-secret.txt ]; then
 	exit 1
 fi
 
-arg1=$1
-retry=false
-if [ "$1" == "--retry" ]; then
-	retry_version=$(sudo virsh list | grep bastion | awk '{print $2}' | sed 's/4-/4./' | sed 's/-/ /g' | awk '{print $2}' | sed 's/ocp//')
-	if [ "$retry_version" != "$OCP_VERSION" ]; then
-		echo "WARNING: Ignoring --retry argument.  existing version:$retry_version  requested version:$OCP_VERSION"
-		retry=false
-		unset arg1
-	else
-		retry=true
-	fi
-fi
-
-if [ ! -e $WORKSPACE/$BASTION_IMAGE ]; then
-	file_present $IMAGES_PATH/$BASTION_IMAGE
-	if  [[ "$file_rc" != 0 ]]; then
-		echo "ERROR: Missing $BASTION_IMAGE.  Get it from https://access.redhat.com/downloads/content/479/ and prepare it per README"
-		exit 1
-	fi
-fi
-
-# Remove known_hosts before creating a new cluster to ensure there is
-# no SSH conflict arising from previously clusters
-
-if [[ -d ~/.ssh ]] && [[ "$retry" == false ]]; then
-	rm -f ~/.ssh/known_hosts
-fi
-
-# Setup kvm on the host
-
-invoke_kvm_setup=false
-if [ ! -e ~/.kvm_setup ]; then
-	invoke_kvm_setup=true
-else
-	source ~/.kvm_setup
-	if [[ -z "$KVM_SETUP_GENCNT_INSTALLED" ]] || [[ "$KVM_SETUP_GENCNT_INSTALLED" -lt "$KVM_SETUP_GENCNT" ]]; then
-		invoke_kvm_setup=true
-	fi
-fi
-
-if [ "$invoke_kvm_setup" == "true" ]; then
-	echo "Invoking setup-kvm-host.sh"
-	sudo -sE helper/setup-kvm-host.sh
-	echo "KVM_SETUP_GENCNT_INSTALLED=$KVM_SETUP_GENCNT" > ~/.kvm_setup
-fi
-
-# Remove pre-existing clusters
-
-if [ "$retry" == false ]; then
-	echo "Invoking virsh-cleanup.sh"
-	sudo -sE helper/virsh-cleanup.sh
-fi
-
-# Validate after VMs are they are destroyed and hugepages freed
-
-enable_hugepages
-
-echo "export PATH=$WORKSPACE/bin/:$PATH" | tee $WORKSPACE/env-ocp.sh
-chmod a+x $WORKSPACE/env-ocp.sh
-
 export PATH=$WORKSPACE/bin:$PATH
 
+arg1=$1
 helper/create-cluster.sh $arg1
 
 rm -f $WORKSPACE/bin/oc
 rm -rf $WORKSPACE/auth
 
-scp -o StrictHostKeyChecking=no root@192.168.88.2:/usr/local/bin/oc $WORKSPACE/bin
-scp -o StrictHostKeyChecking=no -r root@192.168.88.2:openstack-upi/auth $WORKSPACE
+setup_remote_oc_use
+scp -o StrictHostKeyChecking=no root@$BASTION_IP:/usr/local/bin/oc $WORKSPACE/bin
+scp -o StrictHostKeyChecking=no -r root@$BASTION_IP:openstack-upi/auth $WORKSPACE
 
+echo "export PATH=$WORKSPACE/bin/:$PATH" | tee $WORKSPACE/env-ocp.sh
 echo "export KUBECONFIG=$WORKSPACE/auth/kubeconfig" | tee -a $WORKSPACE/env-ocp.sh
+chmod a+x $WORKSPACE/env-ocp.sh
 
 export KUBECONFIG=$WORKSPACE/auth/kubeconfig
 
-export VDISK=vdc
-sudo -sE helper/add-vdisk-workers.sh
+if [ "$PLATFORM" == kvm ]; then
+	export VDISK=vdc
+	sudo -sE helper/kvm/add-vdisk-workers.sh
+fi
 
 sudo -sE helper/check-health-cluster.sh
 

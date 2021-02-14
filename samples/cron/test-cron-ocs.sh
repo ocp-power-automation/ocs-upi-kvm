@@ -8,16 +8,17 @@
 
 # These environment variables are required for all platforms
 
-export PLATFORM=${PLATFORM:="kvm"}				# Also supported: powervs.   Defaults to kvm
+export PLATFORM=${PLATFORM:="kvm"}                              # Also supported: powervs.   Defaults to kvm
 
-#export RHID_USERNAME=<your registered username>		# Change this line or preset in shell
-#export RHID_PASSWORD=<your password>				# Edit or preset
+#export RHID_USERNAME=<your rh subscription id>
+#export RHID_PASSWORD=<your rh subscription password>
 
 
 # These environment variables are optional for all platforms
 
-export OCP_VERSION=4.6						# 4.7 is also supported
-export OCS_VERSION=4.6
+#export OCP_VERSION=4.6						# 4.5 - 4.7 are supported
+#export OCS_VERSION=4.6
+
 
 # These are optional for KVM.  Default values are shown
 
@@ -32,14 +33,14 @@ export OCS_VERSION=4.6
 # These environments variables are required for PowerVS
 
 #export PVS_API_KEY=<your key>
-#export PVS_SERVICE_INSTANCE_ID=<your instance id>		# Click eye icon on the left of IBM CLoud resource list, copy GUID field
+#export PVS_SERVICE_INSTANCE_ID=<your instance id>              # Click eye icon on the left of IBM CLoud resource list, copy GUID field
 
 
 # These are optional for PowerVS.  Default values are shown
 
 #export CLUSTER_ID_PREFIX=$RHID_USERNAME                        # Actually first 6 chars of rhid_username + ocp version
 #export PVS_SUBNET_NAME=ocp-net
-#export PVS_REGION=lon  	                                # Or tok and tok04 depending on service instance id
+#export PVS_REGION=lon					        # Or tok and tok04 depending on service instance id
 #export PVS_ZONE=lon06
 #export SYSTEM_TYPE=s922
 #export PROCESSOR_TYPE=shared
@@ -61,6 +62,14 @@ if [ "$PLATFORM" == powervs ]; then
 	OCP_PROJECT=ocp4-upi-powervs
 else
 	OCP_PROJECT=ocp4-upi-kvm
+fi
+
+# LOG variables are supposed to be preset by cronjob
+
+if [ -z "$LOGDIR" ]; then
+	LOGDIR=~/logs
+	mkdir -p $LOGDIR
+	LOGDATE="0"
 fi
 
 retry_ocp_arg=
@@ -92,6 +101,8 @@ do
 	(( i++ ))
 done
 
+# Set WORKSPACE where go code, binaries, and log files are placed
+
 if [ -z "$WORKSPACE" ]; then
 	cwdir=$(pwd)
 	cmdpath=$(dirname $0)
@@ -113,73 +124,68 @@ if [ -z "$WORKSPACE" ]; then
 	fi
 fi
 
-echo "Location of project: $WORKSPACE/ocs-upi-kvm"
-echo "Location of log files: $WORKSPACE"
+echo "Location of project: $WORKSPACE/ocs-upi-kvm" | tee $LOGDIR/create-ocp-$LOGDATE.log
+echo "Location of log files: $WORKSPACE" | tee -a $LOGDIR/create-ocp-$LOGDATE.log
 
 pushd $WORKSPACE/ocs-upi-kvm
 
 if [ ! -e src/$OCP_PROJECT/var.tfvars ]; then
-	echo "Refreshing submodule ${OCP_PROJECT}..."
-	git submodule update --init src/$OCP_PROJECT
+	echo "Refreshing submodule ${OCP_PROJECT}..." | tee -a $LOGDIR/create-ocp-$LOGDATE.log
+	git submodule update --init src/$OCP_PROJECT | tee -a $LOGDIR/create-ocp-$LOGDATE.log
 fi
 
 if [ ! -e src/ocs-ci/README.md ]; then
-	echo "Refreshing submodule ocs-ci..."
-	git submodule update --init src/ocs-ci
+	echo "Refreshing submodule ocs-ci..." | tee -a $LOGDIR/create-ocp-$LOGDATE.log
+	git submodule update --init src/ocs-ci | tee -a $LOGDIR/create-ocp-$LOGDATE.log
 fi
 
 if [ "$get_latest_ocs" == true ]; then
-	echo "Getting latest ocs-ci..."
+	echo "Getting latest ocs-ci..." | tee -a $LOGDIR/create-ocp-$LOGDATE.log
 	pushd $WORKSPACE/ocs-upi-kvm/src/ocs-ci
 	git checkout master
 	git pull
+	echo "Most recent commits to master:" | tee -a $LOGDIR/create-ocp-$LOGDATE.log
+	git log --pretty=oneline | head -n 5 | tee -a $LOGDIR/create-ocp-$LOGDATE.log
 	popd
 fi
-
-echo "Invoking scripts..."
 
 pushd $WORKSPACE/ocs-upi-kvm/scripts
 
 set -o pipefail
 
-./create-ocp.sh $retry_ocp_arg 2>&1 | tee $WORKSPACE/create-ocp.log
+# Recreate the cluster for each test.  A failed test may compromise cluster health
 
-source $WORKSPACE/env-ocp.sh
-oc get nodes 2>&1 | tee -a $WORKSPACE/create-ocp.log
+for i in 1 2 3 4a 4b 4c
+do
+	echo "Invoking ./create-ocp.sh $retry_ocp_arg" | tee -a $LOGDIR/create-ocp-$LOGDATE.log
+	./create-ocp.sh $retry_ocp_arg 2>&1 | tee -a $LOGDIR/create-ocp-$LOGDATE.log
 
-./setup-ocs-ci.sh 2>&1 | tee $WORKSPACE/setup-ocs-ci.log
+	source $WORKSPACE/env-ocp.sh
+	oc get nodes -o wide 2>&1 | tee -a $LOGDIR/create-ocp-$LOGDATE.log
 
-set +e
-./deploy-ocs-ci.sh 2>&1 | tee $WORKSPACE/deploy-ocs-ci.log
-CEPH_STATE=$(oc get cephcluster --namespace openshift-storage | tee -a $WORKSPACE/deploy-ocs-ci.log)
-if [[ ! "$CEPH_STATE" =~ HEALTH_OK ]]; then
-	echo "ERROR: Failed CEPH Health Check" | tee -a $WORKSPACE/deploy-ocs-ci.log
-	oc get pods --namespace openshift-storage 2>&1 | tee -a $WORKSPACE/deploy-ocs-ci.log
-	exit 1
-fi
-set -e
+	echo "Invoking ./setup-ocs-ci.sh"
+	./setup-ocs-ci.sh 2>&1 | tee $LOGDIR/setup-ocs-ci-$LOGDATE.log
 
-#./add-data-disk-workers.sh 2>&1 | tee $WORKSPACE/add-data-disk-workers.log
+	set +e
 
-#./deploy-ocp-logging.sh 2>&1 | tee $WORKSPACE/deploy-ocp-logging.log
+	echo "Invoking ./deploy-ocs-ci.sh"
+	./deploy-ocs-ci.sh 2>&1 | tee $LOGDIR/deploy-ocs-ci-$LOGDATE.log
 
-# This is an example of an individual test case run.  Change it as desired.
+	echo "Post deploy check of OCS Ceph Health"
+	CEPH_STATE=$(oc get cephcluster --namespace openshift-storage | tee -a $LOGDIR/deploy-ocs-ci-$LOGDATE.log)
+	if [[ ! "$CEPH_STATE" =~ HEALTH_OK ]]; then
+		echo "ERROR: Failed CEPH Health Check" | tee -a $LOGDIR/deploy-ocs-ci-$LOGDATE.log
+		set -e
+		continue
+	fi
 
-pushd ../src/ocs-ci
+	echo "Invoking ./test-ocs-ci.sh --tier $i"
+	./test-ocs-ci.sh --tier $i | tee $LOGDIR/test-ocs-ci-tier-$i-$LOGDATE.log
 
-source $WORKSPACE/venv/bin/activate             # enter 'deactivate' in venv shell to exit
+	echo
+	oc get cephcluster --namespace openshift-storage 2>&1 | tee -a $LOGDIR/test-ocs-ci-tier-$i-$LOGDATE.log
+	echo
+	oc get pods --namespace openshift-storage 2>&1 | tee -a $LOGDIR/test-ocs-ci-tier-$i-$LOGDATE.log
 
-# The 'tests/e2e/...' can be obtained from the html report of performance, workloads, tier tests, ...
-
-run-ci -m "performance" --cluster-name ocstest --cluster-path $WORKSPACE \
-	--ocp-version $OCP_VERSION --ocs-version=$OCS_VERSION \
-        --ocsci-conf conf/ocsci/production_powervs_upi.yaml \
-	--ocsci-conf conf/ocsci/lso_enable_rotational_disks.yaml \
-        --ocsci-conf $WORKSPACE/ocs-ci-conf.yaml \
-        --collect-logs \
-        tests/e2e/performance/test_fio_benchmark.py::TestFIOBenchmark::test_fio_workload_simple[CephBlockPool-random] 2>&1 | tee $WORKSPACE/test-fio.log
-
-oc get cephcluster --namespace openshift-storage 2>&1 | tee -a $WORKSPACE/test-fio.log
-oc get pods --namespace openshift-storage 2>&1 | tee -a $WORKSPACE/test-fio.log
-
-deactivate
+	set -e
+done

@@ -6,3 +6,6 @@
 	path = src/ocs-ci
 	url = https://github.com/red-hat-storage/ocs-ci
 	branch = master
+[submodule "src/ocp4-upi-powervs"]
+	path = src/ocp4-upi-powervs
+	url = https://github.com/ocp-power-automation/ocp4-upi-powervs.git

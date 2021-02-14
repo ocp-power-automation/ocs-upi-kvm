@@ -4,15 +4,18 @@ This project provides scripts to create an OpenShift cluster,
 to deploy OpenShift Container Storage on that cluster, and to enable the
 project ocs-ci for testing purposes on Power Servers.  Environment variables
 are used to specify parameters such as the OpenShift Version, the OpenShift
-Container Storage Version, and the number and size of worker nodes.  This
-project creates an OpenShift Cluster running in libvirt/KVM based VMs
-on a single RHEL 8 ppc64le server.
+Container Storage Version, and the number and size of worker nodes.
+
+This project creates an OpenShift Cluster running in
+
+- libvirt/KVM based VMs on a single RHEL 8 ppc64le server
+- PowerVS based LPARs in IBM Cloud
 
 ## User Setup
 
-This project is intended to be run unattended, so that it may be used in
-automated test frameworks like Jenkins and cron.  This project may
-be run by non-root users with **passwordless sudo** authority, so that scripts
+This project is intended to be run **unattended**, so that it may be used in
+automated test frameworks like **Jenkins** and **cron**.  This project may
+be run by non-root users with *passwordless sudo* authority, so that scripts
 don't prompt for the root password when installing packages and performing
 other privileged operations.  A helper script is provided for this purpose at
 **scripts/helper/set-passwordless-sudo.sh**.  There are no command arguments
@@ -39,18 +42,18 @@ The scripts are listed in the order that they are expected to be run.
 This project uses the following git submodules:
 
 - github.com/ocp-power-automation/ocp4-upi-kvm 
+- github.com/ocp-power-automation/ocp4-upi-powervs
 - github.com/red-hat-storage/ocs-ci
 
-These underlying projects must be instantiated before the create, setup, deploy, etc
-scripts above are used.  The user is expected to setup the submodules
-before invoking these scripts.  The **workflow sample** scripts described in the next section
-provide some end to end work flows which of necessity instantiate submodules.  These
-sample scripts may be copied to the workspace directory and edited as desired to
-customize a work flow.  Most users are expected to do this.  The information
-provided below describes some of the dynamics surrounding the create, deploy,
-and test scripts.
+These submodules must be instantiated before the create, setup, deploy, and test 
+scripts may be used. 
+[Workflow sample scripts](https://github.com/lukebrowning/ocs-upi-kvm#workflow-sample-scripts)
+are provided to simplify the end to end operation from git submodules to cluster creation through ocs-ci testing
+so that users don't have to manage these tasks individually.  These sample scripts may be copied to the
+[workspace directory](https://github.com/lukebrowning/ocs-upi-kvm#workspace-directory)
+and edited to customize a work flow.  Most users are expected to use the sample scripts.
 
-First, there are two ways to instantiate submodules as shown below:
+Ignoring sample scripts, there are two ways to git clone projects with submodules:
 ```
 git clone https://github.com/ocp-power-automation/ocs-upi-kvm --recursive
 cd ocs-upi-kvm/scripts
@@ -61,6 +64,9 @@ git clone https://github.com/ocp-power-automation/ocs-upi-kvm.sh
 cd ocs-upi-kvm
 git submodule update --init
 ```
+The information provided below describes some of the dynamics
+surrounding the create, deploy, and test scripts.
+
 The majority of the **create-ocp.sh** command is spent running terraform (and ansible).
 On occasion, a transient error will occur while creating the cluster.  In this case,
 the operation can be restarted by specifying the  **--retry** argument.  This can save
@@ -76,7 +82,11 @@ Further, the **teardown-ocs-ci.sh** script has never been obcserved to work clea
 simply invokes the underlying ocs-ci function.  It is provided as it may be fixed in time
 and it is a valuable function, if only in theory now.
 
-The script **destroy-ocp.sh** which recompletely removes ocp and ocs.
+The script **destroy-ocp.sh** completely removes the OCP cluster and OCS (with it as
+OCS is built on top of the cluster).  For OCP KVM clusters, the cluster is completely
+and reliably removed via virsh and bash commands.  For OCP PowerVS cluster, this
+operation is not fully reliable.  Terraform destroy is used and it fails about 50% of
+the time, so manual cleanup may be required.  Use the IBM Cloud GUI in this case.
 
 The script **create-ocp.sh** will also remove an existing OCP cluster if one is present
 before creating a new one as *only one OCP cluster is supported on the host KVM server
@@ -84,7 +94,7 @@ at a time*.  This is true even if the cluster was created by another user, so if
 concerned with impacting other users run this command first, *sudo virsh list --all*.
 
 The script **add-data-disk-workers.sh** may be used to add a data disk
-to each worker node based on the value of the environment variable VDISK
+to each KVM based worker node based on the value of the environment variable VDISK
 which by default is initialized to vdd.  The first data disk is added
 by the script **create-ocp.sh** at /dev/vdc, so the environment variable
 VDISK does not need to be set by the user for the second data disk,
@@ -93,6 +103,15 @@ operation, each worker node is rebooted once to make the disk visible
 inside the VM, and possibly a second time to recover ceph services.  You
 may have to wait 10 minutes after this script completes to identify
 the extra disk with the command 'oc get pv'.
+
+**Notes**:
+
+- If you **Ctrl-C** while **create-ocp.sh** is running on **powervs**, then
+you will need to manually remove cluster resources using the IBM Cloud GUI.
+These resources are orphaned and will not be automatically removed when the
+next cluster is created from the same **$WORKSPACE** directory.
+
+- The add disk capability is not integrated into OCS-CI tests
 
 ## Workflow Sample Scripts
 
@@ -111,39 +130,29 @@ The test-ocs scripts include comments showing how physical disk partitions may
 be used instead which may improve performance and resilience.
 
 As noted above, these scripts may be relocated, customized, and invoked from the
-*workspace* directory.
+[workspace directory](https://github.com/lukebrowning/ocs-upi-kvm#workspace-directory)
 
-## Required Environment Variables
-
-- RHID_USERNAME=xxx
-- RHID_PASSWORD=yyy
-
-**OR**
-
-- RHID_ORG=ppp
-- RHID_KEY=qqq
-
-## Project Workspace
+## Workspace Directory
 
 This project is designed to be used in an automated test framework like Jenkins which utilizes
 dedicated workspaces to run jobs in parallel on the same server.  As such, all input, output,
 and internally generated files are restricted to the specific workspace instance that
 is allocated to run the job.  For this project, that workspace is assumed to be 
-the *parent* directory of the cloned project **ocs-upi-kvm** itself.
+the **parent** directory of the cloned project **ocs-upi-kvm** itself.
 
 **IMPORTANT NOTE**: Do not set the WORKSPACE environment variable unless you know what you are
 doing.  The only tested configuration is as stated -- the parent directory of ocs-upi-kvm.
 Terraform and GO modules are built in the workspace directory.  We encountered an incompatibility
 with another project that uses terraform.  If you encounter a terraform module missing problem,
-see the Trouble Shooting section.
+see this [section](https://github.com/lukebrowning/ocs-upi-kvm#terraform-module-issues).
 
 ## Required Files
 
 These files should be placed in the workspace directory.
 
-- ~/auth.yaml
-- ~/pull-secret.txt
-- ~/$BASTION_IMAGE
+- $WORKSPACE/auth.yaml
+- $WORKSPACE/pull-secret.txt
+- $WORKSPACE/$BASTION_IMAGE (KVM only)
 
 The auth.yaml file is required for the script deploy-ocs-ci.sh.  It contains secrets
 for **quay** and **quay.io/rhceph-dev** which are obtained from the Redhat OCS-CI team.
@@ -167,49 +176,61 @@ from the RedHat website.
 
 When preparing the bastion image above, the root password must be set to **123456**.
 
-## Optional Environment Variables with Default Values
+## Environment Variables
 
-- OCP_VERSION=${OCP_VERSION:="4.6"}
-- OCS_VERSION=${OCS_VERSION:="4.6"}
-- OCS_REGISTRY_IMAGE=${OCS_REGISTRY_IMAGE:="quay.io/rhceph-dev/ocs-registry:latest-$OCS_VERSION"}
-- CLUSTER_DOMAIN=${CLUSTER_DOMAIN:="tt.testing"}
-- BASTION_IMAGE=${BASTION_IMAGE:="rhel-8.2-update-2-ppc64le-kvm.qcow2"}
-- MASTER_DESIRED_CPU=${MASTER_DESIRED_CPU:="4"}
-- MASTER_DESIRED_MEM=${MASTER_DESIRED_MEM:="16384"}
-- WORKER_DESIRED_CPU=${WORKER_DESIRED_CPU:="16"}
-- WORKER_DESIRED_MEM=${WORKER_DESIRED_MEM:="65536"}
-- WORKERS=${WORKERS:=3}
-- IMAGES_PATH=${IMAGES_PATH:="/var/lib/libvirt/images"}
-- OPENSHIFT_INSTALL_RELEASE_IMAGE_OVERRIDE=${OPENSHIFT_INSTALL_RELEASE_IMAGE_OVERRIDE:=""}
-- DATA_DISK_SIZE=${DATA_DISK_SIZE:=256}
-- DATA_DISK_LIST=${DATA_DISK_LIST:=""}
-- FORCE_DISK_PARTITION_WIPE=${FORCE_DISK_PARTITION_WIPE:="false"}
-- CHRONY_CONFIG=${CHRONY_CONFIG:="true"}
-- RHCOS_RELEASE=${RHCOS_RELEASE:=""}
-- DNS_BACKUP_SERVER=${DNS_BACKUP_SERVER:="1.1.1.1"}
-- VDISK=${VDISK:="vdd"}
+Most users will only need to specify four or five variables below, because
+platform specific default values are set that are suitable for most deployments.
+Default settings are in general static.  For example, CPU and memory settings are not
+dynamically scaled based on the number of OCP worker nodes.
+All settings may be overridden by the user.
 
-Disk sizes are in GBs.
+Variable | Required | Platform | Values (default first)
+-------- | -------- | -------- | ----------------------
+RHID_USERNAME | yes | all | User provided option 1
+RHID_PASSWORD | yes | all | User provided option 1
+RHID_ORG | yes | all | User provided option 2
+RHID_KEY | yes | all | User provided option 2
+OCP_VERSION | no | all | 4.6, 4.4, 4.5, 4.7
+OCS_VERSION | no | all | 4.6, 4.7
+OCS_REGISTRY_IMAGE | no | all | Depends on OCS_VERSION
+PLATFORM | no | all | kvm, powervs
+WORKERS | no | all | 3
+MASTER_DESIRED_CPU | no	| all | Depends on platform
+MASTER_DESIRED_MEM | no | all | Depends on platform
+WORKER_DESIRED_CPU | no	| all | Depends on platform
+WORKER_DESIRED_MEM | no	| all |	Depends on platform
+DNS_BACKUP_SERVER | no | all | Specify if behind a firewall
+CHRONY_CONFIG | no | all | yes
+CHRONY_CONFIG_SERVERS | no | all | ntp servers
+BASTION_IMAGE | yes | kvm | rhel-8.2-update-2-ppc64le-kvm.qcow2
+IMAGES_PATH | no | kvm | /var/lib/libvirt/images, /home/libvirt/images
+DATA_SIZE | no | kvm | 256 Limited by filesystem space
+DATA_DISK_LIST | no | kvm | Disk partitions: sdc1,sdd1,sde1
+FORCE_DISK_PARTITION_WIPE | no | kvm | false
+PVS_API_KEY | yes | powervs | User provided
+PVS_SERVICE_INSTANCE_ID | yes | powervs | User provided
+PVS_REGION | no | powervs | lon, tok Depends on service instance
+PVS_ZONE | no | powervs | lon06, tok06 Depends on service instance
+PVS_SUBNET_NAME | no | powervs | ocp-net
+SYSTEM_TYPE | no | powervs | s922, e980
+PROCESSOR_TYPE | no | powervs | shared, dedicated
+BASTION_IMAGE | no | powervs | Depends on OCP version and cloud zone
+RHCOS_IMAGE | no | powervs | Depends on OCP version and cloud zone 
+DNS_FORWARDERS | no | powervs |	1.1.1.1;9.9.9.9
+CLUSTER_ID_PREFIX | no | powervs | Combination of RHID_USERNAME & OCP_VERSION				
+CLUSTER_DOMAIN | no | powervs | ibm.com, xip.io
+VOLUME_TYPE | no | powervs | tier3, ssd, standard, tier1
+WORKER_VOLUME_SIZE | no | powervs | 500
 
-The **CHRONY_CONFIG** parameter above enables NTP servers as OCS CI expects them
-to be configured.  If that is not applicable, then this parameter should probably
-be set to false.
+Note: 
 
-The **RHCOS_RELEASE** parameter is specific to the **OCP_VERSION** and is set internally
-to the [latest available *rhcos* image available](https://mirror.openshift.com/pub/openshift-v4/ppc64le/dependencies/rhcos/)
-provided that it is not set by the user.  The internal setting may be outdated.
+- OPENSHIFT_INSTALL_RELEASE_IMAGE_OVERRIDE is not shown above.  It applies  
+to all platforms and is optional.  Too big for the table.  See desc below.
 
-The **DNS_BACKUP_SERVER** parameter names a secondary DNS server.  The default
-value should be overridden if the cluster to be deployed is behind a firewall.
+## Environment Variables For All OCP Clusters
 
-### Setting the OCP Version
+Specify either **RHID_USERNAME / RHID_PASSWORD** or **RHID_ORG / RHID_KEY**.
 
-The supported OCP versions are 4.4 - 4.7.
-
-Set the desired OCP version like this:
-```
-export OCP_VERSION=4.7
-```
 The OpenShift installer uses the latest available image which by default is
 a development build.  For released OCP versions, this tool will chose a recently
 released image based on the environment OCP_VERSION.  This image may not be
@@ -223,17 +244,34 @@ REGISTRY="registry.svc.ci.openshift.org/ocp-ppc64le/release-ppc64le"
 export OPENSHIFT_INSTALL_RELEASE_IMAGE_OVERRIDE="$REGISTRY:4.6.0-0.nightly-ppc64le-2020-09-27-075246"
 ```
 
-The script **create-ocp.sh** will add a data disk to each worker node.  This disk is presented
-inside the worker node as /dev/vdc.  In the KVM host server OS, the data disk is backed 
-by either a file or a physical disk partition.  If you specify the environment
-variable DATA_DISK_LIST, then the named physical disk partitions (/dev) will be used.
+The **RHCOS_RELEASE** parameter is specific to the **OCP_VERSION** and is set internally
+to the [latest available *rhcos* image available](https://mirror.openshift.com/pub/openshift-v4/ppc64le/dependencies/rhcos/)
+provided that it is not set by the user.  The internal setting may be outdated.
+
+The **OCS_VERSION** variable identifies the version of OCS to be installed.  By default, the
+image with the tag *latest-$OCS_VERSION* is pulled from https://quay.io/repository/rhceph-dev/ocs-registry/.
+You may specify an alternative catalog source and image by setting the environment variable **OCS_REGISTRY_IMAGE**.
+
+The **CHRONY_CONFIG** parameter above enables NTP servers as OCS CI expects them
+to be configured.  If that is not applicable, then this parameter should probably
+be set to false.
+
+The **DNS_BACKUP_SERVER** parameter names a secondary DNS server.  The default
+value should be overridden if the cluster to be deployed is behind a firewall.
+
+## Environment Variables For OCP Clusters on libvirt/KVM
+
+The script **create-ocp.sh** will add a data disk to each worker node.
+This disk is presented inside the worker node as /dev/vdc.  In the KVM host server OS,
+the data disk is backed by either a file or a physical disk partition.  If you specify
+the environment variable DATA_DISK_LIST, then the named physical disk partitions (/dev) will be used.
 The list is composed of comma separated unique partition names with one partition name
 specified per worker node. For example,
 ```
 export DATA_DISK_LIST="sdi1,sdi2,sdi3"
 ```
 Otherwise, the data disks will be backed by a file.  The environment variable
-DATA_DISK_SIZE controls the size of the file allocation.  If you don't want the 
+DATA_DISK_SIZE controls the size of the file allocation.  If you don't want the
 extra disk to be allocated, then set DATA_DISK_SIZE=0.  In this case, don't run
 the scripts **setup-ocs-ci.sh** or **deploy-ocs-ci.sh** as they will fail.
 
@@ -241,21 +279,33 @@ The environment variable FORCE_DISK_PARTITION_WIPE may be set to 'true' to wipe
 the data on a hard disk partition assuming the environment variable DATA_DISK_LIST is
 specified.  The wipe may take an hour or more to complete.
 
-### Setting the OCS Version
+## Environment Variables For OCP Clusters on PowerVS
 
-The supported OCS VERSIONs are 4.6 - 4.7.
+Login to the [IBM CLoud Shell](https://cloud.ibm.com/shell) and enter the command below:
 
-The **OCS_VERSION** variable identifies the version of OCS to be installed.  By default, the
-image with the tag *latest-$OCS_VERSION* is pulled from https://quay.io/repository/rhceph-dev/ocs-registry/.
-You may specify an alternative catalog source and image by setting the environment variable **OCS_REGISTRY_IMAGE**.
+```
+LukeBrowning@cloudshell:~$ ibmcloud pi service-list
+Listing services under account IBM - Power Cloud as user LukeBrowning@us.ibm.com...
+ID                                                                                Name
+crn:v1:bluemix:public:power-iaas:<zone>:a/65bbfbd893c2c:<service instance id>::   ocp-ocs-london-06
+```
+
+The parameters **PVS_ZONE** and **PVS_SERVICE_INSTANCE_ID** are derived from the ibmcloud command.
+
+Presumably, the **PVS_REGION** parameter is the first three characters of the **PVS_ZONE**.
+
+Use [IBM Cloud Identity & Access Management](https://cloud.ibm.com/iam/apikeys) to create
+and download the parameter **PVS_API_KEY**.
 
 ## Pre OCP Cluster Creation
 
+*The haproxy discussion below only applies to KVM based clusters.*
+
 Beyond placing required files, setting environment variables, and invoking scripts, you
 may need to modify the number of worker nodes that are listed in the ***HAProxy** config file*
-located at *ocs-upi-kvm/files/haproxy.cfg*.
+located at *ocs-upi-kvm/files/kvm/haproxy.cfg*.
 
-By default, this file includes IP Addresses for 6 worker nodes.  If you are creating a
+By default, this file includes IP Addresses for 10 worker nodes.  If you are creating a
 cluster with more worker nodes, then you should edit this file within the project to accomodate
 the extra worker nodes as this file is copied to the target location by this toolset
 potentially multiple times depending on how long lived the cloned instance of the project is.
@@ -332,56 +382,70 @@ the password is located in the file **<path-to-workspace>/auth/kubeadmin-passwor
 
 The following two files have been provided:
 
-* chron-ocs.sh 
-* test-chron-ocs.sh
+* cron-ocs.sh
+* test-cron-ocs.sh
 
-The **chron-ocs.sh** script is the master chrontab commandline script.  It is located
-in the **scripts/helper** directory.
+The **cron-ocs.sh** script is the master script that is invoked by **crontab**.
 
-The **test-chron-ocs.sh** script is invoked by chron-ocs.sh and provides the
+The **test-cron-ocs.sh** script is invoked by cron-ocs.sh and provides the
 end-to-end OCP/OCS command flow.  Presently, this script invokes tier tests
 2, 3, 4, 4a, 4b and 4c.  You can limit the tests to a subset by editing this file.
-This file is located in the **samples** directory. 
 
-To setup chrontab automation, you must:
+These scripts are located at **samples/cron** directory. 
+
+To setup crontab automation, you must:
 
 1.  Create *test* user account with sudo authority and login to it
 2.  git clone this project in $HOME and invoke **scripts/helper/set-passwordless-sudo.sh**
 3.  Place the required files defined by the ocs-upi-kvm project in $HOME
-4.  Copy the two chron scripts listed above to $HOME
-5.  Edit the four lines below in *test-chron-ocs.sh*:
+4.  Copy the two cron scripts listed above to $HOME
+5.  Edit environment variables at the top of *test-cron-ocs.sh*:
 
 ```
+# For KVM
+
 export RHID_USERNAME=<Your RedHat Subscription id>
-export RHID_PASSWORD=<RedHat Subscription password>
-export OCP_VERSION=4.6
+export RHID_PASSWORD=<Your RedHat Subscription password>
 export IMAGES_PATH=/home/libvirt/images
 ```
+```
+# For PowerVS
 
+export RHID_USERNAME=<Your RedHat Subscription id>
+export RHID_PASSWORD=<Your RedHat Subscription password>
+export PLATFORM=powervs
+export PVS_API_KEY=<ibm cloud powervs api key>
+export PVS_SERVICE_INSTANCE_ID=<ibm cloud powervs service instance id>
+export PVS_SUBNET_NAME=<ibm cloud powervs subnet>
+```
 6.  Invoke **crontab -e** and enter the following two lines:
 
 ```
 SHELL=/bin/bash 
-0 0 * * * ~/chron-ocs.sh
+0 0 * * * ~/cron-ocs.sh
 ```
 
-The example above will invoke chron-ocs.sh every 24 hours at midnight local time.
+**Best practice for powervs is to allocated a dedicated subnet for testing due to cluster destroy issues**
+
+The example above will invoke cron-ocs.sh every 24 hours at midnight local time.
 
 Log files are written to the **logs** directory under the user's home directory.
 
 ## Troubleshooting
+
+### Terraform Module Issues
 
 This project may use a different version of **Terraform** and **GO** than other projects, so it is a
 best practice not to switch back and forth between different terraform projects.
 
 This project supports multiple versions of OCP requiring the use of multiple versions of the same
 Terraform module.  As a result, this project builds more Terraform modules than a lot of
-other OCP projects and it has more Terraform dependencies.  These modules are placed in the 
+other OCP projects.  These modules are placed in the
 local terraform registry **~/.terraform.d**.  This local registry is defined by Terraform, so the
 terraform modules created by one project may be used by another.
 
-This project only builds Terraform modules when the locally registry is missing to save time.
-If a Terraform module is missing, then you can force the tool to rebuild the requisite Terraform
+This project only builds Terraform modules once to save time.  If a Terraform module is missing,
+then you can force the tool to rebuild the requisite Terraform
 modules by removing the local terraform repository like this:
 
 ```
@@ -399,7 +463,24 @@ rm -f ~/.kvm_setup
 ```
 
 Note if a *ocs-upi-kvm code change introduces a change to the host configuration*, it will automatically
-be applied when the ocs-upi-kvm project is refreshed.  The **.kvm_setup** file contains a generation count
-controlling when the code is re-run.
+be applied when the ocs-upi-kvm project is refreshed with new code.  The **.kvm_setup** file contains
+a generation count controlling when the code is re-run.
 
-It is safe to re-run these steps between every build.  It will just take longer.
+It is safe to re-run the steps above between cluster creations.  It will just take longer.
+
+### Terraform Virtual Network Issues
+
+If you see the following error within the first minute or two after invoking terraform:
+```
+Error: Error creating libvirt network: virError(Code=89, Domain=47, Message='COMMAND_FAILED: '/usr/sbin/iptables -w10 -w --table filter --insert LIBVIRT_INP --in-interface virbr5349 --protocol tcp --destination-port 67 --jump ACCEPT' failed: iptables: No chain/target/match by that name.
+```
+The problem is that the **bastion** node cannot communicate with systemd service **libvirtd**.  There are two resolutions:
+```
+sudo shutdown -Fr now
+```
+OR (in the order shown)
+```
+sudo systemctl restart nftables
+sudo systemctl restart firewalld
+sudo systemctl restart libvirtd
+```

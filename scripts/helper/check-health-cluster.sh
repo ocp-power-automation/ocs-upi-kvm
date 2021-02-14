@@ -14,7 +14,7 @@
 set -e
 
 user=$(whoami)
-if [ "$user" != "root" ]; then
+if [ "$user" != root ]; then
 	echo "You must be root user to invoke this script $0"
 	exit 1
 fi
@@ -80,20 +80,22 @@ function wait_vm_reboot ( ) {
 	fi
 }
 
-echo "Checking health of master nodes..."
-for (( i=0; i<3; i++ ))
-do
-	vmline=$(virsh list --all | grep master-$i | tail -n 1)
-	vm=$(echo $vmline | awk '{print $2}')
-	state=$(echo $vmline | awk '{print $3}')
-	if [ "$state" == "paused" ]; then
-		echo "State of VM $vm is 'paused'"
-	 	virsh destroy $vm
-		virsh start $vm
-		sleep 15
-		wait_vm_reboot master-$i 
-	fi
-done
+if [ "$PLATFORM" == kvm ]; then
+	echo "Checking health of master nodes..."
+	for (( i=0; i<3; i++ ))
+	do
+		vmline=$(virsh list --all | grep master-$i | tail -n 1)
+		vm=$(echo $vmline | awk '{print $2}')
+		state=$(echo $vmline | awk '{print $3}')
+		if [ "$state" == paused ]; then
+			echo "State of VM $vm is 'paused'"
+		 	virsh destroy $vm
+			virsh start $vm
+			sleep 15
+			wait_vm_reboot master-$i 
+		fi
+	done
+fi
 
 declare -i master_success=0
 for (( i=0; i<3; i++ ))
@@ -101,7 +103,7 @@ do
 	for (( cnt=0; cnt<6; cnt++ ))
 	do
 		state=$($WORKSPACE/bin/oc get nodes -o wide | grep master-$i | tail -n 1 | awk '{print $2}')
-		if [ "$state" == "Ready" ]; then
+		if [ "$state" == Ready ]; then
 			cnt=6
 			(( master_success = master_success + 1 ))
 		else
@@ -117,27 +119,30 @@ else
 	exit 1
 fi
 
-echo "Checking health of worker nodes..."
-for (( i=0; i<$WORKERS; i++ ))
-do
-	vmline=$(virsh list --all | grep worker-$i | tail -n 1)
-	vm=$(echo $vmline | awk '{print $2}')
-	state=$(echo $vmline | awk '{print $3}')
-	if [ "$state" == "paused" ]; then
-		echo "State of VM $vm is 'paused'"
-	 	virsh destroy $vm
-		virsh start $vm
-		sleep 15
-		wait_vm_reboot worker-$i
-	fi
-done
+if [ "$PLATFORM" == kvm ]; then
+	echo "Checking health of worker nodes..."
+	for (( i=0; i<$WORKERS; i++ ))
+	do
+		vmline=$(virsh list --all | grep worker-$i | tail -n 1)
+		vm=$(echo $vmline | awk '{print $2}')
+		state=$(echo $vmline | awk '{print $3}')
+		if [ "$state" == "paused" ]; then
+			echo "State of VM $vm is 'paused'"
+		 	virsh destroy $vm
+			virsh start $vm
+			sleep 15
+			wait_vm_reboot worker-$i
+		fi
+	done
+fi
+
 declare -i worker_success=0
 for (( i=0; i<$WORKERS; i++ ))
 do
 	for (( cnt=0; cnt<6; cnt++ ))
 	do
 		state=$($WORKSPACE/bin/oc get nodes -o wide | grep worker-$i | tail -n 1 | awk '{print $2}')
-		if [ "$state" == "Ready" ]; then
+		if [ "$state" == Ready ]; then
 			cnt=6
 			(( worker_success = worker_success + 1 ))
 		else
