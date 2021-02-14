@@ -1,0 +1,12 @@
+diff --git a/modules/4_nodes/nodes.tf b/modules/4_nodes/nodes.tf
+index eeb9d5e..ec7fe10 100644
+--- a/modules/4_nodes/nodes.tf
++++ b/modules/4_nodes/nodes.tf
+@@ -188,6 +188,7 @@ resource "null_resource" "remove_worker" {
+         inline = [<<EOF
+ oc adm cordon worker-${count.index}
+ oc adm drain worker-${count.index} --force --delete-local-data --ignore-daemonsets
++sleep 30
+ oc delete node worker-${count.index}
+ EOF
+         ]

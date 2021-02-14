@@ -79,7 +79,9 @@ if [[ -n "${tests[@]}" ]]; then
 
 		set -x
 		time run-ci -m "tier$i and manage" --cluster-name ocstest \
+			--ocp-version $OCP_VERSION --ocs-version=$OCS_VERSION \
 			--ocsci-conf conf/ocsci/production_powervs_upi.yaml \
+			--ocsci-conf conf/ocsci/lso_enable_rotational_disks.yaml \
 			--ocsci-conf $WORKSPACE/ocs-ci-conf.yaml \
 		        --cluster-path $WORKSPACE --collect-logs \
 			--self-contained-html --junit-xml $LOGDIR/test_results.xml \
@@ -97,7 +99,9 @@ else
 
 	set -x
 	time run-ci -m "$ocsci_cmd" --cluster-name ocstest \
+		--ocp-version $OCP_VERSION --ocs-version=$OCS_VERSION \
 		--ocsci-conf conf/ocsci/production_powervs_upi.yaml \
+		--ocsci-conf conf/ocsci/lso_enable_rotational_disks.yaml \
 		--ocsci-conf $WORKSPACE/ocs-ci-conf.yaml \
 		--cluster-path $WORKSPACE --collect-logs \
 		--self-contained-html --junit-xml $LOGDIR/test_results.xml \

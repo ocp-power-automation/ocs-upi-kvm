@@ -50,6 +50,10 @@ sysctl -p /etc/sysctl.d/99-ipforward.conf
 
 # Enable TCP access for libvirtd
 
+systemctl enable libvirtd
+systemctl stop libvirtd
+systemctl mask libvirtd.socket libvirtd-ro.socket libvirtd-admin.socket libvirtd-tcp.socket libvirtd-tls.socket
+
 sed -i 's/^LIBVIRTD_ARGS=\"--timeout 120\"/#LIBVIRTD_ARGS=\"--timeout 120\"/' /etc/sysconfig/libvirtd
 sed -i 's/#LIBVIRTD_ARGS=\"--listen\"/LIBVIRTD_ARGS=\"--listen\"/' /etc/sysconfig/libvirtd
 sed -i 's/#listen_tls = 0/listen_tls = 0/' /etc/libvirt/libvirtd.conf
@@ -57,22 +61,21 @@ sed -i 's/#listen_tcp = 1/listen_tcp = 1/' /etc/libvirt/libvirtd.conf
 sed -i 's/#auth_tcp = "sasl"/auth_tcp = "none"/' /etc/libvirt/libvirtd.conf
 sed -i 's/#tcp_port = "16509"/tcp_port = "16509"/' /etc/libvirt/libvirtd.conf
 
-systemctl stop libvirtd
-systemctl mask libvirtd.socket libvirtd-ro.socket libvirtd-admin.socket libvirtd-tcp.socket libvirtd-tls.socket
-systemctl enable libvirtd
-systemctl start libvirtd
-
-# Allow connections to the libvirt daemon from the IP range used by the cluster.  Persist nftable via systemd
+# Allow connections to the libvirt daemon from the IP range used by the cluster via nftables.  Settings
+# are persistent via systemd.  iptables doesn't provide persistence, but it shows nftables rule
 
 systemctl enable nftables
 systemctl restart nftables
-systemctl restart firewalld
-
 if [ ! -e /etc/sysconfig/nftables.conf.orig ]; then
 	cp /etc/sysconfig/nftables.conf /etc/sysconfig/nftables.conf.orig
 	nft insert rule ip filter INPUT ip saddr $CLUSTER_CIDR ip daddr 192.168.122.1 tcp dport 16509 counter accept comment \"Allow insecure libvirt clients\"
 	nft list ruleset >/etc/sysconfig/nftables.conf
 fi
+
+# firewalld must be restarted after nftables, so that it inherits the nftable rule above.   Firewalld disables nftables which is expected
+
+systemctl enable firewalld
+systemctl restart firewalld
 
 # This is being deprecated and produces warning messages
 
@@ -107,10 +110,21 @@ firewall-cmd --reload
 echo -e "[main]\ndns=dnsmasq" | tee /etc/NetworkManager/conf.d/openshift.conf
 echo server=/$CLUSTER_DOMAIN/$BASTION_IP | tee /etc/NetworkManager/dnsmasq.d/openshift.conf
 
+# IMPORTANT:
+#
+# The order of systemd service restarts is important.
+#
+# firewalld must be started after nftables, so that it inherits rule from nftables.  firewalld stops nftables.
+# libvirtd must be started after firewalld.   If firewalld is restarted, then libvirtd must be restarted also
+#
+# If a terraform error occurs reaching the bastion node indicating that 'iptables: No chain/target/match by that name'
+# try re-booting.  Or try restarting nftables, firewalld, and libvirtd in that order
+#
+
 systemctl restart NetworkManager
-systemctl restart libvirtd
 systemctl restart nftables
 systemctl restart firewalld
+systemctl restart libvirtd
 
 set +e
 
@@ -143,7 +157,7 @@ restorecon /etc/firewalld/services/haproxy-https.xml
 if [ ! -e /etc/haproxy/haproxy.cfg.orig ]; then
 	cp /etc/haproxy/haproxy.cfg /etc/haproxy/haproxy.cfg.orig
 fi
-cp $WORKSPACE/ocs-upi-kvm/files/haproxy.cfg /etc/haproxy/haproxy.cfg
+cp $WORKSPACE/ocs-upi-kvm/files/kvm/haproxy.cfg /etc/haproxy/haproxy.cfg
 
 chmod 644 /etc/haproxy/haproxy.cfg
 restorecon -Rv /etc/haproxy
