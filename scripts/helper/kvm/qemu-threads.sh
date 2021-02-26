@@ -22,10 +22,18 @@ if [ "$?" == 0 ]; then
 fi
 
 echo -e "\nhost kvm server"
-ssh root@192.168.88.2 uptime
-ssh root@192.168.88.2 vmstat -w
+uptime
+vmstat -w
 
-echo -e "\nbastion-$j"
+ping -c 1 192.168.88.2 >/dev/null 2>&1
+
+if [ "$?" == 1 ]; then
+	echo
+	echo Bastion node is not online.  Exiting
+	exit
+fi
+
+echo -e "\nbastion"
 ssh root@192.168.88.2 uptime
 ssh root@192.168.88.2 vmstat -w
 

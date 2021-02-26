@@ -1,13 +1,18 @@
 #!/bin/bash
 
-set -e
-
-if [ ! -e helper/add-vdisk-workers.sh ]; then
+if [ ! -e helper/parameters.sh ]; then
 	echo "Please invoke this script from the directory ocs-upi-kvm/scripts"
 	exit 1
 fi
 
+set -e
+
 source helper/parameters.sh
+
+if [ "$PLATFORM" != kvm ]; then
+	echo "This script is only supported when using KVM to OCP VMs"
+	exit 1
+fi
 
 export KUBECONFIG=$WORKSPACE/auth/kubeconfig
 
@@ -28,6 +33,6 @@ export VDISK=${VDISK:="vdd"}
 
 export ENABLE_HUGE_PAGES=false
 
-sudo -sE helper/add-vdisk-workers.sh
+sudo -sE helper/kvm/add-vdisk-workers.sh
 
 $WORKSPACE/bin/oc get pv

@@ -12,28 +12,28 @@ VERSION="202010191400";
 
 # Check if another instance of the same script is running, if so quit.
 
-CHRONOCS="test-chron-ocs"
-if pgrep "$CHRONOCS" >/dev/null
+CRONOCS="test-cron-ocs"
+if pgrep "$CRONOCS" >/dev/null
 then
-    echo "$CHRONOCS is running. Wait for it to complete before starting again."
+    echo "$CRONOCS is running. Wait for it to complete before starting again."
     exit 1
 else
-    echo "$CHRONOCS stopped"
+    echo "$CRONOCS stopped"
 fi
 
 if [ "$( whoami )" == "root" ]; then
-    echo "This is the root account which is not allowed for this chron job" 
+    echo "This is the root account which is not allowed for this cron job" 
     exit 1
 fi
 
-if [[ ! -e ~/auth.yaml ]] || [[ ! -e ~/pull-secret.txt ]] || [[ ! -e ~/test-chron-ocs.sh ]]; then
-    echo "At least one required file is missing: auth.yaml, pull-secret.txt, test-chron-ocs.sh"    
+if [[ ! -e ~/auth.yaml ]] || [[ ! -e ~/pull-secret.txt ]] || [[ ! -e ~/test-cron-ocs.sh ]]; then
+    echo "At least one required file is missing: auth.yaml, pull-secret.txt, test-cron-ocs.sh"    
     exit 1
 fi
 
 echo "Preparing environment"
 
-export LOGDIR=~/logs
+export LOGDIR=~/logs-cron
 export LOGDATE=$(date "+%d%H%M")
 
 mkdir -p $LOGDIR
@@ -45,4 +45,4 @@ git clone https://github.com/ocp-power-automation/ocs-upi-kvm
 
 echo "Run ocs-ci tier tests in the background...  Log files in $LOGDIR"
 
-./test-chron-ocs.sh
+./test-cron-ocs.sh
