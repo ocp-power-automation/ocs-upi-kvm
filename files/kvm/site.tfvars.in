@@ -4,6 +4,7 @@ images_path     = "$IMAGES_PATH"
 bastion_image   = "$IMAGES_PATH/$BASTION_IMAGE"
 rhcos_image     = "$IMAGES_PATH/$RHCOS_IMAGE"
 
+bootstrap       = { memory = 8192,  vcpu = 4, count = $BOOTSTRAP_CNT }
 master          = { memory = $MASTER_DESIRED_MEM, vcpu = $MASTER_DESIRED_CPU, count = 3 }
 worker          = { memory = $WORKER_DESIRED_MEM, vcpu = $WORKER_DESIRED_CPU, count = $WORKERS }
 
@@ -24,7 +25,7 @@ cluster_id_prefix           = "test"
 network_cidr                = "$CLUSTER_CIDR"
 rhel_password               = "123456"
 
-dns_forwarders              = "192.168.88.1;$DNS_BACKUP_SERVER"
+dns_forwarders              = "$CLUSTER_GATEWAY;$DNS_BACKUP_SERVER"
 chrony_config               = "$CHRONY_CONFIG"
 chrony_config_servers       = [$CHRONY_CONFIG_SERVERS]
 

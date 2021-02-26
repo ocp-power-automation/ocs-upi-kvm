@@ -1,0 +1,47 @@
+ibmcloud_api_key            = "$PVS_API_KEY"
+ibmcloud_region             = "$PVS_REGION"
+ibmcloud_zone               = "$PVS_ZONE"
+service_instance_id         = "$PVS_SERVICE_INSTANCE_ID"
+
+bastion                     = { memory = "16", processors = "1", count = 1 }
+bootstrap                   = { memory = "16", processors = "0.5", count = $BOOTSTRAP_CNT }
+master                      = { memory = "$MASTER_DESIRED_MEM", processors = "$MASTER_DESIRED_CPU", count = 3 }
+worker                      = { memory = "$WORKER_DESIRED_MEM", processors = "$WORKER_DESIRED_CPU", count = $WORKERS }
+
+rhel_image_name             = "$BASTION_IMAGE"
+rhcos_image_name            = "$RHCOS_IMAGE"
+processor_type              = "$PROCESSOR_TYPE"
+system_type                 = "$SYSTEM_TYPE"
+network_name		    = "$PVS_SUBNET_NAME"
+
+rhel_subscription_username      = "$RHID_USERNAME"
+rhel_subscription_password      = "$RHID_PASSWORD"
+rhel_subscription_org           = "$RHID_ORG"
+rhel_subscription_activationkey = "$RHID_KEY"
+
+openshift_install_tarball   = "https://mirror.openshift.com/pub/openshift-v4/ppc64le/clients/$OCP_INSTALLER_SUBPATH/openshift-install-linux.tar.gz"
+openshift_client_tarball    = "https://mirror.openshift.com/pub/openshift-v4/ppc64le/clients/$OCP_INSTALLER_SUBPATH/openshift-client-linux.tar.gz"
+
+release_image_override      = "$OPENSHIFT_INSTALL_RELEASE_IMAGE_OVERRIDE"
+
+cluster_domain              = "$CLUSTER_DOMAIN"
+cluster_id_prefix           = "$CLUSTER_ID_PREFIX"
+cluster_id                  = ""
+
+dns_forwarders              = "$DNS_FORWARDERS"
+chrony_config               = "$CHRONY_CONFIG"
+chrony_config_servers       = [$CHRONY_CONFIG_SERVERS]
+
+helpernode_tag              = "1ac7f276b537cd734240eda9ed554a254ba80629"
+install_playbook_tag        = "$INSTALL_PLAYBOOK_TAG"
+
+# Master and Worker nodes
+
+volume_type                 = "$VOLUME_TYPE"
+worker_volume_size          = "$WORKER_VOLUME_SIZE"
+
+# Bastion node
+
+storage_type                = ""
+volume_size                 = "0"
+

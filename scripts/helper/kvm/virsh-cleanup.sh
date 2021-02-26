@@ -75,6 +75,3 @@ if [ -e $WORKSPACE/.images_path ]; then
 	fi
 fi
 
-# Remove orhpaned virbrxxx on libvirt zone
-
-firewall-cmd --reload

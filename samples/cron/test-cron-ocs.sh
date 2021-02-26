@@ -10,14 +10,15 @@
 
 export PLATFORM=${PLATFORM:="kvm"}                              # Also supported: powervs.   Defaults to kvm
 
-#export RHID_USERNAME=<your registered username>		# Change this line or preset in shell
-#export RHID_PASSWORD=<your password>				# Edit or preset
+#export RHID_USERNAME=<your rh subscription id>
+#export RHID_PASSWORD=<your rh subscription password>
 
 
-# These environment variables are optional for all platforms
+# These environment variables are optional, but should be set for cron jobs,
+# so that CLUSTER_ID_PREFIX below is properly initialized for powervs.
 
-#export OCP_VERSION=4.6						# 4.7 is also supported
-#export OCS_VERSION=4.6
+export OCP_VERSION=4.6						# 4.5 - 4.7 are supported
+export OCS_VERSION=4.6
 
 
 # These are optional for KVM.  Default values are shown
@@ -38,9 +39,9 @@ export PLATFORM=${PLATFORM:="kvm"}                              # Also supported
 
 # These are optional for PowerVS.  Default values are shown
 
-#export CLUSTER_ID_PREFIX=$RHID_USERNAME			# Actually first 6 chars of rhid_username + ocp version
+export CLUSTER_ID_PREFIX=${HOSTNAME:0:5}-${OCP_VERSION/./}
 #export PVS_SUBNET_NAME=ocp-net
-#export PVS_REGION=lon                                          # Or tok and tok04 depending on service instance id
+#export PVS_REGION=lon					        # Or tok and tok04 depending on service instance id
 #export PVS_ZONE=lon06
 #export SYSTEM_TYPE=s922
 #export PROCESSOR_TYPE=shared
@@ -75,14 +76,24 @@ if [ -z "$PLATFORM" ] || [ -z "$RHID_USERNAME" ] || [ -z "$RHID_PASSWORD" ]; the
 	exit 1
 fi
 if [ "$PLATFORM" == powervs ]; then
-        if [ -z "$PVS_API_KEY" ] || [ -z "$PVS_SERVICE_INSTANCE_ID" ]; then
+	if [ -z "$PVS_API_KEY" ] || [ -z "$PVS_SERVICE_INSTANCE_ID" ]; then
 		echo "Environment variables PVS_API_KEY and PVS_SERVICE_INSTANCE_ID must be set for PowerVS"
 		exit 1
-        fi
+	fi
 	OCP_PROJECT=ocp4-upi-powervs
 else
 	OCP_PROJECT=ocp4-upi-kvm
 fi
+
+# LOG variables are supposed to be preset by cronjob
+
+if [ -z "$LOGDIR" ]; then
+	LOGDIR=~/logs
+	mkdir -p $LOGDIR
+	LOGDATE=$(date "+%d%H%M")
+fi
+
+# Set WORKSPACE where go code, binaries, and log files are placed
 
 if [ -z "$WORKSPACE" ]; then
 	cwdir=$(pwd)
@@ -105,30 +116,30 @@ if [ -z "$WORKSPACE" ]; then
 	fi
 fi
 
-echo "Location of project: $WORKSPACE/ocs-upi-kvm"
-echo "Location of log files: $WORKSPACE"
+echo "Location of project: $WORKSPACE/ocs-upi-kvm" | tee $LOGDIR/create-ocp-$LOGDATE.log
+echo "Location of log files: $WORKSPACE" | tee -a $LOGDIR/create-ocp-$LOGDATE.log
 
 pushd $WORKSPACE/ocs-upi-kvm
 
 if [ ! -e src/$OCP_PROJECT/var.tfvars ]; then
-	echo "Refreshing submodule ${OCP_PROJECT}..."
-	git submodule update --init src/$OCP_PROJECT
+	echo "Refreshing submodule ${OCP_PROJECT}..." | tee -a $LOGDIR/create-ocp-$LOGDATE.log
+	git submodule update --init src/$OCP_PROJECT | tee -a $LOGDIR/create-ocp-$LOGDATE.log
 fi
 
 if [ ! -e src/ocs-ci/README.md ]; then
-	echo "Refreshing submodule ocs-ci..."
-	git submodule update --init src/ocs-ci
+	echo "Refreshing submodule ocs-ci..." | tee -a $LOGDIR/create-ocp-$LOGDATE.log
+	git submodule update --init src/ocs-ci | tee -a $LOGDIR/create-ocp-$LOGDATE.log
 fi
 
 if [ "$get_latest_ocs" == true ]; then
-	echo "Getting latest ocs-ci..."
+	echo "Getting latest ocs-ci..." | tee -a $LOGDIR/create-ocp-$LOGDATE.log
 	pushd $WORKSPACE/ocs-upi-kvm/src/ocs-ci
 	git checkout master
 	git pull
+	echo "Most recent commits to master:" | tee -a $LOGDIR/create-ocp-$LOGDATE.log
+	git log --pretty=oneline | head -n 5 | tee -a $LOGDIR/create-ocp-$LOGDATE.log
 	popd
 fi
-
-echo "Invoking scripts..."
 
 pushd $WORKSPACE/ocs-upi-kvm/scripts
 
@@ -138,53 +149,56 @@ set -o pipefail
 
 for i in 1 2 4a 4b 4c 3
 do
-	./create-ocp.sh 2>&1 | tee $WORKSPACE/create-ocp-$i.log
-	if [ "$?" != 0 ]; then
-	       
-		echo "Retrying ./create-ocp.sh" | tee -a $WORKSPACE/create-ocp-$i.log
+	echo "Invoking ./create-ocp.sh" | tee -a $LOGDIR/create-ocp-$i-$LOGDATE.log
+	./create-ocp.sh 2>&1 | tee -a $LOGDIR/create-ocp-$i-$LOGDATE.log
+	if [ "$?" != 0 ] && [ "$PLATFORM" == powervs ]; then
 
-		./create-ocp.sh --retry 2>&1 | tee -a $WORKSPACE/create-ocp-$i.log
+		echo "Retrying ./create-ocp.sh" | tee -a $LOGDIR/create-ocp-$i-$LOGDATE.log
+
+                ./create-ocp.sh --retry 2>&1 | tee -a $LOGDIR/create-ocp-$i-$LOGDATE.log
 		if [ "$?" != 0 ]; then
 
-			./destroy-ocp.sh --tier $i | tee $WORKSPACE/destroy-ocp-$i.log
+			./destroy-ocp.sh --tier $i | tee $LOGDIR/destroy-ocp-$i-$LOGDATE.log
 			if [ "$?" != 0 ] && [ "$PLATFORM" == powervs ]; then
-				echo "ERROR: cluster destroy failed.  Use cloud GUI to remove virtual instances"
+				echo "ERROR: cluster destroy failed.  Use cloud GUI to remove virtual instances" | tee -a $LOGDIR/destroy-ocp-$i-$LOGDATE.log
 			fi
 			continue
 		fi
 	fi
 
 	source $WORKSPACE/env-ocp.sh
-	oc get nodes -o wide 2>&1 | tee -a $WORKSPACE/create-ocp-$i.log
+	oc get nodes -o wide 2>&1 | tee -a $LOGDIR/create-ocp-$i-$LOGDATE.log
 
-	./setup-ocs-ci.sh 2>&1 | tee $WORKSPACE/setup-ocs-ci-$i.log
+	echo "Invoking ./setup-ocs-ci.sh"
+	./setup-ocs-ci.sh 2>&1 | tee $LOGDIR/setup-ocs-ci-$i-$LOGDATE.log
 
-	./deploy-ocs-ci.sh 2>&1 | tee $WORKSPACE/deploy-ocs-ci-$i.log
-	CEPH_STATE=$(oc get cephcluster --namespace openshift-storage | tee -a $WORKSPACE/deploy-ocs-ci-$i.log)
+	echo "Invoking ./deploy-ocs-ci.sh"
+	./deploy-ocs-ci.sh 2>&1 | tee $LOGDIR/deploy-ocs-ci-$i-$LOGDATE.log
+
+	echo "Post deploy check of OCS Ceph Health"
+	CEPH_STATE=$(oc get cephcluster --namespace openshift-storage | tee -a $LOGDIR/deploy-ocs-ci-$i-$LOGDATE.log)
 	if [[ ! "$CEPH_STATE" =~ HEALTH_OK ]]; then
 
-		echo "ERROR: Failed CEPH Health Check" | tee -a $WORKSPACE/deploy-ocs-ci-$i.log
-
-		./destroy-ocp.sh --tier $i | tee $WORKSPACE/destroy-ocp-$i.log
+		./destroy-ocp.sh --tier $i | tee $LOGDIR/destroy-ocp-$i-$LOGDATE.log
 		if [ "$?" != 0 ] && [ "$PLATFORM" == powervs ]; then
-			echo "ERROR: cluster destroy failed.  Use cloud GUI to remove virtual instances"
+			echo "ERROR: cluster destroy failed.  Use cloud GUI to remove virtual instances" | tee -a $LOGDIR/destroy-ocp-$i-$LOGDATE.log
 		fi
 		continue
 	fi
 
-	nohup ./test-ocs-ci.sh --tier $i 2>&1 > $WORKSPACE/test-ocs-ci-$i.log
+	echo "Invoking ./test-ocs-ci.sh --tier $i"
+	./test-ocs-ci.sh --tier $i | tee $LOGDIR/test-ocs-ci-tier-$i-$LOGDATE.log
 
 	echo
-	oc get cephcluster --namespace openshift-storage 2>&1 | tee -a $WORKSPACE/test-ocs-ci-$i.log
+	oc get cephcluster --namespace openshift-storage 2>&1 | tee -a $LOGDIR/test-ocs-ci-tier-$i-$LOGDATE.log
 	echo
-	oc get pods --namespace openshift-storage 2>&1 | tee -a $WORKSPACE/test-ocs-ci-$i.log
+	oc get pods --namespace openshift-storage 2>&1 | tee -a $LOGDIR/test-ocs-ci-tier-$i-$LOGDATE.log
 
-	./destroy-ocp.sh --tier $i | tee $WORKSPACE/destroy-ocp-$i.log
+	echo "Invoking ./destroy-ocp.sh after tier test $i"
+	./destroy-ocp.sh --tier $i | tee $LOGDIR/destroy-ocp-$i-$LOGDATE.log
 	if [ "$?" != 0 ] && [ "$PLATFORM" == powervs ]; then
-		echo "ERROR: cluster destroy failed.  Use cloud GUI to remove virtual instances"
+		echo "ERROR: cluster destroy failed.  Use cloud GUI to remove virtual instances" | tee -a $LOGDIR/destroy-ocp-$i-$LOGDATE.log
 	fi
+
 done
 
-#nohup ./test-ocs-ci.sh --performance 2>&1 > $WORKSPACE/perf-ocs-ci.log
-#nohup ./test-ocs-ci.sh --workloads 2>&1 > $WORKSPACE/workloads-ocs-ci.log
-#nohup ./test-ocs-ci.sh --scale 2>&1 > $WORKSPACE/scale-ocs-ci.log

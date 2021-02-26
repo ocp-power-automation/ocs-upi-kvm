@@ -1,69 +1,41 @@
 #!/bin/bash
 
+set -e
+
 echo "Command invocation: $0 $1"
 
-if [[ -z "$RHID_USERNAME" && -z "$RHID_PASSWORD" && -z "$RHID_ORG" && -z "$RHID_KEY" ]]; then
-	echo "ERROR: Environment variables RHID_USERNAME and RHID_PASSWORD must both be set"
-	echo "ERROR: OR"
-	echo "ERROR: Environment variables RHID_ORG and RHID_KEY must both be set"
-	exit 1
-fi
-
-if [[ -z "$RHID_USERNAME" && -n "$RHID_PASSWORD" ]] || [[ -n "$RHID_USERNAME" && -z "$RHID_PASSWORD" ]]; then
-	echo "ERROR: Environment variables RHID_USERNAME and RHID_PASSWORD must both be set"
-	exit 1
-elif [[ -z "$RHID_ORG" && -n "$RHID_KEY" ]] || [[ -n "$RHID_ORG" && -z "$RHID_KEY" ]]; then
-	echo "ERROR: Environment variables RHID_ORG and RHID_KEY must both be set"
-	exit 1
-fi
-
-if [ ! -e helper/parameters.sh ]; then
-	echo "Please invoke this script from the directory ocs-upi-kvm/scripts"
-	exit 1
-fi
-
 source helper/parameters.sh
-export SANITIZED_OCP_VERSION
-
-function terraform_apply () {
-	cat $WORKSPACE/ocs-upi-kvm/files/site.tfvars.in | envsubst > $WORKSPACE/site.tfvars
-	echo "site.tfvars:"
-	cat $WORKSPACE/site.tfvars 
-	sudo systemctl restart libvirtd
-	sudo -sE nft insert rule ip filter INPUT ip saddr $CLUSTER_CIDR ip daddr 192.168.122.1 tcp dport 16509 counter accept comment \"Allow insecure libvirt clients\"
-	terraform apply -var-file var.tfvars -var-file $WORKSPACE/site.tfvars -auto-approve -parallelism=3
-}
-
-if [ "$1" == "--retry" ]; then
-	cd $WORKSPACE/ocs-upi-kvm/src/ocp4-upi-kvm
-	export TF_LOG=TRACE
-	export TF_LOG_PATH=$WORKSPACE/terraform.log
-	terraform_apply
-	exit
-fi
-
-if [ ! -e $WORKSPACE/pull-secret.txt ]; then
-	echo "Missing $WORKSPACE/pull-secret.txt.  Download it from https://cloud.redhat.com/openshift/install/pull-secret"
-	exit 1
-fi
 
 export GOROOT=$WORKSPACE/usr/local/go
 export PATH=$WORKSPACE/bin:$PATH
 
-set -e
+# This is decremented after cluster creation to remove the bootstrap node
 
-# Internal variables -- don't change unless you also modify the underlying projects
-export TERRAFORM_VERSION=${TERRAFORM_VERSION:="v0.13.6"}
-export GO_VERSION=${GO_VERSION:="go1.14.14"}
+export BOOTSTRAP_CNT=1
 
-file_present $IMAGES_PATH/$BASTION_IMAGE
-if [[ ! -e $WORKSPACE/$BASTION_IMAGE ]] && [[ "$file_rc" != 0 ]]; then
-	echo "ERROR: Missing $BASTION_IMAGE.  Get it from https://access.redhat.com/downloads/content/479/ and prepare it per README"
-	exit 1
-fi
-if [[ -e $WORKSPACE/$BASTION_IMAGE ]] && [[ "$file_rc" != 0 ]]; then
-	sudo -sE mkdir -p $IMAGES_PATH 
-	sudo -sE mv -f $WORKSPACE/$BASTION_IMAGE $IMAGES_PATH
+if [ "$1" == "--retry" ]; then
+	retry=true
+	if [ "$PLATFORM" == kvm ]; then
+		retry_version=$(sudo virsh list | grep bastion | awk '{print $2}' | sed 's/4-/4./' | sed 's/-/ /g' | awk '{print $2}' | sed 's/ocp//')
+		if [ "$retry_version" != "$OCP_VERSION" ]; then
+			echo "WARNING: Ignoring --retry argument.  existing version:$retry_version  requested version:$OCP_VERSION"
+			retry=false
+		fi
+	fi
+	if [ "$retry" == true ]; then
+
+		cd $WORKSPACE/ocs-upi-kvm/src/$OCP_PROJECT
+		export TF_LOG=TRACE
+		export TF_LOG_PATH=$WORKSPACE/terraform.log
+		terraform_apply
+
+		# Delete bootstrap to save system resources after successful cluster creation (set -e above)
+
+		export BOOTSTRAP_CNT=0
+		terraform_apply
+
+		exit
+	fi
 fi
 
 # openshift install images are publicly released with every minor update at
@@ -72,33 +44,33 @@ fi
 
 case "$OCP_VERSION" in
 	4.4)
-		OCP_RELEASE="4.4.23"		# Latest release of OCP 4.4 at this time
+		OCP_RELEASE="4.4.23"				# Latest release of OCP 4.4 at this time
 		RHCOS_VERSION="4.4"
 		if [ -z "$RHCOS_RELEASE" ]; then
-			RHCOS_RELEASE="4.4.9"	# Latest release of RHCOS 4.4 at this time
+			RHCOS_RELEASE="4.4.9"			# Latest release of RHCOS 4.4 at this time
 		fi
 		RHCOS_SUFFIX="-$RHCOS_RELEASE"
 		export INSTALL_PLAYBOOK_TAG=b07c89deacb04f996834403b1efdafb1f9a3d7c4
 		;;
 	4.5)
-		OCP_RELEASE="4.5.11"		# Latest release of OCP 4.5 at this time
+		OCP_RELEASE="4.5.11"				# Latest release of OCP 4.5 at this time
 		RHCOS_VERSION="4.5"
 		if [ -z "$RHCOS_RELEASE" ]; then
-			RHCOS_RELEASE="4.5.4"	# Latest release of RHCOS 4.5 at this time
+			RHCOS_RELEASE="4.5.4"			# Latest release of RHCOS 4.5 at this time
 		fi
 		RHCOS_SUFFIX="-$RHCOS_RELEASE"
 		export INSTALL_PLAYBOOK_TAG=b07c89deacb04f996834403b1efdafb1f9a3d7c4
 		;;
 	4.6)
-		OCP_RELEASE="4.6.12"		# Latest release of OCP 4.6 at this time
+		OCP_RELEASE="4.6.12"				# Latest release of OCP 4.6 at this time
 		RHCOS_VERSION="4.6"
 		if [ -z "$RHCOS_RELEASE" ]; then
-			RHCOS_RELEASE="4.6.8"	# Latest release of RHCOS 4.6 at this time
+			RHCOS_RELEASE="4.6.8"			# Latest release of RHCOS 4.6 at this time
 		fi
 		RHCOS_SUFFIX="-$RHCOS_RELEASE"
 		export INSTALL_PLAYBOOK_TAG=fc74d7ec06b2dd47c134c50b66b478abde32e295
 		;;
-	4.7)						# TODO: Update after GA
+	4.7)							# TODO: Update after GA
 		unset OCP_RELEASE
 		RHCOS_VERSION="4.7"
 		unset RHCOS_RELEASE
@@ -109,6 +81,18 @@ case "$OCP_VERSION" in
 		echo "Invalid OCP_VERSION=$OCP_VERSION.  Supported versions are 4.4 - 4.7"
 		exit 1
 esac
+
+# Validate platform setup, prepare hugepages, destroy pre-existing cluster.  We are creating a new cluster
+
+prepare_new_cluster_delete_old_cluster
+
+if [ -n "$RHCOS_RELEASE" ]; then
+	export OCP_INSTALLER_SUBPATH="ocp/latest-$OCP_VERSION"
+elif [ -n "$OCP_RELEASE" ]; then
+	export OCP_INSTALLER_SUBPATH="ocp/$OCP_RELEASE"
+else
+	export OCP_INSTALLER_SUBPATH="ocp-dev-preview/latest-$OCP_VERSION"
+fi
 
 # The openshift installer always installs the latest image.  The installer can be configured
 # to pull older images via the environment variable OPENSHIFT_INSTALL_RELEASE_IMAGE_OVERRIDE.
@@ -125,38 +109,15 @@ if [ -z "$OPENSHIFT_INSTALL_RELEASE_IMAGE_OVERRIDE" ]; then
 fi
 export OPENSHIFT_INSTALL_RELEASE_IMAGE_OVERRIDE
 
-# Get the RHCOS image associated with the specified OCP Version and copy it to
-# IMAGES_PATH and normalize the name of the image with a soft link with RHCOS_SUFFIX
-# so that it referenced with a common naming scheme.  This image is the boot disk of
-# each VM and needs to be resized to accomodate OCS.  There is no penalty for specifying
-# a larger size than what is actually needed as the qcow2 image is a sparse file.
-
-file_present $IMAGES_PATH/rhcos${RHCOS_SUFFIX}.qcow2
-if [ "$file_rc" != 0 ]; then
-	pushd $WORKSPACE
-	rm -f rhcos*qcow2.gz
-	if [ -n "$RHCOS_RELEASE" ]; then
-		wget -nv https://mirror.openshift.com/pub/openshift-v4/ppc64le/dependencies/rhcos/$RHCOS_VERSION/$RHCOS_RELEASE/rhcos-$RHCOS_RELEASE-ppc64le-qemu.ppc64le.qcow2.gz
-	else
-		wget -nv https://mirror.openshift.com/pub/openshift-v4/ppc64le/dependencies/rhcos/pre-release/latest-$RHCOS_VERSION/rhcos-qemu.ppc64le.qcow2.gz
-	fi
-	file=$(ls -1 rhcos*qcow2.gz | tail -n 1)
-	echo "Unzipping $file"
-	gunzip -f $file
-	file=${file/.gz/}
-
-	echo "Resizing $file (VM boot image) to 40G"
-	qemu-img resize $file 40G
-	sudo -sE mv -f $file $IMAGES_PATH
-
-	sudo -sE ln -sf $IMAGES_PATH/$file $IMAGES_PATH/rhcos${RHCOS_SUFFIX}.qcow2
-	popd
+if [[ -n "$RHID_USERNAME" && -n "$RHID_PASSWORD" ]]; then
+	export RHID_ORG=""
+	export RHID_KEY=""
+else
+	export RHID_USERNAME=""
+	export RHID_PASSWORD=""
 fi
 
-echo "Normalized RHCOS image name is rhcos${RHCOS_SUFFIX}.qcow2"
-export RHCOS_IMAGE=rhcos${RHCOS_SUFFIX}.qcow2
-
-# Install GO and terraform
+# Install GO and Terraform
 
 OLD_GO_VERSION=''
 if [ -e $WORKSPACE/bin/go ]; then
@@ -231,7 +192,17 @@ if [[ "$INSTALLED_GO" == "true" ]] || [[ "$OLD_TERRAFORM_VERSION" != "$TERRAFORM
 	mkdir -p $PLUGIN_PATH/dmacvicar/libvirt/1.0.0/$LPLATFORM/
 	cp -f $GOPATH/bin/terraform-provider-libvirt $PLUGIN_PATH/dmacvicar/libvirt/1.0.0/$LPLATFORM/
 
-	VERSION=2.3.0
+	VERSION=$TERRAFORM_POWERVS_VERSION
+	mkdir -p $GOPATH/src/github.com/IBM-Cloud; cd $GOPATH/src/github.com/IBM-Cloud
+	git clone https://github.com/IBM-Cloud/terraform-provider-ibm.git  --branch v$VERSION
+	pushd terraform-provider-ibm
+	make build
+	popd
+
+	mkdir -p $PLUGIN_PATH/IBM-Cloud/ibm/$VERSION/$LPLATFORM/
+	cp -f $GOPATH/bin/terraform-provider-ibm $PLUGIN_PATH/IBM-Cloud/ibm/$VERSION/$LPLATFORM/
+
+	VERSION=$TERRAFORM_RANDOM_VERSION
 	mkdir -p $GOPATH/src/github.com/terraform-providers; cd $GOPATH/src/github.com/terraform-providers
 	git clone https://github.com/terraform-providers/terraform-provider-random --branch v$VERSION
 	pushd terraform-provider-random
@@ -241,7 +212,7 @@ if [[ "$INSTALLED_GO" == "true" ]] || [[ "$OLD_TERRAFORM_VERSION" != "$TERRAFORM
 	mkdir -p $PLUGIN_PATH/hashicorp/random/$VERSION/$LPLATFORM/
 	cp -f $GOPATH/bin/terraform-provider-random $PLUGIN_PATH/hashicorp/random/$VERSION/$LPLATFORM/
 
-	VERSION=2.1.2
+	VERSION=$TERRAFORM_NULL_VERSION
 	mkdir -p $GOPATH/src/github.com/terraform-providers; cd $GOPATH/src/github.com/terraform-providers
 	git clone https://github.com/terraform-providers/terraform-provider-null --branch v$VERSION
 	pushd terraform-provider-null
@@ -252,11 +223,11 @@ if [[ "$INSTALLED_GO" == "true" ]] || [[ "$OLD_TERRAFORM_VERSION" != "$TERRAFORM
 	cp -f $GOPATH/bin/terraform-provider-null $PLUGIN_PATH/hashicorp/null/$VERSION/$LPLATFORM/
 
 	# OCP 4.6 upgraded to Ignition Config Spec v3.0.0 which is incompatible with the
-	# format used by OCP 4.5 and 4.4, so conditionally patch ocp4-upi-kvm terraform code
-	# based on the OCP version of the cluster being deployed.  files/ocp4-upi-kvm.legacy.patch
+	# format used by OCP 4.5 and 4.4, so conditionally patch ocp4-upi-xxx terraform code
+	# based on the OCP version of the cluster being deployed.  files/ocp4-upi-XXX.legacy.patch
 	# is used for this purpose.
 
-	VERSION=2.1.0
+	VERSION=$TERRAFORM_IGNITION_VERSION
 	mkdir -p $GOPATH/src/github.com/community-terraform-providers; cd $GOPATH/src/github.com/community-terraform-providers 
 	git clone https://github.com/community-terraform-providers/terraform-provider-ignition --branch v$VERSION
 	pushd terraform-provider-ignition
@@ -268,7 +239,7 @@ if [[ "$INSTALLED_GO" == "true" ]] || [[ "$OLD_TERRAFORM_VERSION" != "$TERRAFORM
 
 	# This is the legacy version
 
-	VERSION=1.2.1
+	VERSION=$TERRAFORM_IGNITION_LEGACY_VERSION
 	mkdir -p $GOPATH/src/github.com/terraform-providers; cd $GOPATH/src/github.com/terraform-providers 
 	git clone https://github.com/terraform-providers/terraform-provider-ignition --branch v$VERSION
 	pushd terraform-provider-ignition
@@ -282,51 +253,37 @@ if [[ "$INSTALLED_GO" == "true" ]] || [[ "$OLD_TERRAFORM_VERSION" != "$TERRAFORM
 fi
 
 pushd ..
-set -x
 
 # Remove files from previous cluster creation
 
+if [[ -d ~/.ssh ]] && [[ "$retry" == false ]]; then
+	rm -f ~/.ssh/known_hosts
+fi
 rm -rf ~/.kube
 
 # Reset submodule so that the patch below can be applied
 
-git submodule deinit --force src/ocp4-upi-kvm
-git submodule update --init  src/ocp4-upi-kvm
+git submodule deinit --force src/$OCP_PROJECT
+git submodule update --init  src/$OCP_PROJECT
 
-pushd src/ocp4-upi-kvm
+pushd src/$OCP_PROJECT
 
-# Patch ocp4-upi-kvm submodule to manage differences across ocp releases.
+# Patch ocp4-upi-xxx submodule to manage differences across ocp releases.
 # This mostly comes down to managing terraform modules.  A different version
 # of the ignition module is required for ocp 4.6.
 
 case "$OCP_VERSION" in
-4.4|4.5)
-	if [ -e $WORKSPACE/ocs-upi-kvm/files/ocp4-upi-kvm.legacy.patch ]; then
-		patch -p1 < $WORKSPACE/ocs-upi-kvm/files/ocp4-upi-kvm.legacy.patch
-	fi
-	;;
-*)
-	if [ -e $WORKSPACE/ocs-upi-kvm/files/ocp4-upi-kvm.patch ]; then
-		patch -p1 < $WORKSPACE/ocs-upi-kvm/files/ocp4-upi-kvm.patch
-	fi
-	;;
+	4.4|4.5)
+		if [ -e $WORKSPACE/ocs-upi-kvm/files/$PLATFORM/$OCP_PROJECT.legacy.patch ]; then
+			patch -p1 < $WORKSPACE/ocs-upi-kvm/files/$PLATFORM/$OCP_PROJECT.legacy.patch
+		fi
+		;;
+	*)
+		if [ -e $WORKSPACE/ocs-upi-kvm/files/$PLATFORM/$OCP_PROJECT.patch ]; then
+			patch -p1 < $WORKSPACE/ocs-upi-kvm/files/$PLATFORM/$OCP_PROJECT.patch
+		fi
+		;;
 esac
-
-if [ -n "$RHCOS_RELEASE" ]; then
-	export OCP_INSTALLER_SUBPATH="ocp/latest-$OCP_VERSION"
-elif [ -n "$OCP_RELEASE" ]; then
-	export OCP_INSTALLER_SUBPATH="ocp/$OCP_RELEASE"
-else
-	export OCP_INSTALLER_SUBPATH="ocp-dev-preview/latest-$OCP_VERSION"
-fi
-
-if [[ -n "$RHID_USERNAME" && -n "$RHID_PASSWORD" ]]; then
-	export RHID_ORG=""
-	export RHID_KEY=""
-else
-	export RHID_USERNAME=""
-	export RHID_PASSWORD=""
-fi
 
 mkdir -p data
 
@@ -351,4 +308,9 @@ terraform init
 
 terraform validate
 
+terraform_apply
+
+# Delete bootstrap to save system resources after successful cluster creation (set -e above)
+
+export BOOTSTRAP_CNT=0
 terraform_apply
