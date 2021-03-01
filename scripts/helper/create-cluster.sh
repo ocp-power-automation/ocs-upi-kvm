@@ -25,8 +25,6 @@ if [ "$1" == "--retry" ]; then
 	if [ "$retry" == true ]; then
 
 		cd $WORKSPACE/ocs-upi-kvm/src/$OCP_PROJECT
-		export TF_LOG=TRACE
-		export TF_LOG_PATH=$WORKSPACE/terraform.log
 		terraform_apply
 
 		# Delete bootstrap to save system resources after successful cluster creation (set -e above)
@@ -300,9 +298,6 @@ fi
 
 cp ~/.ssh/id_rsa* data
 cp $WORKSPACE/pull-secret.txt data/pull-secret.txt
-
-export TF_LOG=TRACE
-export TF_LOG_PATH=$WORKSPACE/terraform.log
 
 terraform init
 

@@ -60,6 +60,18 @@ if [ ! -e $WORKSPACE/ocs-ci-conf.yaml ]; then
         cp ../../files/ocs-ci-conf.yaml $WORKSPACE/ocs-ci-conf.yaml
         mkdir -p $LOGDIR
         yq -y -i '.RUN.log_dir |= env.LOGDIR' $WORKSPACE/ocs-ci-conf.yaml
+	yq -y -i '.DEPLOYMENT.ocs_registry_image |= env.OCS_REGISTRY_IMAGE' $WORKSPACE/ocs-ci-conf.yaml
+
+	export ocp_must_gather=quay.io/rhceph-dev/ocs-must-gather:latest-$OCS_VERSION
+	yq -y -i '.REPORTING.ocp_must_gather_image |= env.ocp_must_gather' $WORKSPACE/ocs-ci-conf.yaml
+
+	if [ -e ../../files/ocs-ci/$PLATFORM/ocpdr ]; then
+		yq -y -i '.RUN.ocpdr = ocpdr' $WORKSPACE/ocs-ci-conf.yaml
+	fi
+
+	if [ "$PLATFORM" == powervs ]; then
+		yq -y -i '.ENV_DATA.number_of_storage_disks = 8' $WORKSPACE/ocs-ci-conf.yaml
+	fi
 fi
 
 # Relate the report generated below with the ocs-ci deployment via run_id 

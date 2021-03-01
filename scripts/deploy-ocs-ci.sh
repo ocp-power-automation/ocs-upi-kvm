@@ -23,6 +23,12 @@ export KUBECONFIG=$WORKSPACE/auth/kubeconfig
 
 pushd ../src/ocs-ci
 
+# This script provides DR capabilties implemented by ocp4-upi-powervs
+
+if [ -e ../../files/ocs-ci/$PLATFORM/ocpdr ]; then
+	cp -f ../../files/ocs-ci/$PLATFORM/ocpdr bin
+fi
+
 # WORKAROUND for ocs-ci bug that downloads x86 binary
 
 cp -f $WORKSPACE/bin/oc bin
@@ -45,6 +51,10 @@ yq -y -i '.DEPLOYMENT.ocs_registry_image |= env.OCS_REGISTRY_IMAGE' $WORKSPACE/o
 
 export ocp_must_gather=quay.io/rhceph-dev/ocs-must-gather:latest-$OCS_VERSION
 yq -y -i '.REPORTING.ocp_must_gather_image |= env.ocp_must_gather' $WORKSPACE/ocs-ci-conf.yaml
+
+if [ -e ../../files/ocs-ci/$PLATFORM/ocpdr ]; then
+	yq -y -i '.RUN.ocpdr = ocpdr' $WORKSPACE/ocs-ci-conf.yaml
+fi
 
 if [ "$PLATFORM" == powervs ]; then
 	yq -y -i '.ENV_DATA.number_of_storage_disks = 8' $WORKSPACE/ocs-ci-conf.yaml
