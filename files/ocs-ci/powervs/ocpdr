@@ -1,0 +1,32 @@
+#!/bin/bash
+
+if [ ! -e ../../scripts/helper/parameters.sh ]; then
+	echo "ERROR: $0 is not properly alligned with GH project ocp-power-automation/ocs-upi-kvm"
+	exit 1
+fi
+
+set -e
+
+pushd ../../scripts
+
+export PLATFORM=powervs
+
+source helper/parameters.sh
+
+popd
+
+pushd ../$OCP_PROJECT
+
+ARG1=$1
+case "$ARG1" in
+	addnode)
+		export WORKERS=$(( WORKERS + 1 ))
+		terraform_apply
+		;;
+	*)
+		echo "ERROR: $0 Invalid argument: arg1=$ARG1"
+		exit 1
+		;;
+esac
+
+popd
