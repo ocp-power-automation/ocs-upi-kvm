@@ -53,7 +53,7 @@ export ocp_must_gather=quay.io/rhceph-dev/ocs-must-gather:latest-$OCS_VERSION
 yq -y -i '.REPORTING.ocp_must_gather_image |= env.ocp_must_gather' $WORKSPACE/ocs-ci-conf.yaml
 
 if [ -e ../../files/ocs-ci/$PLATFORM/ocpdr ]; then
-	yq -y -i '.RUN.ocpdr = ocpdr' $WORKSPACE/ocs-ci-conf.yaml
+	yq -y -i '.RUN.ocpdr = "ocpdr"' $WORKSPACE/ocs-ci-conf.yaml
 fi
 
 if [ "$PLATFORM" == powervs ]; then

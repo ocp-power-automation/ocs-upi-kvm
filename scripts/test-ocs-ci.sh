@@ -66,7 +66,7 @@ if [ ! -e $WORKSPACE/ocs-ci-conf.yaml ]; then
 	yq -y -i '.REPORTING.ocp_must_gather_image |= env.ocp_must_gather' $WORKSPACE/ocs-ci-conf.yaml
 
 	if [ -e ../../files/ocs-ci/$PLATFORM/ocpdr ]; then
-		yq -y -i '.RUN.ocpdr = ocpdr' $WORKSPACE/ocs-ci-conf.yaml
+		yq -y -i '.RUN.ocpdr = "ocpdr"' $WORKSPACE/ocs-ci-conf.yaml
 	fi
 
 	if [ "$PLATFORM" == powervs ]; then
