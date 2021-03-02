@@ -15,24 +15,19 @@ if [ -z "$CLUSTER_ID_PREFIX" ]; then
 	export CLUSTER_ID_PREFIX=$CLUSTER_ID_PREFIX${OCP_VERSION/./}
 fi
 
-if [ "$PVS_REGION" == lon ] && [ "$PVS_ZONE" == lon06 ]; then
-	if [ -z "$PVS_SERVICE_INSTANCE_ID" ]; then
-		PVS_SERVICE_INSTANCE_ID=fac4755e-8aff-45f5-8d5c-1d3b58b7a229
-	fi
-elif [ "$PVS_REGION" == tok ] && [ "$PVS_ZONE" == tok04 ]; then
-	if [ -z "$PVS_SERVICE_INSTANCE_ID" ]; then
-		PVS_SERVICE_INSTANCE_ID=60e43366-08de-4287-8c42-b7942406efc9
-	fi
-elif [ "$PVS_SERVICE_INSTANCE_ID" == fac4755e-8aff-45f5-8d5c-1d3b58b7a229 ]; then
-	if [ -z "$PVS_REGION" ] && [ -z "$PVS_ZONE" ]; then
-		PVS_REGION=lon
-		PVS_ZONE=lon06
-	fi
+# Check service instance first, since it is not set above to a default value.  It
+# over rides zone and region if the service instance is set and recognized
+
+if [ "$PVS_SERVICE_INSTANCE_ID" == fac4755e-8aff-45f5-8d5c-1d3b58b7a229 ]; then
+	PVS_REGION=lon
+	PVS_ZONE=lon06
 elif [ "$PVS_SERVICE_INSTANCE_ID" == 60e43366-08de-4287-8c42-b7942406efc9 ]; then
-	if [ -z "$PVS_REGION" ] && [ -z "$PVS_ZONE" ]; then
-		PVS_REGION=tok
-		PVS_ZONE=tok04
-	fi
+	PVS_REGION=tok
+	PVS_ZONE=tok04
+elif [ "$PVS_REGION" == lon ] && [ "$PVS_ZONE" == lon06 ]; then
+	PVS_SERVICE_INSTANCE_ID=fac4755e-8aff-45f5-8d5c-1d3b58b7a229
+elif [ "$PVS_REGION" == tok ] && [ "$PVS_ZONE" == tok04 ]; then
+	PVS_SERVICE_INSTANCE_ID=60e43366-08de-4287-8c42-b7942406efc9
 fi
 
 # The boot images below are common across OCS development zones, except where noted
@@ -87,6 +82,10 @@ export CLUSTER_DOMAIN=${CLUSTER_DOMAIN:="ibm.com"}			# xip.io
 
 if [ -z "$PVS_API_KEY" ] || [ -z "$PVS_SERVICE_INSTANCE_ID" ]; then
 	echo "Environment variables PVS_API_KEY and PVS_SERVICE_INSTANCE_ID must be set for PowerVS"
+	exit 1
+fi
+if [ -z "$PVS_ZONE" ] || [ -z "$PVS_REGION" ]; then
+	echo "Environment variables PVS_ZONE and PVS_REGION must be set for PowerVS"
 	exit 1
 fi
 
