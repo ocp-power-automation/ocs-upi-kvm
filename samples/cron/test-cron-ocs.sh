@@ -17,8 +17,8 @@ export PLATFORM=${PLATFORM:="kvm"}                              # Also supported
 # These environment variables are optional, but should be set for cron jobs,
 # so that CLUSTER_ID_PREFIX below is properly initialized for powervs.
 
-export OCP_VERSION=4.6						# 4.5 - 4.7 are supported
-export OCS_VERSION=4.6
+export OCP_VERSION=4.7						# 4.5 - 4.8 are supported
+export OCS_VERSION=4.7						# 4.6 is supported also
 
 
 # These are optional for KVM.  Default values are shown
@@ -40,7 +40,7 @@ export OCS_VERSION=4.6
 # These are optional for PowerVS.  Default values are shown
 
 export CLUSTER_ID_PREFIX=${HOSTNAME:0:5}-${OCP_VERSION/./}
-#export PVS_SUBNET_NAME=ocp-net
+export PVS_SUBNET_NAME=ocs-cron-test
 #export PVS_REGION=lon					        # Or tok and tok04 depending on service instance id
 #export PVS_ZONE=lon06
 #export SYSTEM_TYPE=s922
@@ -85,14 +85,6 @@ else
 	OCP_PROJECT=ocp4-upi-kvm
 fi
 
-# LOG variables are supposed to be preset by cronjob
-
-if [ -z "$LOGDIR" ]; then
-	LOGDIR=~/logs
-	mkdir -p $LOGDIR
-	LOGDATE=$(date "+%d%H%M")
-fi
-
 # Set WORKSPACE where go code, binaries, and log files are placed
 
 if [ -z "$WORKSPACE" ]; then
@@ -114,6 +106,14 @@ if [ -z "$WORKSPACE" ]; then
 		echo "Could not find ocs-upi-kvm directory"
 		exit 1
 	fi
+fi
+
+if [ -z "$LOGDIR" ] || [ ! -e "$LOGDIR" ]; then
+	LOGDIR=$WORKSPACE/logs-cron
+	mkdir -p $LOGDIR
+fi
+if [ -z "$LOGDATE" ]; then
+	LOGDATE=$(date "+%d%H%M")
 fi
 
 echo "Location of project: $WORKSPACE/ocs-upi-kvm" | tee $LOGDIR/create-ocp-$LOGDATE.log

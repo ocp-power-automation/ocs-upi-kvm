@@ -8,8 +8,6 @@
 ##
 #Copy Right IBM
 
-VERSION="202010191400";
-
 # Check if another instance of the same script is running, if so quit.
 
 CRONOCS="test-cron-ocs"
@@ -26,14 +24,15 @@ if [ "$( whoami )" == "root" ]; then
     exit 1
 fi
 
-if [[ ! -e ~/auth.yaml ]] || [[ ! -e ~/pull-secret.txt ]] || [[ ! -e ~/test-cron-ocs.sh ]]; then
+if [[ ! -e auth.yaml ]] || [[ ! -e pull-secret.txt ]] || [[ ! -e test-cron-ocs.sh ]]; then
     echo "At least one required file is missing: auth.yaml, pull-secret.txt, test-cron-ocs.sh"    
     exit 1
 fi
 
 echo "Preparing environment"
 
-export LOGDIR=~/logs-cron
+DIR=$(pwd)
+export LOGDIR="$DIR/logs-cron"
 export LOGDATE=$(date "+%d%H%M")
 
 mkdir -p $LOGDIR

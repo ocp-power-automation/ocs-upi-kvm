@@ -422,7 +422,7 @@ export PVS_SUBNET_NAME=<ibm cloud powervs subnet>
 
 ```
 SHELL=/bin/bash 
-0 0 * * * ~/cron-ocs.sh
+0 0 * * * cd <workspace> && ./cron-ocs.sh
 ```
 
 **Best practice for powervs is to allocated a dedicated subnet for testing due to cluster destroy issues**
