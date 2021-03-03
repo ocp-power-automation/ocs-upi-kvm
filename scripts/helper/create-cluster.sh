@@ -13,6 +13,7 @@ export PATH=$WORKSPACE/bin:$PATH
 
 export BOOTSTRAP_CNT=1
 
+retry=false
 if [ "$1" == "--retry" ]; then
 	retry=true
 	if [ "$PLATFORM" == kvm ]; then
@@ -68,21 +69,33 @@ case "$OCP_VERSION" in
 		RHCOS_SUFFIX="-$RHCOS_RELEASE"
 		export INSTALL_PLAYBOOK_TAG=fc74d7ec06b2dd47c134c50b66b478abde32e295
 		;;
-	4.7)							# TODO: Update after GA
-		unset OCP_RELEASE
+	4.7)
+		OCP_RELEASE="4.7.0"
 		RHCOS_VERSION="4.7"
 		unset RHCOS_RELEASE
 		RHCOS_SUFFIX="-$RHCOS_VERSION"
 		export INSTALL_PLAYBOOK_TAG=fc74d7ec06b2dd47c134c50b66b478abde32e295
 		;;
+	4.8)
+		unset OCP_RELEASE
+                RHCOS_VERSION="4.7"
+                unset RHCOS_RELEASE
+                RHCOS_SUFFIX="-$RHCOS_VERSION"
+                export INSTALL_PLAYBOOK_TAG=fc74d7ec06b2dd47c134c50b66b478abde32e295
+		;;
 	*)
-		echo "Invalid OCP_VERSION=$OCP_VERSION.  Supported versions are 4.4 - 4.7"
+		echo "Invalid OCP_VERSION=$OCP_VERSION.  Supported versions are 4.4 - 4.8"
 		exit 1
 esac
 
 # Validate platform setup, prepare hugepages, destroy pre-existing cluster.  We are creating a new cluster
 
 prepare_new_cluster_delete_old_cluster
+
+# Delete old cluster commands and runtime
+
+rm -f $WORKSPACE/bin/oc
+rm -rf $WORKSPACE/auth
 
 if [ -n "$RHCOS_RELEASE" ]; then
 	export OCP_INSTALLER_SUBPATH="ocp/latest-$OCP_VERSION"
