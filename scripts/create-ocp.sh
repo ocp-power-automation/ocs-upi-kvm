@@ -31,6 +31,8 @@ fi
 
 export PATH=$WORKSPACE/bin:$PATH
 
+# The old cluster oc command and auth credentials are needed to destroy the old cluster
+
 arg1=$1
 helper/create-cluster.sh $arg1
 

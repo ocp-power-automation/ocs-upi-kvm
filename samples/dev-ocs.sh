@@ -16,7 +16,7 @@ export PLATFORM=${PLATFORM:="kvm"}				# Also supported: powervs.   Defaults to k
 
 # These environment variables are optional for all platforms
 
-#export OCP_VERSION=4.6						# 4.7 is also supported
+#export OCP_VERSION=4.6						# 4.5, 4.7, and 4.8 are also supported
 #export OCS_VERSION=4.6
 
 # These are optional for KVM.  Default values are shown
