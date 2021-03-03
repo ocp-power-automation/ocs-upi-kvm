@@ -60,11 +60,12 @@ if [ "$PLATFORM" == powervs ]; then
 	yq -y -i '.ENV_DATA.number_of_storage_disks = 8' $WORKSPACE/ocs-ci-conf.yaml
 fi
 
-echo "run-ci -m deployment --deploy -ocs-version $OCS_VERSION ..."
+echo "run-ci -m deployment --deploy --ocs-version $OCS_VERSION ..."
 
 run-ci -m deployment --deploy \
 	--ocs-version $OCS_VERSION --cluster-name ocstest \
 	--ocsci-conf conf/ocsci/production_powervs_upi.yaml \
+	--ocsci-conf conf/ocsci/lso_enable_rotational_disks.yaml \
 	--ocsci-conf $WORKSPACE/ocs-ci-conf.yaml \
         --cluster-path $WORKSPACE --collect-logs tests/
 
