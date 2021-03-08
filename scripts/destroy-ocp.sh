@@ -28,7 +28,7 @@ else
 
 		echo "Validating cluster to be deleted is network addressible ..."
 		bastion_ip=$($terraform_cmd output | grep ^bastion_public_ip | awk '{print $3}')
-		if [ -n "$bastion_ip" ]; then
+		if [ -n "$bastion_ip" ] && [ -e $WORKSPACE/bin/oc ] && [ -e $WORKSPACE/env-ocp.sh ]; then
 		
 			echo "Validate use of oc command for ocs-ci teardown ..."
 
