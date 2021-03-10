@@ -13,29 +13,7 @@ export PATH=$WORKSPACE/bin:$PATH
 
 export BOOTSTRAP_CNT=1
 
-retry=false
-if [ "$1" == "--retry" ]; then
-	retry=true
-	if [ "$PLATFORM" == kvm ]; then
-		retry_version=$(sudo virsh list | grep bastion | awk '{print $2}' | sed 's/4-/4./' | sed 's/-/ /g' | awk '{print $2}' | sed 's/ocp//')
-		if [ "$retry_version" != "$OCP_VERSION" ]; then
-			echo "WARNING: Ignoring --retry argument.  existing version:$retry_version  requested version:$OCP_VERSION"
-			retry=false
-		fi
-	fi
-	if [ "$retry" == true ]; then
-
-		cd $WORKSPACE/ocs-upi-kvm/src/$OCP_PROJECT
-		terraform_apply
-
-		# Delete bootstrap to save system resources after successful cluster creation (set -e above)
-
-		export BOOTSTRAP_CNT=0
-		terraform_apply
-
-		exit
-	fi
-fi
+ARG1=$1
 
 # openshift install images are publicly released with every minor update at
 # https://mirror.openshift.com/pub/openshift-v4/ppc64le/clients/ocp/$OCP_RELEASE
@@ -61,7 +39,7 @@ case "$OCP_VERSION" in
 		export INSTALL_PLAYBOOK_TAG=b07c89deacb04f996834403b1efdafb1f9a3d7c4
 		;;
 	4.6)
-		OCP_RELEASE="4.6.12"				# Latest release of OCP 4.6 at this time
+		OCP_RELEASE="4.6.20"				# Latest release of OCP 4.6 at this time
 		RHCOS_VERSION="4.6"
 		if [ -z "$RHCOS_RELEASE" ]; then
 			RHCOS_RELEASE="4.6.8"			# Latest release of RHCOS 4.6 at this time
@@ -70,9 +48,11 @@ case "$OCP_VERSION" in
 		export INSTALL_PLAYBOOK_TAG=fc74d7ec06b2dd47c134c50b66b478abde32e295
 		;;
 	4.7)
-		OCP_RELEASE="4.7.0"
+		OCP_RELEASE="4.7.2"
 		RHCOS_VERSION="4.7"
-		unset RHCOS_RELEASE
+		if [ -z "$RHCOS_RELEASE" ]; then
+			RHCOS_RELEASE="4.7.0"                   # Latest release of RHCOS 4.7 at this time
+		fi
 		RHCOS_SUFFIX="-$RHCOS_VERSION"
 		export INSTALL_PLAYBOOK_TAG=fc74d7ec06b2dd47c134c50b66b478abde32e295
 		;;
@@ -88,15 +68,6 @@ case "$OCP_VERSION" in
 		exit 1
 esac
 
-# Validate platform setup, prepare hugepages, destroy pre-existing cluster.  We are creating a new cluster
-
-prepare_new_cluster_delete_old_cluster
-
-# Delete old cluster commands and runtime
-
-rm -f $WORKSPACE/bin/oc
-rm -rf $WORKSPACE/auth
-
 if [ -n "$RHCOS_RELEASE" ]; then
 	export OCP_INSTALLER_SUBPATH="ocp/latest-$OCP_VERSION"
 elif [ -n "$OCP_RELEASE" ]; then
@@ -111,11 +82,11 @@ fi
 # to a specific daily build image or leave it unset to choose the latest available image
 
 if [ -z "$OPENSHIFT_INSTALL_RELEASE_IMAGE_OVERRIDE" ]; then
-	REGISTRY=registry.svc.ci.openshift.org/ocp-ppc64le/release-ppc64le
+	REGISTRY=quay.io/openshift-release-dev/ocp-release
 
 	# Set to the latest released image
 	if [ -n "$OCP_RELEASE" ]; then
-		OPENSHIFT_INSTALL_RELEASE_IMAGE_OVERRIDE="$REGISTRY:$OCP_RELEASE"
+		OPENSHIFT_INSTALL_RELEASE_IMAGE_OVERRIDE="$REGISTRY:$OCP_RELEASE-ppc64le"
 	fi
 fi
 export OPENSHIFT_INSTALL_RELEASE_IMAGE_OVERRIDE
@@ -127,6 +98,39 @@ else
 	export RHID_USERNAME=""
 	export RHID_PASSWORD=""
 fi
+
+retry=false
+if [ "$ARG1" == "--retry" ]; then
+	retry=true
+	if [ "$PLATFORM" == kvm ]; then
+		retry_version=$(sudo virsh list | grep bastion | awk '{print $2}' | sed 's/4-/4./' | sed 's/-/ /g' | awk '{print $2}' | sed 's/ocp//')
+		if [ "$retry_version" != "$OCP_VERSION" ]; then
+			echo "WARNING: Ignoring --retry argument.  existing version:$retry_version  requested version:$OCP_VERSION"
+			retry=false
+		fi
+	fi
+	if [ "$retry" == true ]; then
+
+		cd $WORKSPACE/ocs-upi-kvm/src/$OCP_PROJECT
+		terraform_apply
+
+		# Delete bootstrap to save system resources after successful cluster creation (set -e above)
+
+		export BOOTSTRAP_CNT=0
+		terraform_apply
+
+		exit
+	fi
+fi
+
+# Validate platform setup, prepare hugepages, destroy pre-existing cluster.  We are creating a new cluster
+
+prepare_new_cluster_delete_old_cluster
+
+# Delete old cluster commands and runtime
+
+rm -f $WORKSPACE/bin/oc
+rm -rf $WORKSPACE/auth
 
 # Install GO and Terraform
 

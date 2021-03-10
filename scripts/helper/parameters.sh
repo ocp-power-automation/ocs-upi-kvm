@@ -97,5 +97,5 @@ function terraform_apply () {
 	cat $WORKSPACE/ocs-upi-kvm/files/$PLATFORM/site.tfvars.in | envsubst > $WORKSPACE/site.tfvars
 	echo "site.tfvars:"
 	cat $WORKSPACE/site.tfvars
-	$WORKSPACE/bin/terraform apply -var-file var.tfvars -var-file $WORKSPACE/site.tfvars -auto-approve -parallelism=3
+	$WORKSPACE/bin/terraform apply -var-file var.tfvars -var-file $WORKSPACE/site.tfvars -auto-approve -parallelism=7
 }
