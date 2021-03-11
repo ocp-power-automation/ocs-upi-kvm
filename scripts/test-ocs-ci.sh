@@ -55,7 +55,7 @@ source $WORKSPACE/venv/bin/activate		# enter 'deactivate' in venv shell to exit
 
 # Create supplemental config if it doesn't exist.  User may edit file after ocs deploy
 
-export LOGDIR=$WORKSPACE/logs-ocs-ci/$OCP_VERSION
+export LOGDIR=$WORKSPACE/logs-ocs-ci/$OCS_VERSION
 if [ ! -e $WORKSPACE/ocs-ci-conf.yaml ]; then
         cp ../../files/ocs-ci-conf.yaml $WORKSPACE/ocs-ci-conf.yaml
         mkdir -p $LOGDIR
