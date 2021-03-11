@@ -147,6 +147,8 @@ set -o pipefail
 
 # Recreate the cluster for each test.  A failed test may compromise cluster health
 
+#for i in scale performance workloads
+
 for i in 1 2 4a 4b 4c 3
 do
 	echo "Invoking ./create-ocp.sh" | tee -a $LOGDIR/create-ocp-$i-$LOGDATE.log
@@ -158,7 +160,7 @@ do
                 ./create-ocp.sh --retry 2>&1 | tee -a $LOGDIR/create-ocp-$i-$LOGDATE.log
 		if [ "$?" != 0 ]; then
 
-			./destroy-ocp.sh --tier $i | tee $LOGDIR/destroy-ocp-$i-$LOGDATE.log
+			./destroy-ocp.sh | tee $LOGDIR/destroy-ocp-$i-$LOGDATE.log
 			if [ "$?" != 0 ] && [ "$PLATFORM" == powervs ]; then
 				echo "ERROR: cluster destroy failed.  Use cloud GUI to remove virtual instances" | tee -a $LOGDIR/destroy-ocp-$i-$LOGDATE.log
 			fi
@@ -179,23 +181,30 @@ do
 	CEPH_STATE=$(oc get cephcluster --namespace openshift-storage | tee -a $LOGDIR/deploy-ocs-ci-$i-$LOGDATE.log)
 	if [[ ! "$CEPH_STATE" =~ HEALTH_OK ]]; then
 
-		./destroy-ocp.sh --tier $i | tee $LOGDIR/destroy-ocp-$i-$LOGDATE.log
+		./destroy-ocp.sh | tee $LOGDIR/destroy-ocp-$i-$LOGDATE.log
 		if [ "$?" != 0 ] && [ "$PLATFORM" == powervs ]; then
 			echo "ERROR: cluster destroy failed.  Use cloud GUI to remove virtual instances" | tee -a $LOGDIR/destroy-ocp-$i-$LOGDATE.log
 		fi
 		continue
 	fi
 
-	echo "Invoking ./test-ocs-ci.sh --tier $i"
-	./test-ocs-ci.sh --tier $i | tee $LOGDIR/test-ocs-ci-tier-$i-$LOGDATE.log
+	if [ "$i" == [0-9]* ]; then
+		logfile="$LOGDIR/test-ocs-ci-tier-$i-$LOGDATE.log"
+		echo "Invoking ./test-ocs-ci.sh --tier $i"
+		./test-ocs-ci.sh --tier $i | tee $logfile
+	else
+		logfile="$LOGDIR/test-ocs-ci-$i-$LOGDATE.log"
+		echo "Invoking ./test-ocs-ci.sh --$i"
+		./test-ocs-ci.sh --$i | tee $logfile
+	fi
 
 	echo
-	oc get cephcluster --namespace openshift-storage 2>&1 | tee -a $LOGDIR/test-ocs-ci-tier-$i-$LOGDATE.log
+	oc get cephcluster --namespace openshift-storage 2>&1 | tee -a $logfile
 	echo
-	oc get pods --namespace openshift-storage 2>&1 | tee -a $LOGDIR/test-ocs-ci-tier-$i-$LOGDATE.log
+	oc get pods --namespace openshift-storage 2>&1 | tee -a $logfile
 
 	echo "Invoking ./destroy-ocp.sh after tier test $i"
-	./destroy-ocp.sh --tier $i | tee $LOGDIR/destroy-ocp-$i-$LOGDATE.log
+	./destroy-ocp.sh | tee $LOGDIR/destroy-ocp-$i-$LOGDATE.log
 	if [ "$?" != 0 ] && [ "$PLATFORM" == powervs ]; then
 		echo "ERROR: cluster destroy failed.  Use cloud GUI to remove virtual instances" | tee -a $LOGDIR/destroy-ocp-$i-$LOGDATE.log
 	fi
