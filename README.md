@@ -378,6 +378,52 @@ the companion *oauth* definition as shown below following the same pattern.
 The browser should prompt you to login to the OCP cluster.  The user name is **kubeadmin** and
 the password is located in the file **<path-to-workspace>/auth/kubeadmin-password**.
 
+## Adding and removing ocs-ci patches
+
+Patches are located in **files/ocs-ci**.  Patches are applied in order based on their
+file names by **ocs-ci-setup.sh**.  The convention is ocs-ci-nn-PRXXX-description.patch.
+
+### Procedure to **add** a patch for ocs-ci
+
+1.  Set ocs-upi-kvm environment variables, including PLATFORM=<kvm|powervs>
+2.  create-ocp.sh, setup-ocs-ci.sh
+3.  cd src/ocs-ci and make code changes
+4.  git diff <files you changed> > ../../files/ocs-ci/ocs-ci-03-PR<number>-<description>.patch
+5.  cd ../../ && rm -rf src/ocs-ci && git submodule update --init
+6.  cd scripts
+7.  ./setup-ocs-ci.sh
+8.  Verify that all patches applied successfully.  If not, go back to step 3.
+9.  ./deploy-ocs-ci.sh
+10.  ./test-ocs-ci.sh
+
+Note: the files you change may be included in other patches, so it is important that your
+patch is numbered, so that it is applied last, so that previous patches don't have to be re-done.
+In the example above, the highest numbered pre-existing patch is ocs-ci-02-xxx.
+
+You should **not** change the src/ocs-ci submodule hash when adding a patch.
+
+### Procedure to **remove** a patch for ocs-ci
+
+1.  Remove desired patch(es) from files/ocs-ci
+2.  rm -rf  src/ocs-ci
+3.  git submodule update --init
+4.  cd src/ocs-ci
+5.  git checkout master (or specific commit that includes all patches that were removed)
+6.  cd scripts && ./setup-ocs-ci.sh
+7.  Rebase all ocs-ci patches in files/ocs-ci/ that are broken
+8.  Replace broken patches in files/ocs-ci
+9.  git add src/ocs-ci
+10.  git commit
+11.  rm -rf src/ocs-ci && git submodule update --init
+12.  Set project environment variables including PLATFORM
+13.  cd scripts
+14.  ./create-ocp.sh
+15.  ./setup-oci-ci.sh
+16.  Make sure all patches were applied.   If not go back to step 7
+17.  ./deploy-ocs-ci.sh
+18.  ./test-ocs-ci.sh
+
+
 ## Crontab Automation
 
 The following two files have been provided:
