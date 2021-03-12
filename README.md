@@ -34,6 +34,7 @@ The scripts are listed in the order that they are expected to be run.
 - create-ocp.sh [ --retry ]
 - setup-ocs-ci.sh
 - deploy-ocs-ci.sh
+- deploy-ocp-logging.sh
 - add-data-disk-workers.sh
 - test-ocs-ci.sh [ --tier <0,1,...> ]
 - teardown-ocs-ci.sh
@@ -104,6 +105,9 @@ inside the VM, and possibly a second time to recover ceph services.  You
 may have to wait 10 minutes after this script completes to identify
 the extra disk with the command 'oc get pv'.
 
+The script **deploy-ocp-logging.sh** utilizes the OCS storage class *ocs-storagecluster-ceph-rbd*
+and must be run after **deploy-ocs-ci.sh**.
+
 **Notes**:
 
 - If you **Ctrl-C** while **create-ocp.sh** is running on **powervs**, then
@@ -111,7 +115,12 @@ you will need to manually remove cluster resources using the IBM Cloud GUI.
 These resources are orphaned and will not be automatically removed when the
 next cluster is created from the same **$WORKSPACE** directory.
 
-- The add disk capability is not integrated into OCS-CI tests
+- If you remove the **ocs-upi-kvm** project after creating a **powervs** cluster,
+then you will also have to manually remove cluster resources using the IBM Cloud GUI as
+the submodule **ocp4-upi-powervs** containing cluster build artifacts is also removed.
+
+- The script **add-data-disk-workers.sh** is not integrated with OCS to facilitate manual testing
+of the dynamic add storage capability.
 
 ## Workflow Sample Scripts
 
