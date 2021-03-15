@@ -188,7 +188,7 @@ do
 		continue
 	fi
 
-	if [ "$i" == [0-9]* ]; then
+	if [[ "$i" =~ ^[0-9] ]]; then
 		logfile="$LOGDIR/test-ocs-ci-tier-$i-$LOGDATE.log"
 		echo "Invoking ./test-ocs-ci.sh --tier $i"
 		./test-ocs-ci.sh --tier $i | tee $logfile
