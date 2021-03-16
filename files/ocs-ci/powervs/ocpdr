@@ -18,11 +18,18 @@ popd
 pushd ../$OCP_PROJECT
 
 ARG1=$1
+ARG2=$2
 case "$ARG1" in
 	addnode)
-		export WORKERS=$(( WORKERS + 1 ))
+                number_of_workers=$(oc get nodes | grep "worker" | wc -l)
+                export WORKERS=$(( number_of_workers + $ARG2 ))
 		terraform_apply
 		;;
+        delnode)
+                number_of_workers=$(oc get nodes | grep "worker" | wc -l)
+                export WORKERS=$(( number_of_workers - $ARG2 ))
+                terraform_apply
+                ;;
 	*)
 		echo "ERROR: $0 Invalid argument: arg1=$ARG1"
 		exit 1
