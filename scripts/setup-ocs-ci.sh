@@ -6,7 +6,7 @@ if [ ! -e helper/parameters.sh ]; then
 fi
 
 sudo yum -y install libffi-devel lapack atlas-devel openssl-devel gcc gcc-c++ gcc-gfortran make
-sudo yum -y install python36-devel python3-setuptools python3-virtualenv python3-docutils rust-toolset
+sudo yum -y install python38-devel python38-setuptools python3-virtualenv python3-docutils rust-toolset
 
 source helper/parameters.sh
 
@@ -48,7 +48,7 @@ fi
 
 rm -rf $WORKSPACE/venv
 
-python3.6 -m venv $WORKSPACE/venv
+python3.8 -m venv $WORKSPACE/venv
 
 source $WORKSPACE/venv/bin/activate		# activate named python venv
 
