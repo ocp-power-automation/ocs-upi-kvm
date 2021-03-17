@@ -75,6 +75,8 @@ KVM_SETUP_GENCNT=6
 
 OCP_PROJECT=ocp4-upi-kvm
 
+export RHCOS_IMAGE=rhcos${RHCOS_SUFFIX}.qcow2
+
 # Virtual memory performance of VMs is greatly improved by using hugepages as this memory is always resident and
 # is not paged by the host kernel.  Accessing this memory is orders of magnitude faster as 1 TLB needs to be mapped
 # for each hugepage as opposed to 100000s of TLBs for smaller pages.  This capability is provided only for worker
@@ -176,9 +178,6 @@ function prepare_new_cluster_delete_old_cluster ( ) {
 		sudo -sE ln -sf $IMAGES_PATH/$file $IMAGES_PATH/rhcos${RHCOS_SUFFIX}.qcow2
 		popd
 	fi
-
-	echo "Normalized RHCOS image name is rhcos${RHCOS_SUFFIX}.qcow2"
-	export RHCOS_IMAGE=rhcos${RHCOS_SUFFIX}.qcow2
 
 	# Remove pre-existing cluster.  We are going to create a new one
 
