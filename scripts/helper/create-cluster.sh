@@ -4,15 +4,6 @@ set -e
 
 echo "Command invocation: $0 $1"
 
-source helper/parameters.sh
-
-export GOROOT=$WORKSPACE/usr/local/go
-export PATH=$WORKSPACE/bin:$PATH
-
-# This is decremented after cluster creation to remove the bootstrap node
-
-export BOOTSTRAP_CNT=1
-
 ARG1=$1
 
 # openshift install images are publicly released with every minor update at
@@ -76,6 +67,7 @@ else
 	export OCP_INSTALLER_SUBPATH="ocp-dev-preview/latest-$OCP_VERSION"
 fi
 
+
 # The openshift installer always installs the latest image.  The installer can be configured
 # to pull older images via the environment variable OPENSHIFT_INSTALL_RELEASE_IMAGE_OVERRIDE.
 # It can also be used to specify a daily build.  For 4.6, the user should set this environment
@@ -98,6 +90,15 @@ else
 	export RHID_USERNAME=""
 	export RHID_PASSWORD=""
 fi
+
+source helper/parameters.sh
+
+export GOROOT=$WORKSPACE/usr/local/go
+export PATH=$WORKSPACE/bin:$PATH
+
+# This is decremented after cluster creation to remove the bootstrap node
+
+export BOOTSTRAP_CNT=1
 
 retry=false
 if [ "$ARG1" == "--retry" ]; then
@@ -207,35 +208,46 @@ if [[ "$INSTALLED_GO" == "true" ]] || [[ "$OLD_TERRAFORM_VERSION" != "$TERRAFORM
 	mkdir -p $PLUGIN_PATH/dmacvicar/libvirt/1.0.0/$LPLATFORM/
 	cp -f $GOPATH/bin/terraform-provider-libvirt $PLUGIN_PATH/dmacvicar/libvirt/1.0.0/$LPLATFORM/
 
-	VERSION=$TERRAFORM_POWERVS_VERSION
-	mkdir -p $GOPATH/src/github.com/IBM-Cloud; cd $GOPATH/src/github.com/IBM-Cloud
-	git clone https://github.com/IBM-Cloud/terraform-provider-ibm.git  --branch v$VERSION
-	pushd terraform-provider-ibm
-	make build
-	popd
+	# The modules below are copied into the user's home directory and may be shared across cronjobs,
+	# so don't update them if they are present at the desired version.  The go version that built
+	# them may be different which is an exposure.  An exception is made for libvirt, because only
+        # one KVM cluster is supported at a time at the system level
 
-	mkdir -p $PLUGIN_PATH/IBM-Cloud/ibm/$VERSION/$LPLATFORM/
-	cp -f $GOPATH/bin/terraform-provider-ibm $PLUGIN_PATH/IBM-Cloud/ibm/$VERSION/$LPLATFORM/
+	VERSION=$TERRAFORM_POWERVS_VERSION
+	if [ ! -e $PLUGIN_PATH/IBM-Cloud/ibm/$VERSION/$LPLATFORM/terraform-provider-ibm ]; then
+		mkdir -p $GOPATH/src/github.com/IBM-Cloud; cd $GOPATH/src/github.com/IBM-Cloud
+		git clone https://github.com/IBM-Cloud/terraform-provider-ibm.git  --branch v$VERSION
+		pushd terraform-provider-ibm
+		make build
+		popd
+
+		mkdir -p $PLUGIN_PATH/IBM-Cloud/ibm/$VERSION/$LPLATFORM/
+		cp -f $GOPATH/bin/terraform-provider-ibm $PLUGIN_PATH/IBM-Cloud/ibm/$VERSION/$LPLATFORM/
+	fi
 
 	VERSION=$TERRAFORM_RANDOM_VERSION
-	mkdir -p $GOPATH/src/github.com/terraform-providers; cd $GOPATH/src/github.com/terraform-providers
-	git clone https://github.com/terraform-providers/terraform-provider-random --branch v$VERSION
-	pushd terraform-provider-random
-	make build
-	popd
+	if [ ! -e $PLUGIN_PATH/hashicorp/random/$VERSION/$LPLATFORM/terraform-provider-random ]; then
+		mkdir -p $GOPATH/src/github.com/terraform-providers; cd $GOPATH/src/github.com/terraform-providers
+		git clone https://github.com/terraform-providers/terraform-provider-random --branch v$VERSION
+		pushd terraform-provider-random
+		make build
+		popd
 
-	mkdir -p $PLUGIN_PATH/hashicorp/random/$VERSION/$LPLATFORM/
-	cp -f $GOPATH/bin/terraform-provider-random $PLUGIN_PATH/hashicorp/random/$VERSION/$LPLATFORM/
+		mkdir -p $PLUGIN_PATH/hashicorp/random/$VERSION/$LPLATFORM/
+		cp -f $GOPATH/bin/terraform-provider-random $PLUGIN_PATH/hashicorp/random/$VERSION/$LPLATFORM/
+	fi
 
 	VERSION=$TERRAFORM_NULL_VERSION
-	mkdir -p $GOPATH/src/github.com/terraform-providers; cd $GOPATH/src/github.com/terraform-providers
-	git clone https://github.com/terraform-providers/terraform-provider-null --branch v$VERSION
-	pushd terraform-provider-null
-	make build
-	popd
+	if [ ! -e $PLUGIN_PATH/hashicorp/null/$VERSION/$LPLATFORM/terraform-provider-null ]; then
+		mkdir -p $GOPATH/src/github.com/terraform-providers; cd $GOPATH/src/github.com/terraform-providers
+		git clone https://github.com/terraform-providers/terraform-provider-null --branch v$VERSION
+		pushd terraform-provider-null
+		make build
+		popd
 
-	mkdir -p $PLUGIN_PATH/hashicorp/null/$VERSION/$LPLATFORM/
-	cp -f $GOPATH/bin/terraform-provider-null $PLUGIN_PATH/hashicorp/null/$VERSION/$LPLATFORM/
+		mkdir -p $PLUGIN_PATH/hashicorp/null/$VERSION/$LPLATFORM/
+		cp -f $GOPATH/bin/terraform-provider-null $PLUGIN_PATH/hashicorp/null/$VERSION/$LPLATFORM/
+	fi
 
 	# OCP 4.6 upgraded to Ignition Config Spec v3.0.0 which is incompatible with the
 	# format used by OCP 4.5 and 4.4, so conditionally patch ocp4-upi-xxx terraform code
@@ -243,26 +255,30 @@ if [[ "$INSTALLED_GO" == "true" ]] || [[ "$OLD_TERRAFORM_VERSION" != "$TERRAFORM
 	# is used for this purpose.
 
 	VERSION=$TERRAFORM_IGNITION_VERSION
-	mkdir -p $GOPATH/src/github.com/community-terraform-providers; cd $GOPATH/src/github.com/community-terraform-providers 
-	git clone https://github.com/community-terraform-providers/terraform-provider-ignition --branch v$VERSION
-	pushd terraform-provider-ignition
-	make build
-	popd
+	if [ ! -e $PLUGIN_PATH/community-terraform-providers/ignition/$VERSION/$LPLATFORM/terraform-provider-ignition ]; then
+		mkdir -p $GOPATH/src/github.com/community-terraform-providers; cd $GOPATH/src/github.com/community-terraform-providers 
+		git clone https://github.com/community-terraform-providers/terraform-provider-ignition --branch v$VERSION
+		pushd terraform-provider-ignition
+		make build
+		popd
 
-	mkdir -p $PLUGIN_PATH/community-terraform-providers/ignition/$VERSION/$LPLATFORM/
-	cp -f $GOPATH/bin/terraform-provider-ignition $PLUGIN_PATH/community-terraform-providers/ignition/$VERSION/$LPLATFORM/
+		mkdir -p $PLUGIN_PATH/community-terraform-providers/ignition/$VERSION/$LPLATFORM/
+		cp -f $GOPATH/bin/terraform-provider-ignition $PLUGIN_PATH/community-terraform-providers/ignition/$VERSION/$LPLATFORM/
+	fi
 
 	# This is the legacy version
 
 	VERSION=$TERRAFORM_IGNITION_LEGACY_VERSION
-	mkdir -p $GOPATH/src/github.com/terraform-providers; cd $GOPATH/src/github.com/terraform-providers 
-	git clone https://github.com/terraform-providers/terraform-provider-ignition --branch v$VERSION
-	pushd terraform-provider-ignition
-	make build
-	popd
+	if [ ! -e $PLUGIN_PATH/terraform-providers/ignition/$VERSION/$LPLATFORM/terraform-provider-ignition ]; then
+		mkdir -p $GOPATH/src/github.com/terraform-providers; cd $GOPATH/src/github.com/terraform-providers 
+		git clone https://github.com/terraform-providers/terraform-provider-ignition --branch v$VERSION
+		pushd terraform-provider-ignition
+		make build
+		popd
 
-	mkdir -p $PLUGIN_PATH/terraform-providers/ignition/$VERSION/$LPLATFORM/
-	cp -f $GOPATH/bin/terraform-provider-ignition $PLUGIN_PATH/terraform-providers/ignition/$VERSION/$LPLATFORM/
+		mkdir -p $PLUGIN_PATH/terraform-providers/ignition/$VERSION/$LPLATFORM/
+		cp -f $GOPATH/bin/terraform-provider-ignition $PLUGIN_PATH/terraform-providers/ignition/$VERSION/$LPLATFORM/
+	fi
 
 	popd
 fi
