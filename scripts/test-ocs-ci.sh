@@ -57,21 +57,17 @@ source $WORKSPACE/venv/bin/activate		# enter 'deactivate' in venv shell to exit
 
 export LOGDIR=$WORKSPACE/logs-ocs-ci/$OCS_VERSION
 if [ ! -e $WORKSPACE/ocs-ci-conf.yaml ]; then
-        cp ../../files/ocs-ci-conf.yaml $WORKSPACE/ocs-ci-conf.yaml
         mkdir -p $LOGDIR
-        yq -y -i '.RUN.log_dir |= env.LOGDIR' $WORKSPACE/ocs-ci-conf.yaml
-	yq -y -i '.DEPLOYMENT.ocs_registry_image |= env.OCS_REGISTRY_IMAGE' $WORKSPACE/ocs-ci-conf.yaml
+        cp ../../files/ocs-ci-conf.yaml $WORKSPACE/ocs-ci-conf.yaml
+	update_supplemental_ocsci_config
+fi
 
-	export ocp_must_gather=quay.io/rhceph-dev/ocs-must-gather:latest-$OCS_VERSION
-	yq -y -i '.REPORTING.ocp_must_gather_image |= env.ocp_must_gather' $WORKSPACE/ocs-ci-conf.yaml
+# Set elasticsearch cluster ip for performance suite.  Depends on cluster logging which occurs after deploy ocs
 
-	if [ -e ../../files/ocs-ci/$PLATFORM/ocpdr ]; then
-		yq -y -i '.RUN.ocpdr = "ocpdr"' $WORKSPACE/ocs-ci-conf.yaml
-	fi
-
-	if [ "$PLATFORM" == powervs ]; then
-		yq -y -i '.ENV_DATA.number_of_storage_disks = 8' $WORKSPACE/ocs-ci-conf.yaml
-	fi
+export ES_CLUSTER_IP=$(oc get service elasticsearch -n openshift-logging | grep ^elasticsearch | awk '{print $3}')
+echo "ES_CLUSTER_IP=$ES_CLUSTER_IP"
+if [ -n "$ES_CLUSTER_IP" ]; then
+	yq -y -i '.ENV_DATA.es_cluster_ip |= env.ES_CLUSTER_IP' $WORKSPACE/ocs-ci-conf.yaml
 fi
 
 # Relate the report generated below with the ocs-ci deployment via run_id 

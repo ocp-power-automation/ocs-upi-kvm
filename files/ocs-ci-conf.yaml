@@ -1,6 +1,5 @@
 ---
 ENV_DATA:
   local_storage_allow_rotational_disks: true
-  disable_es_ripsaw: true
 UPGRADE:
   ocp_arch: ppc64le

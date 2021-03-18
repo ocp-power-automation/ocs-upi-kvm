@@ -91,6 +91,25 @@ function file_present ( ) {
 	fi
 }
 
+function update_supplemental_ocsci_config () {
+
+	# Current directory is assumed to be ocs-upi-kvm/src/ocs-ci
+
+	yq -y -i '.RUN.log_dir |= env.LOGDIR' $WORKSPACE/ocs-ci-conf.yaml
+	yq -y -i '.DEPLOYMENT.ocs_registry_image |= env.OCS_REGISTRY_IMAGE' $WORKSPACE/ocs-ci-conf.yaml
+
+	export ocp_must_gather=quay.io/rhceph-dev/ocs-must-gather:latest-$OCS_VERSION
+	yq -y -i '.REPORTING.ocp_must_gather_image |= env.ocp_must_gather' $WORKSPACE/ocs-ci-conf.yaml
+
+	if [ -e ../../files/ocs-ci/$PLATFORM/ocpdr ]; then
+		yq -y -i '.RUN.ocpdr = "ocpdr"' $WORKSPACE/ocs-ci-conf.yaml
+	fi
+
+	if [ "$PLATFORM" == powervs ]; then
+		yq -y -i '.ENV_DATA.number_of_storage_disks = 8' $WORKSPACE/ocs-ci-conf.yaml
+	fi
+}
+
 function terraform_apply () {
 	export TF_LOG=TRACE
 	export TF_LOG_PATH=$WORKSPACE/terraform.log
