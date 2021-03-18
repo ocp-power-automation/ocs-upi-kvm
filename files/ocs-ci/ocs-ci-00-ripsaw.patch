@@ -1,0 +1,270 @@
+diff --git a/ocs_ci/ocs/defaults.py b/ocs_ci/ocs/defaults.py
+index 82f5d717..5675a2f9 100644
+--- a/ocs_ci/ocs/defaults.py
++++ b/ocs_ci/ocs/defaults.py
+@@ -58,7 +58,7 @@ BG_LOAD_NAMESPACE = "bg-fio-load"
+ MAX_BYTES_IN_POOL_AFTER_DATA_DELETE = 250000
+ 
+ # Elastic search parameters
+-ELASTICSEARCH_DEV_IP = "10.0.144.152"
++ELASTICSEARCH_DEV_IP = "ES_SERVER_PLACEHOLDER"
+ ELASTICSEARCE_PORT = 9200
+ 
+ # Local storage namespace
+diff --git a/ocs_ci/templates/workloads/fio/benchmark_fio.yaml b/ocs_ci/templates/workloads/fio/benchmark_fio.yaml
+index 3284fede..870a300b 100644
+--- a/ocs_ci/templates/workloads/fio/benchmark_fio.yaml
++++ b/ocs_ci/templates/workloads/fio/benchmark_fio.yaml
+@@ -5,13 +5,14 @@ metadata:
+   namespace: my-ripsaw
+ spec:
+   elasticsearch:
+-    server: 10.0.78.167
++    server: ES_SERVER_PLACEHOLDER
+     port: 9200
+   clustername: env_ocpversion_ocsversion
+   test_user: interface_iopattern
+   workload:
+     name: "fio_distributed"
+     args:
++      image: quay.io/multi-arch/cloud-bulldozer:fio
+       prefill: true
+       samples: 3
+       servers: 50
+diff --git a/ocs_ci/templates/workloads/fio/benchmark_fio_cmp.yaml b/ocs_ci/templates/workloads/fio/benchmark_fio_cmp.yaml
+index 08148411..14c24425 100644
+--- a/ocs_ci/templates/workloads/fio/benchmark_fio_cmp.yaml
++++ b/ocs_ci/templates/workloads/fio/benchmark_fio_cmp.yaml
+@@ -5,7 +5,7 @@ metadata:
+   namespace: my-ripsaw
+ spec:
+   elasticsearch:
+-    server: 10.0.78.167
++    server: ES_SERVER_PLACEHOLDER
+     port: 9200
+     parallel: true
+   clustername: test
+@@ -13,6 +13,7 @@ spec:
+   workload:
+     name: "fio_distributed"
+     args:
++      image: quay.io/multi-arch/cloud-bulldozer:fio
+       prefill: true
+       prefill_bs: 64KiB
+       samples: 3
+diff --git a/ocs_ci/templates/workloads/pgsql/PGSQL_Benchmark.yaml b/ocs_ci/templates/workloads/pgsql/PGSQL_Benchmark.yaml
+index 1c121d4b..c5b816a4 100644
+--- a/ocs_ci/templates/workloads/pgsql/PGSQL_Benchmark.yaml
++++ b/ocs_ci/templates/workloads/pgsql/PGSQL_Benchmark.yaml
+@@ -7,6 +7,7 @@ spec:
+   workload:
+     name: "pgbench"
+     args:
++      image: quay.io/multi-arch/cloud-bulldozer:pgbench
+       timeout: 5
+       clients:
+         - 20
+diff --git a/ocs_ci/templates/workloads/smallfile/SmallFile.yaml b/ocs_ci/templates/workloads/smallfile/SmallFile.yaml
+index 69a490c1..56814906 100644
+--- a/ocs_ci/templates/workloads/smallfile/SmallFile.yaml
++++ b/ocs_ci/templates/workloads/smallfile/SmallFile.yaml
+@@ -13,7 +13,7 @@ spec:
+   elasticsearch:
+     # v This is debug server v
+     # server: 10.0.144.152
+-    server: 10.0.78.167
++    server: ES_SERVER_PLACEHOLDER
+     port: 9200
+   es_index: ripsaw-smallfile
+   metadata_collection: true
+@@ -21,6 +21,7 @@ spec:
+   workload:
+     name: smallfile
+     args:
++      image: quay.io/multi-arch/cloud-bulldozer:smallfile
+       clients: 1
+       samples: 1
+       pause: 50
+diff --git a/ocs_ci/ocs/ripsaw.py b/ocs_ci/ocs/ripsaw.py
+index d1bf325b..ee006484 100644
+--- a/ocs_ci/ocs/ripsaw.py
++++ b/ocs_ci/ocs/ripsaw.py
+@@ -41,9 +41,9 @@ class RipSaw(object):
+         """
+         self.args = kwargs
+         self.repo = self.args.get(
+-            "repo", "https://github.com/cloud-bulldozer/benchmark-operator"
++            "repo", "https://github.com/ocp-power-automation/benchmark-operator"
+         )
+-        self.branch = self.args.get("branch", "master")
++        self.branch = self.args.get("branch", "dev-ppc64le")
+         self.namespace = self.args.get("namespace", RIPSAW_NAMESPACE)
+         self.pgsql_is_setup = False
+         self.ocp = OCP()
+diff --git a/ocs_ci/ocs/elasticsearch.py b/ocs_ci/ocs/elasticsearch.py
+index 311d0a69..1f808df5 100644
+--- a/ocs_ci/ocs/elasticsearch.py
++++ b/ocs_ci/ocs/elasticsearch.py
+@@ -15,6 +15,7 @@ from ocs_ci.ocs.ocp import OCP
+ from ocs_ci.ocs.utils import get_pod_name_by_pattern
+ from ocs_ci.utility.utils import TimeoutSampler
+ from ocs_ci.helpers.performance_lib import run_command
++from ocs_ci.framework import config
+ 
+ log = logging.getLogger(__name__)
+ 
+@@ -22,6 +23,9 @@ log = logging.getLogger(__name__)
+ es_log = logging.getLogger("elasticsearch")
+ es_log.setLevel(logging.CRITICAL)
+ 
++# IP Address of External Elasticsearch Cluster
++es_cluster_ip = config.ENV_DATA.get("es_cluster_ip")
++
+ 
+ def elasticsearch_load(connection, target_path):
+     """
+@@ -106,6 +110,23 @@ class ElasticSearch(object):
+ 
+         """
+         log.info("Initializing the Elastic-Search environment object")
++
++        # Used by platforms not supported by ECK community. ES is externally configured
++        if es_cluster_ip is not None:
++            log.info("Create elastic-system name for ES Client Data Dumper pod")
++            self.namespace = "elastic-system"
++            self.dumper_file = "ocs_ci/templates/app-pods/esclient.yaml"
++            self.ocp = OCP(
++                kind="pod", resource_name="es-dumper-0", namespace=self.namespace
++            )
++            self.ns_obj = OCP(kind="namespace", namespace=self.namespace)
++            self._deploy_data_dumper_client()
++
++            log.info(f"Connecting to Elastic-Search {es_cluster_ip}")
++            self.es = {"spec": {"clusterIP": es_cluster_ip, "ports": [{"port":9200}] }}
++            self.con = self._es_connect()
++            return
++
+         self.namespace = "elastic-system"
+         self.eck_file = "ocs_ci/templates/app-pods/eck.1.3.1-all-in-one.yaml"
+         self.dumper_file = "ocs_ci/templates/app-pods/esclient.yaml"
+@@ -198,7 +219,7 @@ class ElasticSearch(object):
+             str : String that represent the Ip Address.
+ 
+         """
+-        return self.es.get()["spec"]["clusterIP"]
++        return self.es['spec']['clusterIP']
+ 
+     def get_port(self):
+         """
+@@ -208,7 +229,7 @@ class ElasticSearch(object):
+             str : String that represent the port.
+ 
+         """
+-        return self.es.get()["spec"]["ports"][0]["port"]
++        return self.es['spec']['ports'][0]['port']
+ 
+     def _deploy_es(self):
+         log.info("Deploy the PVC for the ElasticSearch cluster")
+@@ -268,8 +289,9 @@ class ElasticSearch(object):
+         log.info("Deleting all resources")
+         log.info("Deleting the dumper client pod")
+         self.ocp.delete(yaml_file=self.dumper_file)
+-        log.info("Deleting the es resource")
+-        self.ocp.delete(yaml_file=self.crd)
++        if es_cluster_ip is None:
++            log.info("Deleting the es resource")
++            self.ocp.delete(yaml_file=self.crd)
+         log.info("Deleting the es project")
+         self.ns_obj.delete_project(project_name=self.namespace)
+         self.ns_obj.wait_for_delete(resource_name=self.namespace, timeout=180)
+diff --git a/ocs_ci/templates/app-pods/esclient.yaml b/ocs_ci/templates/app-pods/esclient.yaml
+index 99c977cf..83a3702b 100644
+--- a/ocs_ci/templates/app-pods/esclient.yaml
++++ b/ocs_ci/templates/app-pods/esclient.yaml
+@@ -1,3 +1,10 @@
++# Source: eck-operator/templates/operator-namespace.yaml
++apiVersion: v1
++kind: Namespace
++metadata:
++  name: elastic-system
++  labels:
++    name: elastic-system
+ ---
+ apiVersion: v1
+ kind: Pod
+diff --git a/tests/e2e/performance/test_fio_benchmark.py b/tests/e2e/performance/test_fio_benchmark.py
+index d78c4819..acad1617 100644
+--- a/tests/e2e/performance/test_fio_benchmark.py
++++ b/tests/e2e/performance/test_fio_benchmark.py
+@@ -60,7 +60,7 @@ class FIOResultsAnalyse(PerfResult):
+ 
+         """
+         file_name = f"{self.full_log_path}/results/{self.index}.data.json"
+-        log.info(f"Reading the {self.index} data from the file")
++        log.info(f"Reading the {self.index} data from the file {file_name}")
+         full_data = []
+         with open(file_name) as json_file:
+             while True:
+@@ -387,11 +387,14 @@ class TestFIOBenchmark(PASTest):
+         log.info("Create resource file for fio workload")
+         self.crd_data = templating.load_yaml(constants.FIO_CR_YAML)
+ 
++        log.info("Before es_info_backup")
+         # Saving the Original elastic-search IP and PORT - if defined in yaml
+         self.es_info_backup(es)
+ 
++        log.info("Before set_storageclass")
+         self.set_storageclass(interface=interface)
+ 
++        log.info("Before setting_storage_usage")
+         # Setting the data set to 40% of the total storage capacity
+         self.setting_storage_usage()
+ 
+@@ -399,8 +402,10 @@ class TestFIOBenchmark(PASTest):
+ 
+         self.setting_io_pattern(io_pattern)
+ 
++        log.info("Before run")
+         self.run()
+ 
++        log.info("Before init_full_results")
+         # Initialize the results doc file.
+         full_results = self.init_full_results(
+             FIOResultsAnalyse(
+@@ -408,19 +413,24 @@ class TestFIOBenchmark(PASTest):
+             )
+         )
+ 
++        log.info("Before full_results.add_key")
+         # Setting the global parameters of the test
+         full_results.add_key("io_pattern", io_pattern)
+ 
++        log.info("Before cleanup")
+         # Clean up fio benchmark
+         self.cleanup()
+ 
++        log.info("Before copy_es_data")
+         log.debug(f"Full results is : {full_results.results}")
+         self.copy_es_data(es)
+ 
++        log.info("Before analyze results")
+         full_results.analyze_results()  # Analyze the results
+ 
+         # Writing the analyzed test results to the Elastic-Search server
+         if self.main_es is not None:
++            log.info("Before full_results es.write")
+             full_results.es_write()
+             full_results.codespeed_push(
+                 dev_mode=self.dev_mode
+diff --git a/ocs_ci/ocs/perftests.py b/ocs_ci/ocs/perftests.py
+index b024e062..0457b200 100644
+--- a/ocs_ci/ocs/perftests.py
++++ b/ocs_ci/ocs/perftests.py
+@@ -203,7 +203,6 @@ class PASTest(BaseTest):
+             elasticsearch (obj): elasticsearch object (if exits)
+ 
+         """
+-        log.info(f"In copy_es_data Function - {elasticsearch}")
+         if elasticsearch:
+             log.info("Copy all data from Internal ES to Main ES")
+             log.info("Dumping data from the Internal ES to tar ball file")

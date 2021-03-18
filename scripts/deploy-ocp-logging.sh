@@ -70,6 +70,27 @@ echo "Creating cluster-logging instance"
 
 oc create -f cl-instance.yaml
 
+popd
+
 sleep 2m
 
 oc get deployment -A | egrep 'NAMESPACE|logging|monitoring|operators-redhat'
+
+es_cluster_ip=$(oc get service elasticsearch -n openshift-logging | grep ^elasticsearch | awk '{print $3}')
+if [ -n "$es_cluster_ip" ]; then
+	pushd ../src/ocs-ci
+	echo "Patching defaults.py for external (to ocs-ci) Elasticsearch Cluster IP $es_cluster_ip"
+	sed -i "s/ES_SERVER_PLACEHOLDER/$es_cluster_ip/" ocs_ci/ocs/defaults.py
+	files=$(find ocs_ci/templates/workloads -type f | xargs grep ES_SERVER_PLACEHOLDER | awk '{print $1}' | sed 's/://')
+	if [ -n "$files" ]; then
+		for i in "$files"
+		do
+			echo "Patching workload template $i with Elasticsearch Cluster IP $es_cluster_ip"
+			find $i | xargs sed -i "s/ES_SERVER_PLACEHOLDER/$es_cluster_ip/"
+		done
+	fi
+	popd
+else
+	echo "WARNING: Cluster logging is not configured which is required for ocs-ci performance testing"
+fi
+

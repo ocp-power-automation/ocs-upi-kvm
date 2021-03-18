@@ -44,6 +44,9 @@ export PLATFORM=${PLATFORM:="kvm"}				# Also supported: powervs.   Defaults to k
 #export SYSTEM_TYPE=s922
 #export PROCESSOR_TYPE=shared
 #export BASTION_IMAGE=rhel-83-02182021
+#export VOLUME_TYPE=tier3					# tier1, ssd
+#export WORKER_VOLUME_SIZE=500
+
 
 ##############  MAIN ################
 
@@ -168,15 +171,21 @@ if [[ ! "$CEPH_STATE" =~ HEALTH_OK ]]; then
 fi
 set -e
 
-#./add-data-disk-workers.sh 2>&1 | tee $WORKSPACE/add-data-disk-workers.log
+# Cluster-logging provides Elasticsearch.  Uses OCS storage.  Run after deploy-ocs-ci.sh
 
-#./deploy-ocp-logging.sh 2>&1 | tee $WORKSPACE/deploy-ocp-logging.log
-
-# This is an example of an individual test case run.  Change it as desired.
+./deploy-ocp-logging.sh 2>&1 | tee $WORKSPACE/deploy-ocp-logging.log
 
 pushd ../src/ocs-ci
 
 source $WORKSPACE/venv/bin/activate             # enter 'deactivate' in venv shell to exit
+
+# Set elasticsearch cluster ip for performance suite.  Depends on cluster logging
+
+export ES_CLUSTER_IP=$(oc get service elasticsearch -n openshift-logging | grep ^elasticsearch | awk '{print $3}')
+echo "ES_CLUSTER_IP=$ES_CLUSTER_IP"
+if [ -n "$ES_CLUSTER_IP" ]; then
+	yq -y -i '.ENV_DATA.es_cluster_ip |= env.ES_CLUSTER_IP' $WORKSPACE/ocs-ci-conf.yaml
+fi
 
 # The 'tests/e2e/...' can be obtained from the html report of performance, workloads, tier tests, ...
 
