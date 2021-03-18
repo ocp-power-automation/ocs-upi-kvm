@@ -24,8 +24,8 @@ if [ "$( whoami )" == "root" ]; then
     exit 1
 fi
 
-if [[ ! -e auth.yaml ]] || [[ ! -e pull-secret.txt ]] || [[ ! -e test-cron-ocs.sh ]]; then
-    echo "At least one required file is missing: auth.yaml, pull-secret.txt, test-cron-ocs.sh"    
+if [[ ! -e auth.yaml ]] || [[ ! -e pull-secret.txt ]] || [[ ! -e $CRONOCS.sh ]]; then
+    echo "At least one required file is missing: auth.yaml, pull-secret.txt, $CRONOCS.sh"
     exit 1
 fi
 
@@ -44,4 +44,4 @@ git clone https://github.com/ocp-power-automation/ocs-upi-kvm
 
 echo "Run ocs-ci tier tests in the background...  Log files in $LOGDIR"
 
-./test-cron-ocs.sh
+./$CRONOCS.sh
