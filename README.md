@@ -1,3 +1,18 @@
+# Table of contents
+- [Table of Contents](#table-of-contents)
+  - [Overview](#overview)
+  - [Scripts](#scripts)
+  - [Workflow Sample Scripts](#workflow-sample-scripts)
+  - [Workspace Directory](#workspace-directory)
+  - [Required Files](#required-files)
+  - [Environment Variables](#environment-variables)
+  - [Cluster Creation Setup](#cluster-creation-setup)
+  - [Cluster Commands And Logs Files](#cluster-commands-and-log-files)
+  - [Remote Webconsole Support](#remote-webconsole-support)
+  - [Adding And Removing OCS-CI Patches](#post-ocp-cluster-creation)
+  - [Crontab Automation](#crontab-automation)
+  - [Troubleshooting](#troubleshooting)
+
 # Overview
 
 This project provides scripts to create an OpenShift cluster,
@@ -306,7 +321,7 @@ Presumably, the **PVS_REGION** parameter is the first three characters of the **
 Use [IBM Cloud Identity & Access Management](https://cloud.ibm.com/iam/apikeys) to create
 and download the parameter **PVS_API_KEY**.
 
-## Pre OCP Cluster Creation
+## Cluster Creation Setup
 
 *The haproxy discussion below only applies to KVM based clusters.*
 
@@ -328,7 +343,7 @@ Editing the local copy of the HAProxy config file within this project ensures th
 changes are always applied.  You do not need to edit this file if you are creating less than
 6 worker nodes.
 
-## Post OCP Cluster Creation
+## Cluster Commands And Log Files
 
 Build artifacts are placed in the *workspace* directory which is defined as the
 parent directory of this github project **ocs-upi-kvm**.  The examples shown below
@@ -354,9 +369,9 @@ worker-2   Ready    worker   39h   v1.19.0+d59ce34
 The **env-ocp.sh** script exports **KUBECONFIG** and updates the **PATH** environment
 variable.  It may be useful in some cases to stick these in your user profile.
 
-### Log Files
+### Log Files And Reports
 
-The following log files are produced:
+Project log files are produced in the workspace directory (parent of ocs-upi-kvm):
 ```
 [user@kvm-host workspace]$ ls -lt *log
 -rw-rw-r--. 1 luke luke   409491 Oct 23 18:36 create-ocp.log
@@ -367,7 +382,14 @@ The following log files are produced:
 -rw-rw-r--. 1 luke luke 29235845 Oct 25 00:30 test-ocs-ci.log
 ```
 
-OCS-CI log files are located here per OCP release:
+Project log files invoked by cronjobs are generated in logs-cron from a cronjob specific directory (aka workspace directory):
+```
+[test@nx124-ahv ~]$ ls -lt lon06a/logs-cron/
+-rw-rw-r--. 1 test test  78810 Mar 18 15:29 create-ocp-4a-181318.log
+-rw-rw-r--. 1 test test    187 Mar 18 15:24 destroy-ocp-2-181405.log
+```
+
+OCS-CI log and html report files are located in per OCS release directories:
 ```
 [user@kvm-host workspace]$ ll logs-ocs-ci/4.6/
 drwxrwxr-x. 3 luke luke      19 Dec  1 20:01 logs-ocs-ci/4.6/ocs-ci-logs-1606874505
@@ -375,7 +397,7 @@ drwxrwxr-x. 3 luke luke      19 Dec  1 20:01 logs-ocs-ci/4.6/ocs-ci-logs-1606874
 -rw-rw-r--. 1 luke luke 8500450 Dec  2 10:31 logs-ocs-ci/4.6/test_workloads_1606874505_report.html
 ```
 
-### Remote Webconsole Support
+## Remote Webconsole Support
 
 The cluster create command outputs webconsole information which should look something
 like the first entry below.  This information needs to be added to your /etc/hosts file
@@ -387,7 +409,7 @@ the companion *oauth* definition as shown below following the same pattern.
 The browser should prompt you to login to the OCP cluster.  The user name is **kubeadmin** and
 the password is located in the file **<path-to-workspace>/auth/kubeadmin-password**.
 
-## Adding and removing ocs-ci patches
+## Adding And Removing OCS-CI Patches
 
 Patches are located in **files/ocs-ci**.  Patches are applied in order based on their
 file names by **ocs-ci-setup.sh**.  The convention is ocs-ci-nn-PRXXX-description.patch.
@@ -451,10 +473,27 @@ These scripts are located at **samples/cron** directory.
 To setup crontab automation, you must:
 
 1.  Create *test* user account with sudo authority and login to it
-2.  git clone this project in $HOME and invoke **scripts/helper/set-passwordless-sudo.sh**
-3.  Place the required files defined by the ocs-upi-kvm project in $HOME
-4.  Copy the two cron scripts listed above to $HOME
-5.  Edit environment variables at the top of *test-cron-ocs.sh*:
+2.  git clone this project in a cronjob specific directory (aka WORKSPACE) and
+invoke *scripts/helper/set-passwordless-sudo.sh*.
+
+If you have only one cronjob under this user account, then you can git clone in $HOME.
+Otherwise, you need to create a separate directory for each cronjob and git clone under
+that directory to invoke set-passwordless-sudo.sh.
+
+Note multiple cronjobs are only supported for powervs.  Only one KVM cluster is supported
+at the server level.
+
+For each cronjob, you will need to repeat the steps below in its cronjob specific workspace directory.
+
+3.  Place the required files defined by the ocs-upi-kvm project in cronjob specific workspace directory 
+4.  Copy the two cron scripts listed above to cronjob specific workspace directories
+5.  Edit environment variables at the top of *test-cron-ocs.sh*: RHID_USERNAME, OCP_VERSION, ...
+6.  Customize for loop at bottom of *test-cron-ocs.sh" that controls ocs-ci tests to be invoked
+
+
+For more than one cronjob, rename the file *test-cron-ocs.sh*, so that it is unique at the system level
+and edit **CRONOCS** in *cron-ocs.sh* to identify the new filename (minus the .sh).
+
 
 ```
 # For KVM
@@ -477,14 +516,14 @@ export PVS_SUBNET_NAME=<ibm cloud powervs subnet>
 
 ```
 SHELL=/bin/bash 
-0 0 * * * cd <workspace> && ./cron-ocs.sh
+0 */3 * * * cd <cronjob a> && ./cron-ocs.sh
+0 */3 * * * cd <cronjob b> && ./cron-ocs.sh
 ```
 
 **Best practice for powervs is to allocated a dedicated subnet for testing due to cluster destroy issues**
 
-The example above will invoke cron-ocs.sh every 24 hours at midnight local time.
+The example above will invoke cron-ocs.sh every 3 hours.
 
-Log files are written to the **logs** directory under the user's home directory.
 
 ## Troubleshooting
 

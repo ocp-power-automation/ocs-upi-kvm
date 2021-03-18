@@ -47,30 +47,33 @@ else
 				oc get nodes
 				rc=$?
 			fi
-
 			if [ "$rc" == 0 ]; then
 				pushd ../../scripts
 				echo "Invoking teardown-ocs-ci.sh"
 				./teardown-ocs-ci.sh
 				popd
 			fi
+		else
+			if [ -n "$bastion_ip" ]; then
+				echo "Bastion IP is $bastion_ip.  Lacking cluster login..."
+			else
+				echo "Bastion IP is not known"
+			fi
+		fi
 
-			echo "Invoking terraform destroy"
-			$terraform_cmd destroy -var-file $WORKSPACE/site.tfvars -auto-approve -parallelism=3
+		echo "Invoking terraform destroy"
+		$terraform_cmd destroy -var-file $WORKSPACE/site.tfvars -auto-approve -parallelism=7
 
+		if [ -n "$bastion_ip" ]; then
 			echo "Removing $bastion_ip from /etc/hosts"
 			grep -v "$bastion_ip" /etc/hosts | tee /tmp/hosts.1
 			sudo mv /tmp/hosts.1 /etc/hosts
-		else
-			echo "Could not determine bastion_id.  Terraform state is incomplete"
 		fi
-
-		rm -f terraform.tfstate
 
 		set -e
 	fi
 
-	rm -rf .terraform
+	rm -rf .terraform terraform.tfstate
 
 	popd
 fi

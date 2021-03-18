@@ -145,17 +145,29 @@ pushd $WORKSPACE/ocs-upi-kvm/scripts
 
 set -o pipefail
 
-# Recreate the cluster for each test.  A failed test may compromise cluster health
+# for i in 1 2 4a 4b 4c 3 scale performance workloads
 
-#for i in scale performance workloads
-
+SECONDS=0
+attempts=0
 for i in 1 2 4a 4b 4c 3
 do
+	if [[ "$SECONDS" -lt 1800 ]] && [[ "$attempts" -gt 0 ]]; then
+		echo "Failing create too quickly" | tee -a $LOGDIR/create-ocp-$i-$LOGDATE.log
+		exit
+	fi
+
+	# Recreate cluster each time.  A failed test may compromise cluster health
+
 	echo "Invoking ./create-ocp.sh" | tee -a $LOGDIR/create-ocp-$i-$LOGDATE.log
 	./create-ocp.sh 2>&1 | tee -a $LOGDIR/create-ocp-$i-$LOGDATE.log
-	if [ "$?" != 0 ] && [ "$PLATFORM" == powervs ]; then
+	if [ "$?" != 0 ]; then
 
+		attempts=$(( attempts+1 ))
 		echo "Retrying ./create-ocp.sh" | tee -a $LOGDIR/create-ocp-$i-$LOGDATE.log
+
+		if [ "$PLATFORM" == powervs ]; then
+			sleep 5m
+		fi
 
                 ./create-ocp.sh --retry 2>&1 | tee -a $LOGDIR/create-ocp-$i-$LOGDATE.log
 		if [ "$?" != 0 ]; then
@@ -167,6 +179,9 @@ do
 			continue
 		fi
 	fi
+
+	SECONDS=0
+	attempts=0
 
 	source $WORKSPACE/env-ocp.sh
 	oc get nodes -o wide 2>&1 | tee -a $LOGDIR/create-ocp-$i-$LOGDATE.log
