@@ -113,9 +113,11 @@ if [ "$ARG1" == "--retry" ]; then
 	if [ "$retry" == true ]; then
 		pushd $WORKSPACE/ocs-upi-kvm/src/$OCP_PROJECT
 		terraform_apply
-		# Delete bootstrap to save system resources after successful cluster creation (set -e above)
-		export BOOTSTRAP_CNT=0
-		terraform_apply
+		if [ "$?" == 0 ]; then
+			# Delete bootstrap to save system resources after successful cluster creation (set -e above)
+			export BOOTSTRAP_CNT=0
+			terraform_apply
+		fi
 		popd
 		exit
 	fi
@@ -335,9 +337,10 @@ terraform validate
 
 terraform_apply
 
-# Delete bootstrap to save system resources after successful cluster creation (set -e above)
-
-export BOOTSTRAP_CNT=0
-terraform_apply
+if [ "$?" == 0 ]; then
+	# Delete bootstrap to save system resources after successful cluster creation (set -e above)
+	export BOOTSTRAP_CNT=0
+	terraform_apply
+fi
 
 popd
