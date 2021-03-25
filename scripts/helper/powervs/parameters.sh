@@ -92,8 +92,9 @@ fi
 ########################### Internal variables & functions #############################
 
 # IMPORTANT: Increment POWERVS_SETUP_GENCNT if the powervs_setup_host.sh file changes
+#            Increments by more than 2 will rebuild terraform modules also.  ie. 1->4
 
-POWERVS_SETUP_GENCNT=1
+POWERVS_SETUP_GENCNT=4
 
 OCP_PROJECT=ocp4-upi-powervs
 
@@ -103,12 +104,14 @@ OCS_DNS_ENTRIES="noobaa-mgmt-openshift-storage"
 
 function prepare_new_cluster_delete_old_cluster () {
 
+	POWERVS_SETUP_GENCNT_INSTALLED=-1
+
 	invoke_powervs_setup=false
 	if [ ! -e ~/.powervs_setup ]; then
 		invoke_powervs_setup=true
 	else
 		source ~/.powervs_setup
-		if [[ -z "$POWERVS_SETUP_GENCNT_INSTALLED" ]] || [[ "$POWERVS_SETUP_GENCNT_INSTALLED" -lt "$POWERVS_SETUP_GENCNT" ]]; then
+		if [[ "$POWERVS_SETUP_GENCNT_INSTALLED" -lt "$POWERVS_SETUP_GENCNT" ]]; then
 			invoke_powervs_setup=true
 		fi
 	fi
@@ -123,6 +126,12 @@ function prepare_new_cluster_delete_old_cluster () {
 
         echo "Invoking destroy-ocp.sh"
 	./destroy-ocp.sh
+
+	# If POWERVS SETUP GENCNT increases by more than 2, rebuild terraform modules also
+
+	if (( "$POWERVS_SETUP_GENCNT_INSTALLED" + 2 < "$POWERVS_SETUP_GENCNT" )); then
+		rm -f $WORKSPACE/bin/terraform
+	fi
 }
 
 function setup_remote_oc_use () {

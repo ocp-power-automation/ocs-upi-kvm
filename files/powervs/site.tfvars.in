@@ -32,9 +32,6 @@ dns_forwarders              = "$DNS_FORWARDERS"
 chrony_config               = "$CHRONY_CONFIG"
 chrony_config_servers       = [$CHRONY_CONFIG_SERVERS]
 
-helpernode_tag              = "1ac7f276b537cd734240eda9ed554a254ba80629"
-install_playbook_tag        = "$INSTALL_PLAYBOOK_TAG"
-
 # Master and Worker nodes
 
 volume_type                 = "$VOLUME_TYPE"
@@ -42,6 +39,5 @@ worker_volume_size          = "$WORKER_VOLUME_SIZE"
 
 # Bastion node
 
-storage_type                = ""
-volume_size                 = "0"
+storage_type                = "no"
 

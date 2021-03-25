@@ -11,13 +11,13 @@
 # Check if another instance of the same script is running, if so quit.
 
 CRONOCS="test-cron-ocs"
-if pgrep "$CRONOCS" >/dev/null
-then
+
+ps -edf | grep $CRONOCS > /dev/null
+if [ "$?" == 0 ]; then
     echo "$CRONOCS is running. Wait for it to complete before starting again."
     exit 1
-else
-    echo "$CRONOCS stopped"
 fi
+echo "$CRONOCS stopped"
 
 if [ "$( whoami )" == "root" ]; then
     echo "This is the root account which is not allowed for this cron job" 
