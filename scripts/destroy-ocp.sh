@@ -21,11 +21,11 @@ else
 
 	terraform_cmd=$WORKSPACE/bin/terraform
 
+	set +e
+
 	if [[ $($terraform_cmd state list -state=terraform.tfstate | wc -l) -eq 0 ]]; then
 		echo "Nothing to destroy!"
 	else
-		set +e
-
 		echo "Validating cluster to be deleted is network addressible ..."
 		bastion_ip=$($terraform_cmd output | grep ^bastion_public_ip | awk '{print $3}')
 		if [ -n "$bastion_ip" ] && [ -e $WORKSPACE/bin/oc ] && [ -e $WORKSPACE/env-ocp.sh ]; then
@@ -70,10 +70,11 @@ else
 			sudo mv /tmp/hosts.1 /etc/hosts
 		fi
 
-		set -e
 	fi
 
 	rm -rf .terraform terraform.tfstate
+
+	set -e
 
 	popd
 fi

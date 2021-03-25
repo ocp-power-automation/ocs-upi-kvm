@@ -18,7 +18,6 @@ case "$OCP_VERSION" in
 			RHCOS_RELEASE="4.4.9"			# Latest release of RHCOS 4.4 at this time
 		fi
 		RHCOS_SUFFIX="-$RHCOS_RELEASE"
-		export INSTALL_PLAYBOOK_TAG=b07c89deacb04f996834403b1efdafb1f9a3d7c4
 		;;
 	4.5)
 		OCP_RELEASE="4.5.11"				# Latest release of OCP 4.5 at this time
@@ -27,7 +26,6 @@ case "$OCP_VERSION" in
 			RHCOS_RELEASE="4.5.4"			# Latest release of RHCOS 4.5 at this time
 		fi
 		RHCOS_SUFFIX="-$RHCOS_RELEASE"
-		export INSTALL_PLAYBOOK_TAG=b07c89deacb04f996834403b1efdafb1f9a3d7c4
 		;;
 	4.6)
 		OCP_RELEASE="4.6.20"				# Latest release of OCP 4.6 at this time
@@ -36,7 +34,6 @@ case "$OCP_VERSION" in
 			RHCOS_RELEASE="4.6.8"			# Latest release of RHCOS 4.6 at this time
 		fi
 		RHCOS_SUFFIX="-$RHCOS_RELEASE"
-		export INSTALL_PLAYBOOK_TAG=fc74d7ec06b2dd47c134c50b66b478abde32e295
 		;;
 	4.7)
 		OCP_RELEASE="4.7.2"
@@ -44,15 +41,13 @@ case "$OCP_VERSION" in
 		if [ -z "$RHCOS_RELEASE" ]; then
 			RHCOS_RELEASE="4.7.0"                   # Latest release of RHCOS 4.7 at this time
 		fi
-		RHCOS_SUFFIX="-$RHCOS_VERSION"
-		export INSTALL_PLAYBOOK_TAG=fc74d7ec06b2dd47c134c50b66b478abde32e295
+		RHCOS_SUFFIX="-$RHCOS_RELEASE"
 		;;
 	4.8)
 		unset OCP_RELEASE
-                RHCOS_VERSION="4.7"
-                unset RHCOS_RELEASE
-                RHCOS_SUFFIX="-$RHCOS_VERSION"
-                export INSTALL_PLAYBOOK_TAG=fc74d7ec06b2dd47c134c50b66b478abde32e295
+		RHCOS_VERSION="4.7"
+		unset RHCOS_RELEASE
+		RHCOS_SUFFIX="-$RHCOS_VERSION"
 		;;
 	*)
 		echo "Invalid OCP_VERSION=$OCP_VERSION.  Supported versions are 4.4 - 4.8"
@@ -60,7 +55,7 @@ case "$OCP_VERSION" in
 esac
 
 if [ -n "$RHCOS_RELEASE" ]; then
-	export OCP_INSTALLER_SUBPATH="ocp/latest-$OCP_VERSION"
+	export OCP_INSTALLER_SUBPATH="ocp/stable-$OCP_VERSION"
 elif [ -n "$OCP_RELEASE" ]; then
 	export OCP_INSTALLER_SUBPATH="ocp/$OCP_RELEASE"
 else
@@ -99,6 +94,8 @@ export PATH=$WORKSPACE/bin:$PATH
 # This is decremented after cluster creation to remove the bootstrap node
 
 export BOOTSTRAP_CNT=1
+
+set +e
 
 retry=false
 if [ "$ARG1" == "--retry" ]; then
@@ -291,29 +288,28 @@ if [[ -d ~/.ssh ]] && [[ "$retry" == false ]]; then
 fi
 rm -rf ~/.kube
 
-# Reset submodule so that the patch below can be applied
+# Reset submodule so that patches can be applied.  There are no code modifications
 
 git submodule deinit --force src/$OCP_PROJECT
 git submodule update --init  src/$OCP_PROJECT
 
 pushd src/$OCP_PROJECT
 
-# Patch ocp4-upi-xxx submodule to manage differences across ocp releases.
-# This mostly comes down to managing terraform modules.  A different version
-# of the ignition module is required for ocp 4.6.
+if [ "$OCP_VERSION" == 4.4 ]; then
+	git checkout origin/release-4.5
+else
+	git branch -r | grep release-$OCP_VERSION
+	rc=$?
+	if [ "$rc" == 0 ]; then
+		git checkout origin/release-$OCP_VERSION
+	else
+		git checkout master
+	fi
+fi
 
-case "$OCP_VERSION" in
-	4.4|4.5)
-		if [ -e $WORKSPACE/ocs-upi-kvm/files/$PLATFORM/$OCP_PROJECT.legacy.patch ]; then
-			patch -p1 < $WORKSPACE/ocs-upi-kvm/files/$PLATFORM/$OCP_PROJECT.legacy.patch
-		fi
-		;;
-	*)
-		if [ -e $WORKSPACE/ocs-upi-kvm/files/$PLATFORM/$OCP_PROJECT.patch ]; then
-			patch -p1 < $WORKSPACE/ocs-upi-kvm/files/$PLATFORM/$OCP_PROJECT.patch
-		fi
-		;;
-esac
+if [ -e $WORKSPACE/ocs-upi-kvm/files/$OCP_PROJECT/$OCP_VERSION/$OCP_PROJECT.patch ]; then
+	patch -p1 < $WORKSPACE/ocs-upi-kvm/files/$OCP_PROJECT/$OCP_VERSION/$OCP_PROJECT.patch
+fi
 
 mkdir -p data
 
@@ -338,9 +334,10 @@ terraform validate
 terraform_apply
 
 if [ "$?" == 0 ]; then
-	# Delete bootstrap to save system resources after successful cluster creation (set -e above)
 	export BOOTSTRAP_CNT=0
 	terraform_apply
 fi
 
 popd
+
+set -e

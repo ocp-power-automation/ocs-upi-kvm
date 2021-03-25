@@ -58,7 +58,7 @@ source $WORKSPACE/venv/bin/activate		# enter 'deactivate' in venv shell to exit
 export LOGDIR=$WORKSPACE/logs-ocs-ci/$OCS_VERSION
 if [ ! -e $WORKSPACE/ocs-ci-conf.yaml ]; then
         mkdir -p $LOGDIR
-        cp ../../files/ocs-ci-conf.yaml $WORKSPACE/ocs-ci-conf.yaml
+        cp ../../files/os-ci/ocs-ci-conf.yaml $WORKSPACE/ocs-ci-conf.yaml
 	update_supplemental_ocsci_config
 fi
 

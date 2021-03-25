@@ -44,7 +44,7 @@ echo "Creating supplemental ocs-ci config - $WORKSPACE/ocs-ci-conf.yaml"
 
 export LOGDIR=$WORKSPACE/logs-ocs-ci/$OCS_VERSION
 mkdir -p $LOGDIR
-cp -f ../../files/ocs-ci-conf.yaml $WORKSPACE/ocs-ci-conf.yaml
+cp -f ../../files/ocs-ci/ocs-ci-conf.yaml $WORKSPACE/ocs-ci-conf.yaml
 update_supplemental_ocsci_config
 
 echo "run-ci -m deployment --deploy --ocs-version $OCS_VERSION ..."

@@ -121,6 +121,8 @@ function enable_hugepages ( ) {
 
 function prepare_new_cluster_delete_old_cluster ( ) {
 
+	KVM_SETUP_GENCNT_INSTALLED=-1
+
 	# Validate the KVM host server runtime
 
 	invoke_kvm_setup=false
@@ -128,7 +130,7 @@ function prepare_new_cluster_delete_old_cluster ( ) {
 		invoke_kvm_setup=true
 	else
 		source ~/.kvm_setup
-		if [[ -z "$KVM_SETUP_GENCNT_INSTALLED" ]] || [[ "$KVM_SETUP_GENCNT_INSTALLED" -lt "$KVM_SETUP_GENCNT" ]]; then
+		if [[ "$KVM_SETUP_GENCNT_INSTALLED" -lt "$KVM_SETUP_GENCNT" ]]; then
 			invoke_kvm_setup=true
 		fi
 	fi
@@ -187,6 +189,12 @@ function prepare_new_cluster_delete_old_cluster ( ) {
 	# Enable use of huge pages.  Minimum requirement covers 3 worker nodes.  Must be done after cluster teardown
 
 	enable_hugepages
+
+        # If KVM SETUP GENCNT increases by more than 2, rebuild terraform modules also
+
+        if (( "$KVM_SETUP_GENCNT_INSTALLED" + 2 < "$POWERVS_SETUP_GENCNT" )); then
+                rm -f $WORKSPACE/bin/terraform
+        fi
 }
 
 function setup_remote_oc_use () {
