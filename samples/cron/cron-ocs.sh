@@ -12,7 +12,7 @@
 
 CRONOCS="test-cron-ocs"
 
-ps -edf | grep $CRONOCS > /dev/null
+ps -edf | grep -v grep | grep $CRONOCS > /dev/null
 if [ "$?" == 0 ]; then
     echo "$CRONOCS is running. Wait for it to complete before starting again."
     exit 1

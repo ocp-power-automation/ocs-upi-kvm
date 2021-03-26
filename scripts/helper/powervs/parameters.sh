@@ -126,12 +126,6 @@ function prepare_new_cluster_delete_old_cluster () {
 
         echo "Invoking destroy-ocp.sh"
 	./destroy-ocp.sh
-
-	# If POWERVS SETUP GENCNT increases by more than 2, rebuild terraform modules also
-
-	if (( "$POWERVS_SETUP_GENCNT_INSTALLED" + 2 < "$POWERVS_SETUP_GENCNT" )); then
-		rm -f $WORKSPACE/bin/terraform
-	fi
 }
 
 function setup_remote_oc_use () {
