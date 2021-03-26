@@ -110,15 +110,18 @@ if [ "$ARG1" == "--retry" ]; then
 	if [ "$retry" == true ]; then
 		pushd $WORKSPACE/ocs-upi-kvm/src/$OCP_PROJECT
 		terraform_apply
-		if [ "$?" == 0 ]; then
-			# Delete bootstrap to save system resources after successful cluster creation (set -e above)
+		rc=$?
+		if [ "$rc" == 0 ]; then
+			# Delete bootstrap to save system resources after successful cluster creation
 			export BOOTSTRAP_CNT=0
 			terraform_apply
 		fi
 		popd
-		exit
+		exit $rc
 	fi
 fi
+
+set -e
 
 # Validate platform setup, prepare hugepages, destroy pre-existing cluster.  We are creating a new cluster
 
@@ -130,6 +133,8 @@ rm -f $WORKSPACE/bin/oc
 rm -rf $WORKSPACE/auth
 
 # Install GO and Terraform
+
+PLUGIN_PATH=~/.terraform.d/plugins/registry.terraform.io
 
 OLD_GO_VERSION=''
 if [ -e $WORKSPACE/bin/go ]; then
@@ -153,6 +158,15 @@ if [ "$OLD_GO_VERSION" != "$GO_VERSION" ]; then
 	rm -rf $WORKSPACE/bin/*
 	cp $WORKSPACE/usr/local/go/bin/* $WORKSPACE/bin
 	INSTALLED_GO=true
+
+	# If GO Version has changed, rebuild the current set of terraform modules
+
+	rm -rf $PLUGIN_PATH/dmacvicar/libvirt/1.0.0
+	rm -rf $PLUGIN_PATH/IBM-Cloud/ibm/$TERRAFORM_POWERVS_VERSION
+	rm -rf $PLUGIN_PATH/hashicorp/random/$TERRAFORM_RANDOM_VERSION
+	rm -rf $PLUGIN_PATH/hashicorp/null/$TERRAFORM_NULL_VERSION
+	rm -rf $PLUGIN_PATH/community-terraform-providers/ignition/$TERRAFORM_IGNITION_VERSION
+	rm -rf $PLUGIN_PATH/terraform-providers/ignition/$TERRAFORM_IGNITION_LEGACY_VERSION
 fi
 
 # Install terraform and libvirt providers
@@ -161,10 +175,6 @@ OLD_TERRAFORM_VERSION=''
 if [ -e $WORKSPACE/bin/terraform ]; then
 	OLD_TERRAFORM_VERSION=$($WORKSPACE/bin/terraform version | head -n 1| awk '{print $2}')
 fi
-
-# Terraform modules built below are versioned so they can be shared
-
-PLUGIN_PATH=~/.terraform.d/plugins/registry.terraform.io
 
 export GOPATH=$WORKSPACE/go
 if [[ "$INSTALLED_GO" == "true" ]] || [[ "$OLD_TERRAFORM_VERSION" != "$TERRAFORM_VERSION" ]] || 
@@ -327,17 +337,18 @@ fi
 cp ~/.ssh/id_rsa* data
 cp $WORKSPACE/pull-secret.txt data/pull-secret.txt
 
+set +e
+
 terraform init
-
 terraform validate
-
 terraform_apply
-
-if [ "$?" == 0 ]; then
+rc=$?
+if [ "$rc" == 0 ]; then
+	# Delete bootstrap to save system resources after successful cluster creation
 	export BOOTSTRAP_CNT=0
 	terraform_apply
 fi
 
 popd
 
-set -e
+exit $rc
