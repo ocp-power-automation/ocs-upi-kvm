@@ -71,7 +71,7 @@ fi
 
 # IMPORTANT: Increment KVM_SETUP_GENCNT if the setup-kvm-host.sh file changes
 
-KVM_SETUP_GENCNT=6
+KVM_SETUP_GENCNT=7
 
 OCP_PROJECT=ocp4-upi-kvm
 
