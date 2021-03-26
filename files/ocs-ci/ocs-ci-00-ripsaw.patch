@@ -11,96 +11,6 @@ index 82f5d717..5675a2f9 100644
  ELASTICSEARCE_PORT = 9200
  
  # Local storage namespace
-diff --git a/ocs_ci/templates/workloads/fio/benchmark_fio.yaml b/ocs_ci/templates/workloads/fio/benchmark_fio.yaml
-index 3284fede..870a300b 100644
---- a/ocs_ci/templates/workloads/fio/benchmark_fio.yaml
-+++ b/ocs_ci/templates/workloads/fio/benchmark_fio.yaml
-@@ -5,13 +5,14 @@ metadata:
-   namespace: my-ripsaw
- spec:
-   elasticsearch:
--    server: 10.0.78.167
-+    server: ES_SERVER_PLACEHOLDER
-     port: 9200
-   clustername: env_ocpversion_ocsversion
-   test_user: interface_iopattern
-   workload:
-     name: "fio_distributed"
-     args:
-+      image: quay.io/multi-arch/cloud-bulldozer:fio
-       prefill: true
-       samples: 3
-       servers: 50
-diff --git a/ocs_ci/templates/workloads/fio/benchmark_fio_cmp.yaml b/ocs_ci/templates/workloads/fio/benchmark_fio_cmp.yaml
-index 08148411..14c24425 100644
---- a/ocs_ci/templates/workloads/fio/benchmark_fio_cmp.yaml
-+++ b/ocs_ci/templates/workloads/fio/benchmark_fio_cmp.yaml
-@@ -5,7 +5,7 @@ metadata:
-   namespace: my-ripsaw
- spec:
-   elasticsearch:
--    server: 10.0.78.167
-+    server: ES_SERVER_PLACEHOLDER
-     port: 9200
-     parallel: true
-   clustername: test
-@@ -13,6 +13,7 @@ spec:
-   workload:
-     name: "fio_distributed"
-     args:
-+      image: quay.io/multi-arch/cloud-bulldozer:fio
-       prefill: true
-       prefill_bs: 64KiB
-       samples: 3
-diff --git a/ocs_ci/templates/workloads/pgsql/PGSQL_Benchmark.yaml b/ocs_ci/templates/workloads/pgsql/PGSQL_Benchmark.yaml
-index 1c121d4b..c5b816a4 100644
---- a/ocs_ci/templates/workloads/pgsql/PGSQL_Benchmark.yaml
-+++ b/ocs_ci/templates/workloads/pgsql/PGSQL_Benchmark.yaml
-@@ -7,6 +7,7 @@ spec:
-   workload:
-     name: "pgbench"
-     args:
-+      image: quay.io/multi-arch/cloud-bulldozer:pgbench
-       timeout: 5
-       clients:
-         - 20
-diff --git a/ocs_ci/templates/workloads/smallfile/SmallFile.yaml b/ocs_ci/templates/workloads/smallfile/SmallFile.yaml
-index 69a490c1..56814906 100644
---- a/ocs_ci/templates/workloads/smallfile/SmallFile.yaml
-+++ b/ocs_ci/templates/workloads/smallfile/SmallFile.yaml
-@@ -13,7 +13,7 @@ spec:
-   elasticsearch:
-     # v This is debug server v
-     # server: 10.0.144.152
--    server: 10.0.78.167
-+    server: ES_SERVER_PLACEHOLDER
-     port: 9200
-   es_index: ripsaw-smallfile
-   metadata_collection: true
-@@ -21,6 +21,7 @@ spec:
-   workload:
-     name: smallfile
-     args:
-+      image: quay.io/multi-arch/cloud-bulldozer:smallfile
-       clients: 1
-       samples: 1
-       pause: 50
-diff --git a/ocs_ci/ocs/ripsaw.py b/ocs_ci/ocs/ripsaw.py
-index d1bf325b..ee006484 100644
---- a/ocs_ci/ocs/ripsaw.py
-+++ b/ocs_ci/ocs/ripsaw.py
-@@ -41,9 +41,9 @@ class RipSaw(object):
-         """
-         self.args = kwargs
-         self.repo = self.args.get(
--            "repo", "https://github.com/cloud-bulldozer/benchmark-operator"
-+            "repo", "https://github.com/ocp-power-automation/benchmark-operator"
-         )
--        self.branch = self.args.get("branch", "master")
-+        self.branch = self.args.get("branch", "dev-ppc64le")
-         self.namespace = self.args.get("namespace", RIPSAW_NAMESPACE)
-         self.pgsql_is_setup = False
-         self.ocp = OCP()
 diff --git a/ocs_ci/ocs/elasticsearch.py b/ocs_ci/ocs/elasticsearch.py
 index 311d0a69..1f808df5 100644
 --- a/ocs_ci/ocs/elasticsearch.py
@@ -177,8 +87,36 @@ index 311d0a69..1f808df5 100644
          log.info("Deleting the es project")
          self.ns_obj.delete_project(project_name=self.namespace)
          self.ns_obj.wait_for_delete(resource_name=self.namespace, timeout=180)
+diff --git a/ocs_ci/ocs/perftests.py b/ocs_ci/ocs/perftests.py
+index 5da10c3a..ddc5dc12 100644
+--- a/ocs_ci/ocs/perftests.py
++++ b/ocs_ci/ocs/perftests.py
+@@ -256,7 +256,6 @@ class PASTest(BaseTest):
+             elasticsearch (obj): elasticsearch object (if exits)
+ 
+         """
+-        log.info(f"In copy_es_data Function - {elasticsearch}")
+         if elasticsearch:
+             log.info("Copy all data from Internal ES to Main ES")
+             log.info("Dumping data from the Internal ES to tar ball file")
+diff --git a/ocs_ci/ocs/ripsaw.py b/ocs_ci/ocs/ripsaw.py
+index d1bf325b..ee006484 100644
+--- a/ocs_ci/ocs/ripsaw.py
++++ b/ocs_ci/ocs/ripsaw.py
+@@ -41,9 +41,9 @@ class RipSaw(object):
+         """
+         self.args = kwargs
+         self.repo = self.args.get(
+-            "repo", "https://github.com/cloud-bulldozer/benchmark-operator"
++            "repo", "https://github.com/ocp-power-automation/benchmark-operator"
+         )
+-        self.branch = self.args.get("branch", "master")
++        self.branch = self.args.get("branch", "dev-ppc64le")
+         self.namespace = self.args.get("namespace", RIPSAW_NAMESPACE)
+         self.pgsql_is_setup = False
+         self.ocp = OCP()
 diff --git a/ocs_ci/templates/app-pods/esclient.yaml b/ocs_ci/templates/app-pods/esclient.yaml
-index 99c977cf..83a3702b 100644
+index 99c977cf..1c6f9650 100644
 --- a/ocs_ci/templates/app-pods/esclient.yaml
 +++ b/ocs_ci/templates/app-pods/esclient.yaml
 @@ -1,3 +1,10 @@
@@ -192,6 +130,89 @@ index 99c977cf..83a3702b 100644
  ---
  apiVersion: v1
  kind: Pod
+@@ -7,7 +14,7 @@ metadata:
+ spec:
+   containers:
+    - name: esdumpper
+-     image: quay.io/ocsci/esdump:latest
++     image: quay.io/ocsci/esdump:ma
+      imagePullPolicy: Always
+      command: ['/bin/bash']
+      stdin: true
+diff --git a/ocs_ci/templates/workloads/fio/benchmark_fio.yaml b/ocs_ci/templates/workloads/fio/benchmark_fio.yaml
+index 3284fede..870a300b 100644
+--- a/ocs_ci/templates/workloads/fio/benchmark_fio.yaml
++++ b/ocs_ci/templates/workloads/fio/benchmark_fio.yaml
+@@ -5,13 +5,14 @@ metadata:
+   namespace: my-ripsaw
+ spec:
+   elasticsearch:
+-    server: 10.0.78.167
++    server: ES_SERVER_PLACEHOLDER
+     port: 9200
+   clustername: env_ocpversion_ocsversion
+   test_user: interface_iopattern
+   workload:
+     name: "fio_distributed"
+     args:
++      image: quay.io/multi-arch/cloud-bulldozer:fio
+       prefill: true
+       samples: 3
+       servers: 50
+diff --git a/ocs_ci/templates/workloads/fio/benchmark_fio_cmp.yaml b/ocs_ci/templates/workloads/fio/benchmark_fio_cmp.yaml
+index 08148411..14c24425 100644
+--- a/ocs_ci/templates/workloads/fio/benchmark_fio_cmp.yaml
++++ b/ocs_ci/templates/workloads/fio/benchmark_fio_cmp.yaml
+@@ -5,7 +5,7 @@ metadata:
+   namespace: my-ripsaw
+ spec:
+   elasticsearch:
+-    server: 10.0.78.167
++    server: ES_SERVER_PLACEHOLDER
+     port: 9200
+     parallel: true
+   clustername: test
+@@ -13,6 +13,7 @@ spec:
+   workload:
+     name: "fio_distributed"
+     args:
++      image: quay.io/multi-arch/cloud-bulldozer:fio
+       prefill: true
+       prefill_bs: 64KiB
+       samples: 3
+diff --git a/ocs_ci/templates/workloads/pgsql/PGSQL_Benchmark.yaml b/ocs_ci/templates/workloads/pgsql/PGSQL_Benchmark.yaml
+index 1c121d4b..c5b816a4 100644
+--- a/ocs_ci/templates/workloads/pgsql/PGSQL_Benchmark.yaml
++++ b/ocs_ci/templates/workloads/pgsql/PGSQL_Benchmark.yaml
+@@ -7,6 +7,7 @@ spec:
+   workload:
+     name: "pgbench"
+     args:
++      image: quay.io/multi-arch/cloud-bulldozer:pgbench
+       timeout: 5
+       clients:
+         - 20
+diff --git a/ocs_ci/templates/workloads/smallfile/SmallFile.yaml b/ocs_ci/templates/workloads/smallfile/SmallFile.yaml
+index 69a490c1..56814906 100644
+--- a/ocs_ci/templates/workloads/smallfile/SmallFile.yaml
++++ b/ocs_ci/templates/workloads/smallfile/SmallFile.yaml
+@@ -13,7 +13,7 @@ spec:
+   elasticsearch:
+     # v This is debug server v
+     # server: 10.0.144.152
+-    server: 10.0.78.167
++    server: ES_SERVER_PLACEHOLDER
+     port: 9200
+   es_index: ripsaw-smallfile
+   metadata_collection: true
+@@ -21,6 +21,7 @@ spec:
+   workload:
+     name: smallfile
+     args:
++      image: quay.io/multi-arch/cloud-bulldozer:smallfile
+       clients: 1
+       samples: 1
+       pause: 50
 diff --git a/tests/e2e/performance/test_fio_benchmark.py b/tests/e2e/performance/test_fio_benchmark.py
 index d78c4819..acad1617 100644
 --- a/tests/e2e/performance/test_fio_benchmark.py
@@ -256,15 +277,3 @@ index d78c4819..acad1617 100644
              full_results.es_write()
              full_results.codespeed_push(
                  dev_mode=self.dev_mode
-diff --git a/ocs_ci/ocs/perftests.py b/ocs_ci/ocs/perftests.py
-index b024e062..0457b200 100644
---- a/ocs_ci/ocs/perftests.py
-+++ b/ocs_ci/ocs/perftests.py
-@@ -203,7 +203,6 @@ class PASTest(BaseTest):
-             elasticsearch (obj): elasticsearch object (if exits)
- 
-         """
--        log.info(f"In copy_es_data Function - {elasticsearch}")
-         if elasticsearch:
-             log.info("Copy all data from Internal ES to Main ES")
-             log.info("Dumping data from the Internal ES to tar ball file")
