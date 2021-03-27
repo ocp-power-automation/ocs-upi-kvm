@@ -134,7 +134,8 @@ rm -rf $WORKSPACE/auth
 
 # Install GO and Terraform
 
-PLUGIN_PATH=~/.terraform.d/plugins/registry.terraform.io
+PROVIDER_DIR=$WORKSPACE/.providers
+PLUGIN_PATH=$PROVIDER_DIR/registry.terraform.io
 
 OLD_GO_VERSION=''
 if [ -e $WORKSPACE/bin/go ]; then
@@ -305,6 +306,7 @@ git submodule update --init  src/$OCP_PROJECT
 
 pushd src/$OCP_PROJECT
 
+set +e
 if [ "$OCP_VERSION" == 4.4 ]; then
 	git checkout origin/release-4.5
 else
@@ -316,6 +318,7 @@ else
 		git checkout master
 	fi
 fi
+set -e
 
 if [ -e $WORKSPACE/ocs-upi-kvm/files/$OCP_PROJECT/$OCP_VERSION/$OCP_PROJECT.patch ]; then
 	patch -p1 < $WORKSPACE/ocs-upi-kvm/files/$OCP_PROJECT/$OCP_VERSION/$OCP_PROJECT.patch
@@ -339,7 +342,7 @@ cp $WORKSPACE/pull-secret.txt data/pull-secret.txt
 
 set +e
 
-terraform init
+terraform init --plugin-dir $PROVIDER_DIR
 terraform validate
 terraform_apply
 rc=$?

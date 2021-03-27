@@ -171,19 +171,33 @@ if [[ ! "$CEPH_STATE" =~ HEALTH_OK ]]; then
 fi
 set -e
 
+# Cluster-logging provides Elasticsearch.  Uses OCS storage.  Run after deploy-ocs-ci.sh
+
+./deploy-ocp-logging.sh 2>&1 | tee $WORKSPACE/deploy-ocp-logging.log
+
 pushd ../src/ocs-ci
 
 source $WORKSPACE/venv/bin/activate             # enter 'deactivate' in venv shell to exit
 
-run-ci -m "tier1" --cluster-name ocstest --cluster-path $WORKSPACE \
+# Set elasticsearch cluster ip for performance suite.  Depends on cluster logging
+
+export ES_CLUSTER_IP=$(oc get service elasticsearch -n openshift-logging | grep ^elasticsearch | awk '{print $3}')
+echo "ES_CLUSTER_IP=$ES_CLUSTER_IP"
+if [ -n "$ES_CLUSTER_IP" ]; then
+	yq -y -i '.ENV_DATA.es_cluster_ip |= env.ES_CLUSTER_IP' $WORKSPACE/ocs-ci-conf.yaml
+fi
+
+# The 'tests/e2e/...' can be obtained from the html report of performance, workloads, tier tests, ...
+
+run-ci -m "performance" --cluster-name ocstest --cluster-path $WORKSPACE \
 	--ocp-version $OCP_VERSION --ocs-version=$OCS_VERSION \
         --ocsci-conf conf/ocsci/production_powervs_upi.yaml \
 	--ocsci-conf conf/ocsci/lso_enable_rotational_disks.yaml \
         --ocsci-conf $WORKSPACE/ocs-ci-conf.yaml \
         --collect-logs \
-        tests/manage/z_cluster/cluster_expansion/test_add_capacity.py 2>&1 | tee $WORKSPACE/test-add-capacity.log
+        tests/e2e/performance/test_fio_benchmark.py::TestFIOBenchmark::test_fio_workload_simple[CephBlockPool-random] 2>&1 | tee $WORKSPACE/test-fio.log
 
-oc get cephcluster --namespace openshift-storage 2>&1 | tee -a $WORKSPACE/test-add-capacity.log
-oc get pods --namespace openshift-storage 2>&1 | tee -a $WORKSPACE/test-add-capacity.log
+oc get cephcluster --namespace openshift-storage 2>&1 | tee -a $WORKSPACE/test-fio.log
+oc get pods --namespace openshift-storage 2>&1 | tee -a $WORKSPACE/test-fio.log
 
 deactivate
