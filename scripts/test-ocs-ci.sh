@@ -90,6 +90,7 @@ if [[ -n "${tests[@]}" ]]; then
 			--ocp-version $OCP_VERSION --ocs-version=$OCS_VERSION \
 			--ocsci-conf conf/ocsci/production_powervs_upi.yaml \
 			--ocsci-conf conf/ocsci/lso_enable_rotational_disks.yaml \
+                        --ocsci-conf conf/ocsci/manual_subscription_plan_approval.yaml \
 			--ocsci-conf $WORKSPACE/ocs-ci-conf.yaml \
 		        --cluster-path $WORKSPACE --collect-logs \
 			--self-contained-html --junit-xml $LOGDIR/test_results.xml \
@@ -110,6 +111,7 @@ else
 		--ocp-version $OCP_VERSION --ocs-version=$OCS_VERSION \
 		--ocsci-conf conf/ocsci/production_powervs_upi.yaml \
 		--ocsci-conf conf/ocsci/lso_enable_rotational_disks.yaml \
+                --ocsci-conf conf/ocsci/manual_subscription_plan_approval.yaml \
 		--ocsci-conf $WORKSPACE/ocs-ci-conf.yaml \
 		--cluster-path $WORKSPACE --collect-logs \
 		--self-contained-html --junit-xml $LOGDIR/test_results.xml \
