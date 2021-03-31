@@ -233,8 +233,8 @@ DATA_DISK_LIST | no | kvm | Disk partitions: sdc1,sdd1,sde1
 FORCE_DISK_PARTITION_WIPE | no | kvm | false
 PVS_API_KEY | yes | powervs | User provided
 PVS_SERVICE_INSTANCE_ID | yes | powervs | User provided
-PVS_REGION | no | powervs | lon, tok Depends on service instance
-PVS_ZONE | no | powervs | lon06, tok06 Depends on service instance
+PVS_REGION | no | powervs | lon, tok, sao Depends on service instance
+PVS_ZONE | no | powervs | lon06, tok06, sao01 Depends on service instance
 PVS_SUBNET_NAME | no | powervs | ocp-net
 SYSTEM_TYPE | no | powervs | s922, e980
 PROCESSOR_TYPE | no | powervs | shared, dedicated

@@ -17,17 +17,17 @@ export PLATFORM=${PLATFORM:="kvm"}                              # Also supported
 # These environment variables are optional, but should be set for cron jobs,
 # so that CLUSTER_ID_PREFIX below is properly initialized for powervs.
 
-export OCP_VERSION=4.7						# 4.5 - 4.8 are supported
-export OCS_VERSION=4.7						# 4.6 is supported also
+export OCP_VERSION=${OCP_VERSION:=4.7}                          # 4.5 - 4.8 are supported
+export OCS_VERSION=${OCS_VERSION:=4.7}                          # 4.6 is supported also
 
 
 # These are optional for KVM.  Default values are shown
 
-#export IMAGES_PATH=/var/lib/libvirt/images			# File system space is important.  Else try /home/libvirt/images
+#export IMAGES_PATH=/var/lib/libvirt/images                     # File system space is important.  Else try /home/libvirt/images
 #export BASTION_IMAGE=rhel-8.2-update-2-ppc64le-kvm.qcow2
-#if [ -z "$DATA_DISK_LIST" ]; then				# if not set, then file backed disks are used
-#       export DATA_DISK_LIST="sdc1,sdd1,sde1"			# Each worker node requires a dedicated disk partition
-#       export FORCE_DISK_PARTITION_WIPE=true			# Default is false
+#if [ -z "$DATA_DISK_LIST" ]; then                              # if not set, then file backed disks are used
+#       export DATA_DISK_LIST="sdc1,sdd1,sde1"                  # Each worker node requires a dedicated disk partition
+#       export FORCE_DISK_PARTITION_WIPE=true                   # Default is false
 #fi
 
 
@@ -41,7 +41,7 @@ export OCS_VERSION=4.7						# 4.6 is supported also
 
 export CLUSTER_ID_PREFIX=${HOSTNAME:0:5}-${OCP_VERSION/./}
 export PVS_SUBNET_NAME=ocs-cron-test
-#export PVS_REGION=lon					        # Or tok and tok04 depending on service instance id
+#export PVS_REGION=lon                                          # Or tok/tok04 sao/sao01 depending on service instance id
 #export PVS_ZONE=lon06
 #export SYSTEM_TYPE=s922
 #export PROCESSOR_TYPE=shared
