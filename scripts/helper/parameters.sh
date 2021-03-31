@@ -107,7 +107,13 @@ function update_supplemental_ocsci_config () {
 
 	if [ "$PLATFORM" == powervs ]; then
 		yq -y -i '.ENV_DATA.number_of_storage_disks = 8' $WORKSPACE/ocs-ci-conf.yaml
+
+		# set bastion ip in the ocs-ci-conf.yaml
+		if [ -n "$BASTION_IP" ]; then
+			yq -y -i '.ENV_DATA.bastion_ip |= env.BASTION_IP' $WORKSPACE/ocs-ci-conf.yaml
+		fi
 	fi
+
 }
 
 function terraform_apply () {

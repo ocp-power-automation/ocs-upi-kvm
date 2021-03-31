@@ -22,7 +22,7 @@ index dbd75686..5042c650 100644
  
          self.service = KubeletService()
 diff --git a/ocs_ci/utility/service.py b/ocs_ci/utility/service.py
-index 2000277c..3571cbbe 100644
+index 2000277c..f58b4120 100644
 --- a/ocs_ci/utility/service.py
 +++ b/ocs_ci/utility/service.py
 @@ -1,4 +1,5 @@
@@ -42,7 +42,7 @@ index 2000277c..3571cbbe 100644
      def verify_service(self, node, action):
          """
          Verify if PowerNode is completely powered off
-@@ -48,10 +53,19 @@ class Service(object):
+@@ -48,10 +53,18 @@ class Service(object):
          """
          nodeip = self.nodes[node.name]
          result = exec_cmd(
@@ -52,7 +52,6 @@ index 2000277c..3571cbbe 100644
          )
 -        if result.stdout.lower().rstrip() == action:
 +
-+        import pdb; pdb.set_trace()
 +        output = result.stdout.lower().rstrip()
 +        if INACTIVE in output:
 +            output = INACTIVE
@@ -64,7 +63,7 @@ index 2000277c..3571cbbe 100644
              logger.info("Action succeeded.")
              return True
          else:
-@@ -70,7 +84,7 @@ class Service(object):
+@@ -70,7 +83,7 @@ class Service(object):
              UnexpectedBehaviour: If service on PowerNode machine is still up
          """
          nodeip = self.nodes[node.name]
@@ -73,7 +72,7 @@ index 2000277c..3571cbbe 100644
          if self.force:
              cmd += " -f"
          result = exec_cmd(cmd)
-@@ -101,7 +115,7 @@ class Service(object):
+@@ -101,7 +114,7 @@ class Service(object):
              UnexpectedBehaviour: If service on powerNode machine is still not up
          """
          nodeip = self.nodes[node.name]
@@ -82,7 +81,7 @@ index 2000277c..3571cbbe 100644
          result = exec_cmd(cmd)
          logger.info(f"Result of start of service {self.service_name} is {result}")
          ret = TimeoutSampler(
-@@ -126,7 +140,7 @@ class Service(object):
+@@ -126,7 +139,7 @@ class Service(object):
  
          """
          nodeip = self.nodes[node.name]
@@ -91,7 +90,7 @@ index 2000277c..3571cbbe 100644
          result = exec_cmd(cmd)
          ret = TimeoutSampler(
              timeout=timeout,
-@@ -147,7 +161,7 @@ class Service(object):
+@@ -147,7 +160,7 @@ class Service(object):
  
          """
          nodeip = self.nodes[node.name]
@@ -100,7 +99,7 @@ index 2000277c..3571cbbe 100644
          result = exec_cmd(cmd)
          ret = TimeoutSampler(
              timeout=timeout,
-@@ -172,7 +186,7 @@ class Service(object):
+@@ -172,7 +185,7 @@ class Service(object):
              (string): 'active' or 'inactive' or 'failed', etc.
          """
          nodeip = self.nodes[node.name]
