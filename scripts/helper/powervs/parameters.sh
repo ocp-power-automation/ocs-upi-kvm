@@ -1,8 +1,8 @@
 #!/bin/bash
 
 export PVS_API_KEY=${PVS_API_KEY:=""}					# Obtained from CLI - ibmcloud pi service-list
-export PVS_REGION=${PVS_REGION:="lon"}
-export PVS_ZONE=${PVS_ZONE:="lon06"}
+export PVS_REGION=${PVS_REGION:="tok"}
+export PVS_ZONE=${PVS_ZONE:="tok04"}
 export PVS_SERVICE_INSTANCE_ID=${PVS_SERVICE_INSTANCE_ID:=""}
 
 export PVS_SUBNET_NAME=${PVS_SUBNET_NAME:="ocp-net"}
@@ -24,10 +24,15 @@ if [ "$PVS_SERVICE_INSTANCE_ID" == fac4755e-8aff-45f5-8d5c-1d3b58b7a229 ]; then
 elif [ "$PVS_SERVICE_INSTANCE_ID" == 60e43366-08de-4287-8c42-b7942406efc9 ]; then
 	PVS_REGION=tok
 	PVS_ZONE=tok04
+elif [ "$PVS_SERVICE_INSTANCE_ID" == 481377eb-e843-46df-9afa-a815da381ffa ]; then
+	PVS_REGION=sao
+	PVS_ZONE=sao01
 elif [ "$PVS_REGION" == lon ] && [ "$PVS_ZONE" == lon06 ]; then
 	PVS_SERVICE_INSTANCE_ID=fac4755e-8aff-45f5-8d5c-1d3b58b7a229
 elif [ "$PVS_REGION" == tok ] && [ "$PVS_ZONE" == tok04 ]; then
 	PVS_SERVICE_INSTANCE_ID=60e43366-08de-4287-8c42-b7942406efc9
+elif [ "$PVS_REGION" == sao ] && [ "$PVS_ZONE" == sao01 ]; then
+	PVS_SERVICE_INSTANCE_ID=481377eb-e843-46df-9afa-a815da381ffa
 fi
 
 # The boot images below are common across OCS development zones, except where noted

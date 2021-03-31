@@ -16,35 +16,35 @@ export PLATFORM=${PLATFORM:="kvm"}				# Also supported: powervs.   Defaults to k
 
 # These environment variables are optional for all platforms
 
-#export OCP_VERSION=4.6						# 4.5, 4.7, and 4.8 are also supported
-#export OCS_VERSION=4.6
+export OCP_VERSION=${OCP_VERSION:=4.7}                          # 4.5, 4.7, and 4.8 are also supported
+export OCS_VERSION=${OCS_VERSION:=4.7}
 
 # These are optional for KVM.  Default values are shown
 
-#export IMAGES_PATH=/var/lib/libvirt/images			# File system space is important.  Else try /home/libvirt/images
+#export IMAGES_PATH=/var/lib/libvirt/images                     # File system space is important.  Else try /home/libvirt/images
 #export BASTION_IMAGE=rhel-8.2-update-2-ppc64le-kvm.qcow2
-#if [ -z "$DATA_DISK_LIST" ]; then				# if not set, then file backed disks are used
-#       export DATA_DISK_LIST="sdc1,sdd1,sde1"			# Each worker node requires a dedicated disk partition
-#       export FORCE_DISK_PARTITION_WIPE=true			# Default is false
+#if [ -z "$DATA_DISK_LIST" ]; then                              # if not set, then file backed disks are used
+#       export DATA_DISK_LIST="sdc1,sdd1,sde1"                  # Each worker node requires a dedicated disk partition
+#       export FORCE_DISK_PARTITION_WIPE=true                   # Default is false
 #fi
 
 
 # These environments variables are required for PowerVS
 
 #export PVS_API_KEY=<your key>
-#export PVS_SERVICE_INSTANCE_ID=<your instance id>		# Click eye icon on the left of IBM CLoud resource list, copy GUID field
+#export PVS_SERVICE_INSTANCE_ID=<your instance id>              # Click eye icon on the left of IBM CLoud resource list, copy GUID field
 
 
 # These are optional for PowerVS.  Default values are shown
 
 #export CLUSTER_ID_PREFIX=$RHID_USERNAME                        # Actually first 6 chars of rhid_username + ocp version
 #export PVS_SUBNET_NAME=ocp-net
-#export PVS_REGION=lon  	                                # Or tok and tok04 depending on service instance id
+#export PVS_REGION=lon  	                                # Or tok/tok04 sao/sao01 depending on service instance id
 #export PVS_ZONE=lon06
 #export SYSTEM_TYPE=s922
 #export PROCESSOR_TYPE=shared
 #export BASTION_IMAGE=rhel-83-02182021
-#export VOLUME_TYPE=tier3					# tier1, ssd
+#export VOLUME_TYPE=tier3                                       # tier1, ssd
 #export WORKER_VOLUME_SIZE=500
 
 
