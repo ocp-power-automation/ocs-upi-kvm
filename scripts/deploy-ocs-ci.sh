@@ -35,6 +35,12 @@ cp -f $WORKSPACE/bin/oc bin
 
 mkdir -p data
 
+# This tar file patches the esdumper pod in elastic-system project for performance suite
+
+if [ -e ../../files/ocs-ci/esdumper.tar ]; then
+        cp -f ../../files/ocs-ci/esdumper.tar data
+fi
+
 cp $WORKSPACE/auth.yaml data/auth.yaml
 cp $WORKSPACE/pull-secret.txt data/pull-secret
 
@@ -53,7 +59,6 @@ run-ci -m deployment --deploy \
 	--ocs-version $OCS_VERSION --cluster-name ocstest \
 	--ocsci-conf conf/ocsci/production_powervs_upi.yaml \
 	--ocsci-conf conf/ocsci/lso_enable_rotational_disks.yaml \
-        --ocsci-conf conf/ocsci/manual_subscription_plan_approval.yaml \
 	--ocsci-conf $WORKSPACE/ocs-ci-conf.yaml \
         --cluster-path $WORKSPACE --collect-logs tests/
 

@@ -228,7 +228,7 @@ CHRONY_CONFIG | no | all | yes
 CHRONY_CONFIG_SERVERS | no | all | See code for example ntp servers
 BASTION_IMAGE | yes | kvm | rhel-8.2-update-2-ppc64le-kvm.qcow2
 IMAGES_PATH | no | kvm | /var/lib/libvirt/images, /home/libvirt/images
-DATA_SIZE | no | kvm | 256 Limited by filesystem space
+DATA_DISK_SIZE | no | kvm | 256 Limited by filesystem space
 DATA_DISK_LIST | no | kvm | Disk partitions: sdc1,sdd1,sde1
 FORCE_DISK_PARTITION_WIPE | no | kvm | false
 PVS_API_KEY | yes | powervs | User provided
