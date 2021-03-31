@@ -1,0 +1,178 @@
+diff --git a/ocs_ci/ocs/amq.py b/ocs_ci/ocs/amq.py
+index c2d9f027..fd297bcd 100644
+--- a/ocs_ci/ocs/amq.py
++++ b/ocs_ci/ocs/amq.py
+@@ -23,7 +23,7 @@ from ocs_ci.helpers.helpers import storagecluster_independent_check, validate_pv
+ from ocs_ci.ocs.resources.pvc import get_all_pvc_objs, delete_pvcs
+ 
+ log = logging.getLogger(__name__)
+-URL = "https://get.helm.sh/helm-v2.16.1-linux-amd64.tar.gz"
++URL = "https://get.helm.sh/helm-v2.16.1-linux-ppc64le.tar.gz"
+ AMQ_BENCHMARK_NAMESPACE = "tiller"
+ 
+ 
+@@ -45,7 +45,7 @@ class AMQ(object):
+         """
+         self.args = kwargs
+         self.repo = self.args.get("repo", constants.KAFKA_OPERATOR)
+-        self.branch = self.args.get("branch", "master")
++        self.branch = self.args.get("branch", "ibm-ppc64le")
+         self.ocp = OCP()
+         self.ns_obj = OCP(kind="namespace")
+         self.pod_obj = OCP(kind="pod")
+@@ -594,9 +594,9 @@ class AMQ(object):
+         # Install helm cli (version v2.16.0 as we need tiller component)
+         # And create tiller pods
+         wget_cmd = f"wget -c --read-timeout=5 --tries=0 {URL}"
+-        untar_cmd = "tar -zxvf helm-v2.16.1-linux-amd64.tar.gz"
++        untar_cmd = "tar -zxvf helm-v2.16.1-linux-ppc64le.tar.gz"
+         tiller_cmd = (
+-            f"linux-amd64/helm init --tiller-namespace {tiller_namespace}"
++            f"linux-ppc64le/helm init --tiller-namespace {tiller_namespace}"
+             f" --service-account {tiller_namespace}"
+         )
+         exec_cmd(cmd=wget_cmd, cwd=self.dir)
+@@ -618,7 +618,7 @@ class AMQ(object):
+         values = templating.load_yaml(constants.AMQ_BENCHMARK_VALUE_YAML)
+         values["numWorkers"] = num_of_clients
+         benchmark_cmd = (
+-            f"linux-amd64/helm install {constants.AMQ_BENCHMARK_POD_YAML}"
++            f"linux-ppc64le/helm install {constants.AMQ_BENCHMARK_POD_YAML}"
+             f" --name {benchmark_pod_name} --tiller-namespace {tiller_namespace}"
+         )
+         exec_cmd(cmd=benchmark_cmd, cwd=self.dir)
+@@ -923,7 +923,7 @@ class AMQ(object):
+             if self.benchmark:
+                 # Delete the helm app
+                 try:
+-                    purge_cmd = f"linux-amd64/helm delete benchmark --purge --tiller-namespace {tiller_namespace}"
++                    purge_cmd = f"linux-ppc64le/helm delete benchmark --purge --tiller-namespace {tiller_namespace}"
+                     run(purge_cmd, shell=True, cwd=self.dir, check=True)
+                 except (CommandFailed, CalledProcessError) as cf:
+                     log.error("Failed to delete help app")
+diff --git a/ocs_ci/ocs/constants.py b/ocs_ci/ocs/constants.py
+index 623a73ad..781944a3 100644
+--- a/ocs_ci/ocs/constants.py
++++ b/ocs_ci/ocs/constants.py
+@@ -170,7 +170,7 @@ OCS_MONKEY_REPOSITORY = "https://github.com/red-hat-storage/ocs-monkey.git"
+ 
+ # AMQ
+ AMQ_NAMESPACE = "myproject"
+-KAFKA_OPERATOR = "https://github.com/strimzi/strimzi-kafka-operator"
++KAFKA_OPERATOR = "https://github.com/ocp-power-automation/strimzi-kafka-operator"
+ OCS_WORKLOADS = "https://github.com/red-hat-storage/ocs-workloads"
+ CODESPEED_URL = "http://10.0.78.167:8000/"
+ 
+diff --git a/ocs_ci/templates/workloads/amq/benchmark/values.yaml b/ocs_ci/templates/workloads/amq/benchmark/values.yaml
+index fafa213c..9ae81dda 100644
+--- a/ocs_ci/templates/workloads/amq/benchmark/values.yaml
++++ b/ocs_ci/templates/workloads/amq/benchmark/values.yaml
+@@ -18,7 +18,7 @@
+ #
+ 
+ numWorkers: 8
+-image: openmessaging/openmessaging-benchmark:latest
++image: quay.io/multi-arch/openmessaging-benchmark:latest
+ imagePullPolicy: Always
+ workload: workloads/1-topic-16-partitions-1kb.yaml
+ driver: driver-pulsar/pulsar.yaml
+diff --git a/ocs_ci/templates/workloads/amq/hello-world-consumer.yaml b/ocs_ci/templates/workloads/amq/hello-world-consumer.yaml
+index 16f73f36..0215d307 100644
+--- a/ocs_ci/templates/workloads/amq/hello-world-consumer.yaml
++++ b/ocs_ci/templates/workloads/amq/hello-world-consumer.yaml
+@@ -16,7 +16,7 @@ spec:
+     spec:
+       containers:
+       - name: hello-world-consumer
+-        image: strimzi/hello-world-consumer:latest
++        image: quay.io/multi-arch/strimzi-examples:java-kafka-consumer
+         env:
+           - name: BOOTSTRAP_SERVERS
+             value: my-cluster-kafka-bootstrap:9092
+diff --git a/ocs_ci/templates/workloads/amq/hello-world-producer.yaml b/ocs_ci/templates/workloads/amq/hello-world-producer.yaml
+index e57bcb30..32f10d34 100644
+--- a/ocs_ci/templates/workloads/amq/hello-world-producer.yaml
++++ b/ocs_ci/templates/workloads/amq/hello-world-producer.yaml
+@@ -16,7 +16,7 @@ spec:
+     spec:
+       containers:
+       - name: hello-world-producer
+-        image: strimzi/hello-world-producer:latest
++        image: quay.io/multi-arch/strimzi-examples:java-kafka-producer
+         env:
+           - name: BOOTSTRAP_SERVERS
+             value: my-cluster-kafka-bootstrap:9092
+diff --git a/tests/e2e/registry/test_registry_by_increasing_num_of_image_registry_pods.py b/tests/e2e/registry/test_registry_by_increasing_num_of_image_registry_pods.py
+index f889dc7d..c869704c 100644
+--- a/tests/e2e/registry/test_registry_by_increasing_num_of_image_registry_pods.py
++++ b/tests/e2e/registry/test_registry_by_increasing_num_of_image_registry_pods.py
+@@ -64,7 +64,7 @@ class TestRegistryByIncreasingNumPods(E2ETest):
+         image_pull_and_push(
+             project_name=self.project_name,
+             template="eap-cd-basic-s2i",
+-            image="registry.redhat.io/jboss-eap-7-tech-preview/eap-cd-openshift-rhel8:latest",
++            image="registry.redhat.io/jboss-eap-7/eap73-openj9-11-openshift-rhel8:latest",
+             pattern="eap-app",
+         )
+ 
+diff --git a/tests/e2e/registry/test_registry_pod_respin.py b/tests/e2e/registry/test_registry_pod_respin.py
+index c50755df..83d63520 100644
+--- a/tests/e2e/registry/test_registry_pod_respin.py
++++ b/tests/e2e/registry/test_registry_pod_respin.py
+@@ -75,7 +75,7 @@ class TestRegistryPodRespin(E2ETest):
+         image_pull_and_push(
+             project_name=self.project_name,
+             template="eap-cd-basic-s2i",
+-            image="registry.redhat.io/jboss-eap-7-tech-preview/eap-cd-openshift-rhel8:latest",
++            image="registry.redhat.io/jboss-eap-7/eap73-openj9-11-openshift-rhel8:latest",
+             pattern="eap-app",
+         )
+ 
+diff --git a/tests/e2e/registry/test_registry_pull_and_push_images_to_registry.py b/tests/e2e/registry/test_registry_pull_and_push_images_to_registry.py
+index aee622ad..2fea3394 100644
+--- a/tests/e2e/registry/test_registry_pull_and_push_images_to_registry.py
++++ b/tests/e2e/registry/test_registry_pull_and_push_images_to_registry.py
+@@ -52,7 +52,7 @@ class TestRegistryPullAndPushImagestoRegistry(E2ETest):
+         image_pull_and_push(
+             project_name=self.project_name,
+             template="eap-cd-basic-s2i",
+-            image="registry.redhat.io/jboss-eap-7-tech-preview/eap-cd-openshift-rhel8:latest",
++            image="registry.redhat.io/jboss-eap-7/eap73-openj9-11-openshift-rhel8:latest",
+             pattern="eap-app",
+         )
+ 
+diff --git a/tests/e2e/registry/test_registry_reboot_node.py b/tests/e2e/registry/test_registry_reboot_node.py
+index b5316ff9..c8d4984e 100644
+--- a/tests/e2e/registry/test_registry_reboot_node.py
++++ b/tests/e2e/registry/test_registry_reboot_node.py
+@@ -67,7 +67,7 @@ class TestRegistryRebootNode(E2ETest):
+         image_pull_and_push(
+             project_name=self.project_name,
+             template="eap-cd-basic-s2i",
+-            image="registry.redhat.io/jboss-eap-7-tech-preview/eap-cd-openshift-rhel8:latest",
++            image="registry.redhat.io/jboss-eap-7/eap73-openj9-11-openshift-rhel8:latest",
+             pattern="eap-app",
+         )
+ 
+@@ -121,7 +121,7 @@ class TestRegistryRebootNode(E2ETest):
+         image_pull_and_push(
+             project_name=self.project_name,
+             template="eap-cd-basic-s2i",
+-            image="registry.redhat.io/jboss-eap-7-tech-preview/eap-cd-openshift-rhel8:latest",
++            image="registry.redhat.io/jboss-eap-7/eap73-openj9-11-openshift-rhel8:latest",
+             pattern="eap-app",
+         )
+ 
+diff --git a/tests/e2e/registry/test_registry_shutdown_and_recovery_node.py b/tests/e2e/registry/test_registry_shutdown_and_recovery_node.py
+index 221353cb..964fef6d 100644
+--- a/tests/e2e/registry/test_registry_shutdown_and_recovery_node.py
++++ b/tests/e2e/registry/test_registry_shutdown_and_recovery_node.py
+@@ -55,7 +55,7 @@ class TestRegistryShutdownAndRecoveryNode(E2ETest):
+         image_pull_and_push(
+             project_name=self.project_name,
+             template="eap-cd-basic-s2i",
+-            image="registry.redhat.io/jboss-eap-7-tech-preview/eap-cd-openshift-rhel8:latest",
++            image="registry.redhat.io/jboss-eap-7/eap73-openj9-11-openshift-rhel8:latest",
+             pattern="eap-app",
+         )
+ 
