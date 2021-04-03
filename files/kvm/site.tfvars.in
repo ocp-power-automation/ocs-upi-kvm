@@ -29,4 +29,6 @@ dns_forwarders              = "$CLUSTER_GATEWAY;$DNS_BACKUP_SERVER"
 chrony_config               = "$CHRONY_CONFIG"
 chrony_config_servers       = [$CHRONY_CONFIG_SERVERS]
 
+helpernode_tag              = "1ac7f276b537cd734240eda9ed554a254ba80629"
+
 storage_type                = "no"
