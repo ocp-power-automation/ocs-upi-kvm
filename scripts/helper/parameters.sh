@@ -108,7 +108,16 @@ function update_supplemental_ocsci_config () {
 	if [ "$PLATFORM" == powervs ]; then
 		yq -y -i '.ENV_DATA.number_of_storage_disks = 8' $WORKSPACE/ocs-ci-conf.yaml
 
-		# set bastion ip in the ocs-ci-conf.yaml
+		# ocs-ci powervs support uses ssh to restart nodes.  Since ocs-ci runs locally
+		# and the cluster is in the cloud, the bastion ip is needed as a jump server
+		# to connect with master and worker nodes.
+
+		if [ -e $WORKSPACE/.bastion_ip ]; then
+			source $WORKSPACE/.bastion_ip
+		fi
+
+		# Set bastion ip in the ocs-ci-conf.yaml
+
 		if [ -n "$BASTION_IP" ]; then
 			yq -y -i '.ENV_DATA.bastion_ip |= env.BASTION_IP' $WORKSPACE/ocs-ci-conf.yaml
 		fi

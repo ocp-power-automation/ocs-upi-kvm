@@ -163,6 +163,8 @@ function setup_remote_oc_use () {
 		grep -v $BASTION_IP /etc/hosts | tee /tmp/hosts.1
 		echo "$etc_hosts_entries $append_urls" >> /tmp/hosts.1
 		sudo mv /tmp/hosts.1 /etc/hosts 
+
+		echo "export BASTION_IP=$BASTION_IP" > $WORKSPACE/.bastion_ip
 	else
 		echo "No terraform data for remote oc setup"
 	fi
