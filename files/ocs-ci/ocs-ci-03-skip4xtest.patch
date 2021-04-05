@@ -1,0 +1,56 @@
+diff --git a/tests/manage/pv_services/test_rwo_pvc_fencing_unfencing.py b/tests/manage/pv_services/test_rwo_pvc_fencing_unfencing.py
+index d020abc3..bb028a65 100644
+--- a/tests/manage/pv_services/test_rwo_pvc_fencing_unfencing.py
++++ b/tests/manage/pv_services/test_rwo_pvc_fencing_unfencing.py
+@@ -10,6 +10,7 @@ from ocs_ci.framework.pytest_customization.marks import (
+     skipif_bm,
+     skipif_ibm_cloud,
+     skipif_lso,
++    skipif_ibm_power,
+     skipif_vsphere_ipi,
+ )
+ from ocs_ci.framework.testlib import (
+@@ -562,6 +563,7 @@ class TestRwoPVCFencingUnfencing(ManageTest):
+ 
+     @skipif_bm
+     @skipif_ibm_cloud
++    @skipif_ibm_power
+     @tier4a
+     @pytest.mark.parametrize(
+         argnames=[
+@@ -699,6 +701,7 @@ class TestRwoPVCFencingUnfencing(ManageTest):
+ 
+     @skipif_bm
+     @skipif_ibm_cloud
++    @skipif_ibm_power
+     @tier4b
+     @pytest.mark.parametrize(
+         argnames=[
+@@ -849,6 +852,7 @@ class TestRwoPVCFencingUnfencing(ManageTest):
+ 
+     @skipif_bm
+     @skipif_ibm_cloud
++    @skipif_ibm_power
+     @tier4c
+     @pytest.mark.parametrize(
+         argnames=[
+diff --git a/tests/manage/z_cluster/nodes/test_worker_nodes_network_failures.py b/tests/manage/z_cluster/nodes/test_worker_nodes_network_failures.py
+index 800239b7..d2e7bdca 100644
+--- a/tests/manage/z_cluster/nodes/test_worker_nodes_network_failures.py
++++ b/tests/manage/z_cluster/nodes/test_worker_nodes_network_failures.py
+@@ -7,6 +7,7 @@ from ocs_ci.framework import config
+ from ocs_ci.framework.pytest_customization.marks import (
+     skipif_aws_i3,
+     skipif_vsphere_ipi,
++    skipif_ibm_power,
+ )
+ from ocs_ci.framework.testlib import ignore_leftovers, ManageTest, tier4, tier4c
+ from ocs_ci.ocs import constants, machine, node
+@@ -22,6 +23,7 @@ logger = logging.getLogger(__name__)
+ @tier4c
+ @skipif_aws_i3
+ @skipif_vsphere_ipi
++@skipif_ibm_power
+ @ignore_leftovers
+ class TestWorkerNodesFailure(ManageTest):
+     """
