@@ -243,7 +243,6 @@ RHCOS_IMAGE | no | powervs | Depends on OCP version and cloud zone
 DNS_FORWARDERS | no | powervs |	1.1.1.1;9.9.9.9
 CLUSTER_ID_PREFIX | no | powervs | First 6 RHID_USERNAME + OCP_VERSION
 CLUSTER_DOMAIN | no | powervs | ibm.com, xip.io
-VOLUME_TYPE | no | powervs | tier3, ssd, standard, tier1
 WORKER_VOLUME_SIZE | no | powervs | 500
 
 Note: 

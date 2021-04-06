@@ -44,7 +44,6 @@ export OCS_VERSION=${OCS_VERSION:=4.7}
 #export SYSTEM_TYPE=s922
 #export PROCESSOR_TYPE=shared
 #export BASTION_IMAGE=rhel-83-02182021
-#export VOLUME_TYPE=tier3                                       # tier1, ssd
 #export WORKER_VOLUME_SIZE=500
 
 

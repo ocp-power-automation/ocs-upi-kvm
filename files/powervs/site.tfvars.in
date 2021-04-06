@@ -34,7 +34,6 @@ chrony_config_servers       = [$CHRONY_CONFIG_SERVERS]
 
 # Master and Worker nodes
 
-volume_type                 = "$VOLUME_TYPE"
 worker_volume_size          = "$WORKER_VOLUME_SIZE"
 
 # Bastion node
