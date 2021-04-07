@@ -105,7 +105,7 @@ OCP_PROJECT=ocp4-upi-powervs
 
 # List of OCS DNS Entries to be added to /etc/hosts.  List is separated by spaces
 
-OCS_DNS_ENTRIES="noobaa-mgmt-openshift-storage"
+OCS_DNS_ENTRIES="noobaa-mgmt-openshift-storage s3-openshift-storage rgw"
 
 function prepare_new_cluster_delete_old_cluster () {
 
