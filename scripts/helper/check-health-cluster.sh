@@ -59,7 +59,7 @@ function wait_vm_reboot ( ) {
 		sleep 10
 
 		set +e
-		ls_out=$(ssh -o StrictHostKeyChecking=no core@$ip ls /)
+		ls_out=$(ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null core@$ip ls /)
 		set -e
 
 		if [ -n "$ls_out" ]; then

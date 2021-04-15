@@ -7,6 +7,14 @@ fi
 
 source helper/parameters.sh
 
+if [ "$OCS_CI_ON_BASTION" == true ]; then
+	invoke_ocs_ci_on_bastion $0 $@
+	if [ "$ocs_ci_on_bastion_rc" == 0 ]; then
+		touch $WORKSPACE/.ocs_ci_on_bastion
+	fi
+	exit $ocs_ci_on_bastion_rc
+fi
+
 if [ ! -e $WORKSPACE/pull-secret.txt ]; then
 	echo "Missing $WORKSPACE/pull-secret.txt.  Download it from https://cloud.redhat.com/openshift/install/pull-secret"
 	exit 1
