@@ -121,6 +121,17 @@ if [ "$ARG1" == "--retry" ]; then
 	fi
 fi
 
+if [ "$PLATFORM" == powervs ]; then
+	if [ -z "$PVS_API_KEY" ] || [ -z "$PVS_SERVICE_INSTANCE_ID" ]; then
+		echo "Environment variables PVS_API_KEY and PVS_SERVICE_INSTANCE_ID must be set for PowerVS"
+		exit 1
+	fi
+	if [ -z "$PVS_ZONE" ] || [ -z "$PVS_REGION" ]; then
+		echo "Environment variables PVS_ZONE and PVS_REGION must be set for PowerVS"
+		exit 1
+	fi
+fi
+
 set -e
 
 # Validate platform setup, prepare hugepages, destroy pre-existing cluster.  We are creating a new cluster
@@ -294,7 +305,8 @@ pushd ..
 
 # Remove files from previous cluster creation
 
-if [[ -d ~/.ssh ]] && [[ "$retry" == false ]]; then
+if [[ "$PLATFORM" == kvm ]] && [[ -d ~/.ssh ]] && [[ "$retry" == false ]]; then
+	# KVM uses the same ip addresses every time, so known hosts contains old keys that conflict
 	rm -f ~/.ssh/known_hosts
 fi
 rm -rf ~/.kube
@@ -350,6 +362,9 @@ if [ "$rc" == 0 ]; then
 	# Delete bootstrap to save system resources after successful cluster creation
 	export BOOTSTRAP_CNT=0
 	terraform_apply
+	if [ "$?" != 0 ]; then
+		echo "Terraform_apply failed deleting bootstrap node"
+	fi
 fi
 
 popd

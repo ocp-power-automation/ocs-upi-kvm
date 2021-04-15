@@ -82,18 +82,9 @@ fi
 
 export CLUSTER_DOMAIN=${CLUSTER_DOMAIN:="ibm.com"}			# xip.io
 
-############################## Validate Input Parameters ###############################
-
-if [ -z "$PVS_API_KEY" ] || [ -z "$PVS_SERVICE_INSTANCE_ID" ]; then
-	echo "Environment variables PVS_API_KEY and PVS_SERVICE_INSTANCE_ID must be set for PowerVS"
-	exit 1
-fi
-if [ -z "$PVS_ZONE" ] || [ -z "$PVS_REGION" ]; then
-	echo "Environment variables PVS_ZONE and PVS_REGION must be set for PowerVS"
-	exit 1
-fi
-
 ########################### Internal variables & functions #############################
+
+export OCS_CI_ON_BASTION=${OCS_CI_ON_BASTION:="false"}			# ocs-ci runs locally by default
 
 # IMPORTANT: Increment POWERVS_SETUP_GENCNT if the powervs_setup_host.sh file changes
 #            Increments by more than 2 will rebuild terraform modules also.  ie. 1->4
@@ -143,7 +134,9 @@ function setup_remote_oc_use () {
 
 	etc_hosts_entries=$($terraform_cmd output | awk '/^etc_hosts_entries/{getline;print;}')
 
-	if [ -n "$BASTION_IP" ] && [ -n "$etc_hosts_entries" ]; then
+	# oc command is always enabled locally
+
+	if [[ -n "$BASTION_IP" ]] && [[ -n "$etc_hosts_entries" ]]; then
 		if [ ! -e /etc/hosts.orig ]; then
 			sudo cp /etc/hosts /etc/hosts.orig
 		fi
@@ -165,7 +158,46 @@ function setup_remote_oc_use () {
 
 		echo "export BASTION_IP=$BASTION_IP" > $WORKSPACE/.bastion_ip
 	else
-		echo "No terraform data for remote oc setup"
+		echo "No terraform data for local oc setup"
+		exit 1
 	fi
+
+	# Setup ocs-ci on bastion node if specified.  Default is local server
+
+	if [[ "$OCS_CI_ON_BASTION" == "true" ]] && [[ -n "$BASTION_IP" ]]; then
+		echo "Copy ocs-ci secrets to bastion node $BASTION_IP"
+		cat $WORKSPACE/ocs-upi-kvm/files/$PLATFORM/env-ocs-ci.sh.in | envsubst > $WORKSPACE/env-ocs-ci.sh
+		scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $WORKSPACE/env-ocs-ci.sh  root@$BASTION_IP:
+		scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $WORKSPACE/pull-secret.txt root@$BASTION_IP:
+		scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $WORKSPACE/auth.yaml root@$BASTION_IP:
+
+		BASTION_CMD="mkdir -p ~/bin && cp /usr/local/bin/oc ~/bin"
+		ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null root@$BASTION_IP $BASTION_CMD
+		BASTION_CMD="cp -r openstack-upi/auth ~"
+		ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null root@$BASTION_IP $BASTION_CMD
+
+		echo "Copy ocs-ci code with development patches to bastion node $BASTION_IP"
+		pushd $WORKSPACE
+		tar -zcvf bastion-ocs-upi-ci.tar.gz ocs-upi-kvm >/dev/null 2>&1
+		popd
+		scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $WORKSPACE/bastion-ocs-upi-ci.tar.gz root@$BASTION_IP:
+		BASTION_CMD="tar -xvzf bastion-ocs-upi-ci.tar.gz >/dev/null 2>&1"
+		ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null root@$BASTION_IP $BASTION_CMD
+	fi
+
 	popd
+}
+
+ocs_ci_on_bastion_rc=
+function invoke_ocs_ci_on_bastion ()
+{
+	cmd=$1
+	args=$2
+
+	source $WORKSPACE/.bastion_ip
+	BASTION_CMD="source env-ocs-ci.sh && cd ocs-upi-kvm/scripts && $cmd $args"
+	echo "Invoking $BASTION_CMD on bastion node $BASTION_IP"
+	ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null root@$BASTION_IP $BASTION_CMD
+	ocs_ci_on_bastion_rc=$?
+	echo -e "\n=> $cmd complete rc=$ocs_ci_on_bastion_rc"
 }

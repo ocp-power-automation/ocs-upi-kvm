@@ -46,7 +46,24 @@ fi
 
 source helper/parameters.sh
 
+export LOGDIR_BASE=logs-ocs-ci
+export LOGDIR_INSTANCE=$LOGDIR_BASE/$OCS_VERSION
+
+if [ "$OCS_CI_ON_BASTION" == true ]; then
+	invoke_ocs_ci_on_bastion $0 $@
+
+	# Copy testcase logs and html report
+	mkdir -p $WORKSPACE/$LOGDIR_BASE
+	scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -r root@$BASTION_IP:$LOGDIR_INSTANCE $WORKSPACE/$LOGDIR_BASE
+
+	exit $ocs_ci_on_bastion_rc
+fi
+
+export LOGDIR=$WORKSPACE/$LOGDIR_INSTANCE
+mkdir -p $LOGDIR
+
 export PATH=$WORKSPACE/bin:$PATH
+
 export KUBECONFIG=$WORKSPACE/auth/kubeconfig
 
 pushd ../src/ocs-ci
@@ -55,9 +72,7 @@ source $WORKSPACE/venv/bin/activate		# enter 'deactivate' in venv shell to exit
 
 # Create supplemental config if it doesn't exist.  User may edit file after ocs deploy
 
-export LOGDIR=$WORKSPACE/logs-ocs-ci/$OCS_VERSION
 if [ ! -e $WORKSPACE/ocs-ci-conf.yaml ]; then
-        mkdir -p $LOGDIR
         cp ../../files/os-ci/ocs-ci-conf.yaml $WORKSPACE/ocs-ci-conf.yaml
 	update_supplemental_ocsci_config
 fi
@@ -74,16 +89,23 @@ fi
 
 run_id=$(ls -t -1 $LOGDIR/run*.yaml | head -n 1 | xargs grep run_id | awk '{print $2}')
 
-export SANITIZED_OCS_VERSION=${OCS_VERSION/./_}
+echo -e "\nSupplemental ocs-ci config:"
+cat $WORKSPACE/ocs-ci-conf.yaml
+echo
+
+export SANITIZED_OCP_VERSION=${OCP_VERSION/./}
+export SANITIZED_OCS_VERSION=${OCS_VERSION/./}
 
 if [[ -n "${tests[@]}" ]]; then
 	for i in "${tests[@]}"
 	do
-		pytest --junitxml=$LOGDIR/test_results.xml
-
 		echo "========================================================================================="
 		echo "============================= run-ci -m \"tier$i and manage\" ============================="
 		echo "========================================================================================="
+
+		pytest --junitxml=$LOGDIR/test_results.xml
+
+		html_fname=$tier${i}_ocp${SANITIZED_OCP_VERSION}_ocs${SANITIZED_OCS_VERSION}_${PLATFORM}_${run_id}_report.html
 
 		set -x
 		time run-ci -m "tier$i and manage" --cluster-name ocstest \
@@ -93,10 +115,10 @@ if [[ -n "${tests[@]}" ]]; then
 			--ocsci-conf $WORKSPACE/ocs-ci-conf.yaml \
 		        --cluster-path $WORKSPACE --collect-logs \
 			--self-contained-html --junit-xml $LOGDIR/test_results.xml \
-			--html $LOGDIR/tier${i}_ocs${SANITIZED_OCS_VERSION}_${PLATFORM}_${run_id}_report.html tests/
+		        --html $LOGDIR/$html_fname tests/
 		rc=$?
 		set +x
-		echo "TEST RESULT: run-ci tier$i rc=$rc"
+		echo -e "\n=> Test result: run-ci tier$i rc=$rc html=$html_fname"
 	done
 else
 	echo "========================================================================================="
@@ -104,6 +126,8 @@ else
 	echo "========================================================================================="
 
 	pytest --junitxml=$LOGDIR/test_results.xml
+
+	html_fname=${ocsci_cmd}_ocp${SANITIZED_OCP_VERSION}_ocs${SANITIZED_OCS_VERSION}_${PLATFORM}_${run_id}_report.html
 
 	set -x
 	time run-ci -m "$ocsci_cmd" --cluster-name ocstest \
@@ -113,10 +137,10 @@ else
 		--ocsci-conf $WORKSPACE/ocs-ci-conf.yaml \
 		--cluster-path $WORKSPACE --collect-logs \
 		--self-contained-html --junit-xml $LOGDIR/test_results.xml \
-		--html $LOGDIR/${ocsci_cmd}_ocs${SANITIZED_OCS_VERSION}_${PLATFORM}_${run_id}_report.html tests/
+		--html $LOGDIR/$html_fname tests/
 	rc=$?
 	set +x
-	echo "OCS-CI $ocsci_cmd RESULT: run-ci rc=$rc"
+	echo -e "\n=> Test result: run-ci $ocsci_cmd rc=$rc html=$html_fname"
 fi
 
 deactivate

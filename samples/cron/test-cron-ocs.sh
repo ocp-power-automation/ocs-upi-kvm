@@ -21,7 +21,7 @@ export OCP_VERSION=${OCP_VERSION:=4.7}                          # 4.5 - 4.8 are 
 export OCS_VERSION=${OCS_VERSION:=4.7}                          # 4.6 is supported also
 
 
-# These are optional for KVM.  Default values are shown
+# These are optional for KVM OCP cluster create.  Default values are shown
 
 #export IMAGES_PATH=/var/lib/libvirt/images                     # File system space is important.  Else try /home/libvirt/images
 #export BASTION_IMAGE=rhel-8.2-update-2-ppc64le-kvm.qcow2
@@ -31,13 +31,13 @@ export OCS_VERSION=${OCS_VERSION:=4.7}                          # 4.6 is support
 #fi
 
 
-# These environments variables are required for PowerVS
+# These environments variables are required for PowerVS OCP cluster create
 
 #export PVS_API_KEY=<your key>
 #export PVS_SERVICE_INSTANCE_ID=<your instance id>              # Click eye icon on the left of IBM CLoud resource list, copy GUID field
 
 
-# These are optional for PowerVS.  Default values are shown
+# These are optional for PowerVS OCP cluster create.  Default values are shown
 
 export CLUSTER_ID_PREFIX=${HOSTNAME:0:5}-${OCP_VERSION/./}
 export PVS_SUBNET_NAME=ocs-cron-test
@@ -46,6 +46,12 @@ export PVS_SUBNET_NAME=ocs-cron-test
 #export SYSTEM_TYPE=s922
 #export PROCESSOR_TYPE=shared
 #export BASTION_IMAGE=rhel-83-02182021
+
+
+# These are optional for PowerVS ocs-ci.  Default values are shown
+
+#export OCS_CI_ON_BASTION=false                                 # When true, ocs-ci runs on bastion node, which may help
+                                                                # with intermittent network problems and testcase timeouts
 
 ##############  MAIN ################
 
@@ -145,7 +151,7 @@ pushd $WORKSPACE/ocs-upi-kvm/scripts
 
 set -o pipefail
 
-# for i in 1 2 4a 4b 4c 3 scale performance workloads
+# for i in 1 2 4a 4b 4c 3 scale performance workloads acceptance
 
 SECONDS=0
 attempts=0

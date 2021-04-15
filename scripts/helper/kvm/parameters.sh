@@ -69,6 +69,8 @@ fi
 
 ########################### Internal variables & functions #############################
 
+export OCS_CI_ON_BASTION=false
+
 # IMPORTANT: Increment KVM_SETUP_GENCNT if the setup-kvm-host.sh file changes
 
 KVM_SETUP_GENCNT=7

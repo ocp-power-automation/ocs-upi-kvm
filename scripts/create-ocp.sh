@@ -29,6 +29,8 @@ if [ ! -e $WORKSPACE/pull-secret.txt ]; then
 	exit 1
 fi
 
+echo "OCS_CI_ON_BASTION=$OCS_CI_ON_BASTION"
+
 export PATH=$WORKSPACE/bin:$PATH
 
 # The old cluster oc command and auth credentials are needed to destroy the old cluster
@@ -36,12 +38,15 @@ export PATH=$WORKSPACE/bin:$PATH
 arg1=$1
 helper/create-cluster.sh $arg1
 
+# This is only invoked if create-cluster was successful
+
+rm -f $WORKSPACE/.ocs_ci_on_bastion
 rm -f $WORKSPACE/bin/oc
 rm -rf $WORKSPACE/auth
 
 setup_remote_oc_use
-scp -o StrictHostKeyChecking=no root@$BASTION_IP:/usr/local/bin/oc $WORKSPACE/bin
-scp -o StrictHostKeyChecking=no -r root@$BASTION_IP:openstack-upi/auth $WORKSPACE
+scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null root@$BASTION_IP:/usr/local/bin/oc $WORKSPACE/bin
+scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -r root@$BASTION_IP:openstack-upi/auth $WORKSPACE
 
 echo "export PATH=$WORKSPACE/bin/:$PATH" | tee $WORKSPACE/env-ocp.sh
 echo "export KUBECONFIG=$WORKSPACE/auth/kubeconfig" | tee -a $WORKSPACE/env-ocp.sh
