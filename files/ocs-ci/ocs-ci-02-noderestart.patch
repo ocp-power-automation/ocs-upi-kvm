@@ -1,5 +1,5 @@
 diff --git a/ocs_ci/utility/powernodes.py b/ocs_ci/utility/powernodes.py
-index dbd75686..5042c650 100644
+index dbd75686..3171cbe8 100644
 --- a/ocs_ci/utility/powernodes.py
 +++ b/ocs_ci/utility/powernodes.py
 @@ -1,6 +1,7 @@
@@ -21,8 +21,19 @@ index dbd75686..5042c650 100644
          logger.info(f"iskvm check: {self.isKVM}")
  
          self.service = KubeletService()
+@@ -168,8 +173,8 @@ class PowerNodes(object):
+                 and 'ready' state.
+             wait (bool): True if need to wait till the restarted node reaches timeout
+         """
+-        self.stop_powernodes_machines_powervs(powernode_machines, timeout, wait)
+-        self.start_powernodes_machines_powervs(powernode_machines, timeout, wait)
++        for pnode in powernode_machines:
++            self.service.restart(pnode, timeout)
+ 
+     def restart_powernodes_machines(
+         self, powernode_machines, timeout, wait, force=True
 diff --git a/ocs_ci/utility/service.py b/ocs_ci/utility/service.py
-index 2000277c..f58b4120 100644
+index 2000277c..038ba28e 100644
 --- a/ocs_ci/utility/service.py
 +++ b/ocs_ci/utility/service.py
 @@ -1,4 +1,5 @@
@@ -31,6 +42,19 @@ index 2000277c..f58b4120 100644
  from ocs_ci.ocs.exceptions import UnexpectedBehaviour
  from ocs_ci.ocs import constants, node
  from ocs_ci.ocs.node import wait_for_nodes_status
+@@ -7,9 +8,9 @@ from ocs_ci.utility.utils import TimeoutSampler, exec_cmd
+ 
+ logger = logging.getLogger(__name__)
+ 
+-ACTIVE = b"active"
+-INACTIVE = b"inactive"
+-FAILED = b"failed"
++ACTIVE = b"active: active"
++INACTIVE = b"active: inactive"
++FAILED = b"active: failed"
+ 
+ 
+ class Service(object):
 @@ -34,6 +35,10 @@ class Service(object):
  
          self.nodes = node.get_node_ip_addresses("InternalIP")
@@ -47,7 +71,7 @@ index 2000277c..f58b4120 100644
          nodeip = self.nodes[node.name]
          result = exec_cmd(
 -            f"ssh core@{nodeip} sudo systemctl is-active {self.service_name}.service",
-+            f"ssh -o \"StrictHostKeyChecking no\" -J root@{self.bastion_ip} core@{nodeip} sudo systemctl is-active {self.service_name}.service",
++            f"ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -J root@{self.bastion_ip} core@{nodeip} sudo systemctl is-active {self.service_name}.service",
              ignore_error=True,
          )
 -        if result.stdout.lower().rstrip() == action:
@@ -68,7 +92,7 @@ index 2000277c..f58b4120 100644
          """
          nodeip = self.nodes[node.name]
 -        cmd = f"ssh core@{nodeip} sudo systemctl stop {self.service_name}.service"
-+        cmd = f"ssh -o \"StrictHostKeyChecking no\" -J root@{self.bastion_ip} core@{nodeip} sudo systemctl stop {self.service_name}.service"
++        cmd = f"ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -J root@{self.bastion_ip} core@{nodeip} sudo systemctl stop {self.service_name}.service"
          if self.force:
              cmd += " -f"
          result = exec_cmd(cmd)
@@ -77,7 +101,7 @@ index 2000277c..f58b4120 100644
          """
          nodeip = self.nodes[node.name]
 -        cmd = f"ssh core@{nodeip} sudo systemctl start {self.service_name}.service"
-+        cmd = f"ssh -o \"StrictHostKeyChecking no\" -J root@{self.bastion_ip} core@{nodeip} sudo systemctl start {self.service_name}.service"
++        cmd = f"ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -J root@{self.bastion_ip} core@{nodeip} sudo systemctl start {self.service_name}.service"
          result = exec_cmd(cmd)
          logger.info(f"Result of start of service {self.service_name} is {result}")
          ret = TimeoutSampler(
@@ -86,7 +110,7 @@ index 2000277c..f58b4120 100644
          """
          nodeip = self.nodes[node.name]
 -        cmd = f"ssh core@{nodeip} sudo systemctl kill {self.service_name}.service"
-+        cmd = f"ssh -o \"StrictHostKeyChecking no\" -J root@{self.bastion_ip} core@{nodeip} sudo systemctl kill {self.service_name}.service"
++        cmd = f"ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -J root@{self.bastion_ip} core@{nodeip} sudo systemctl kill {self.service_name}.service"
          result = exec_cmd(cmd)
          ret = TimeoutSampler(
              timeout=timeout,
@@ -95,7 +119,7 @@ index 2000277c..f58b4120 100644
          """
          nodeip = self.nodes[node.name]
 -        cmd = f"ssh core@{nodeip} sudo systemctl restart {self.service_name}.service"
-+        cmd = f"ssh -o \"StrictHostKeyChecking no\" -J root@{self.bastion_ip} core@{nodeip} sudo systemctl restart {self.service_name}.service"
++        cmd = f"ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -J root@{self.bastion_ip} core@{nodeip} sudo systemctl restart {self.service_name}.service"
          result = exec_cmd(cmd)
          ret = TimeoutSampler(
              timeout=timeout,
@@ -104,7 +128,7 @@ index 2000277c..f58b4120 100644
          """
          nodeip = self.nodes[node.name]
 -        cmd = f"ssh core@{nodeip} sudo systemctl status {self.service_name}.service"
-+        cmd = f"ssh -o \"StrictHostKeyChecking no\" -J root@{self.bastion_ip} core@{nodeip} sudo systemctl status {self.service_name}.service"
++        cmd = f"ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -J root@{self.bastion_ip} core@{nodeip} sudo systemctl status {self.service_name}.service"
          result = exec_cmd(cmd)
          logger.info(f"Result of status of service {self.service_name} is {result}")
          return result.stdout.lower().rstrip()
