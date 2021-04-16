@@ -15,6 +15,8 @@ if [ -z "$CLUSTER_ID_PREFIX" ]; then
 	export CLUSTER_ID_PREFIX=$CLUSTER_ID_PREFIX${OCP_VERSION/./}
 fi
 
+export USE_TIER1_STORAGE=${USE_TIER1_STORAGE:="false"}
+
 # Check service instance first, since it is not set above to a default value.  It
 # over rides zone and region if the service instance is set and recognized
 
@@ -37,7 +39,7 @@ fi
 
 # The boot images below are common across OCS development zones, except where noted
 
-export BASTION_IMAGE=${BASTION_IMAGE:="rhel-83-02182021"}
+export BASTION_IMAGE=${BASTION_IMAGE:="rhel-83-03192021"}
 
 case $OCP_VERSION in
 4.4|4.5)
@@ -61,6 +63,11 @@ case $OCP_VERSION in
 	exit 1
 	;;
 esac
+
+if [[ "$USE_TIER1_STORAGE" == "true" ]] && [[ ! "$BASTION_IMAGE" =~ tier1 ]] && [[ ! "$RHCOS_IMAGE" =~ tier1 ]]; then
+	export BASTION_IMAGE=$BASTION_IMAGE-tier1
+	export RHCOS_IMAGE=$RHCOS_IMAGE-tier1
+fi
 
 # This is default minimalistic config. For PowerVS processors are equal to entitled physical count
 # So N processors == N physical core entitlements == ceil[N] vCPUs.

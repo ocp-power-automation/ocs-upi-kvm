@@ -244,6 +244,8 @@ DNS_FORWARDERS | no | powervs |	1.1.1.1;9.9.9.9
 CLUSTER_ID_PREFIX | no | powervs | First 6 RHID_USERNAME + OCP_VERSION
 CLUSTER_DOMAIN | no | powervs | ibm.com, xip.io
 WORKER_VOLUME_SIZE | no | powervs | 500
+OCS_CI_ON_BASTION | no | powervs | false
+USE_TIER1_STORAGE | no | powervs | false
 
 Note: 
 

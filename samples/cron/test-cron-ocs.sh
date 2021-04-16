@@ -46,6 +46,7 @@ export PVS_SUBNET_NAME=ocs-cron-test
 #export SYSTEM_TYPE=s922
 #export PROCESSOR_TYPE=shared
 #export BASTION_IMAGE=rhel-83-02182021
+#export USE_TIER1_STORAGE=false
 
 
 # These are optional for PowerVS ocs-ci.  Default values are shown
