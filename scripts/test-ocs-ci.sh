@@ -105,7 +105,7 @@ if [[ -n "${tests[@]}" ]]; then
 
 		pytest --junitxml=$LOGDIR/test_results.xml
 
-		html_fname=$tier${i}_ocp${SANITIZED_OCP_VERSION}_ocs${SANITIZED_OCS_VERSION}_${PLATFORM}_${run_id}_report.html
+		html_fname=tier${i}_ocp${SANITIZED_OCP_VERSION}_ocs${SANITIZED_OCS_VERSION}_${PLATFORM}_${run_id}_report.html
 
 		set -x
 		time run-ci -m "tier$i and manage" --cluster-name ocstest \
