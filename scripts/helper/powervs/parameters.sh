@@ -198,8 +198,18 @@ function setup_remote_oc_use () {
 ocs_ci_on_bastion_rc=
 function invoke_ocs_ci_on_bastion ()
 {
-	cmd=$1
-	args=$2
+	args_array=( $@ )		# Input is a variable number of tokens -- cmd arg1 arg2 arg3 ...
+
+	cmd="${args_array[0]}"
+
+	i=1
+	n=${#args_array[@]}
+	args=
+	while (( i < n ))
+	do
+		args+="${args_array[$i]} "
+		(( i++ ))
+	done
 
 	source $WORKSPACE/.bastion_ip
 	BASTION_CMD="source env-ocs-ci.sh && cd ocs-upi-kvm/scripts && $cmd $args"
