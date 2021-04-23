@@ -12,7 +12,7 @@ if [ "$OCS_CI_ON_BASTION" == true ]; then
 	exit $ocs_ci_on_bastion_rc
 fi
 
-sudo yum -y install libffi-devel lapack atlas-devel openssl-devel gcc gcc-c++ gcc-gfortran make
+sudo yum -y install libffi-devel lapack atlas-devel openssl-devel gcc gcc-c++ gcc-gfortran make patch
 sudo yum -y install python38-devel python38-setuptools python3-virtualenv python3-docutils rust-toolset
 
 pushd ../src/ocs-ci

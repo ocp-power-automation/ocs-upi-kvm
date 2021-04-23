@@ -144,8 +144,8 @@ function wait_for_fio_pods_to_complete () {
 				fi
 				(( pod_done = pod_done + 1 ))
 			else
-				result_list=$(oc rsh $pod_name ls results/ 2>/dev/null)
-				echo "Fio results for $pod_name: ${result_list}.  Still running..."
+				result_list=$(oc rsh $pod_name ls -rt results/ 2>/dev/null)
+				echo "Still running...  Fio results for ${pod_name}: ${result_list}"
 			fi
 			set -e
 
