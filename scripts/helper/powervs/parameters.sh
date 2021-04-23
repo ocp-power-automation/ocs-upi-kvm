@@ -186,8 +186,8 @@ function setup_remote_oc_use () {
 
 	if [[ "$OCS_CI_ON_BASTION" == "true" ]] && [[ -n "$BASTION_IP" ]]; then
 		echo "Copy ocs-ci secrets to bastion node $BASTION_IP"
-		cat $WORKSPACE/ocs-upi-kvm/files/$PLATFORM/env-ocs-ci.sh.in | envsubst > $WORKSPACE/env-ocs-ci.sh
-		scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $WORKSPACE/env-ocs-ci.sh  root@$BASTION_IP:
+		cat $WORKSPACE/ocs-upi-kvm/files/$PLATFORM/env-ocs-ci.sh.in | envsubst > $WORKSPACE/env-ocs-ci.sh.bastion
+		scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $WORKSPACE/env-ocs-ci.sh.bastion  root@$BASTION_IP:env-ocs-ci.sh
 		scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $WORKSPACE/pull-secret.txt root@$BASTION_IP:
 		scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $WORKSPACE/auth.yaml root@$BASTION_IP:
 

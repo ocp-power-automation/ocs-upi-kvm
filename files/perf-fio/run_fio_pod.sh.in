@@ -21,4 +21,4 @@ fio --name=fio-fillup --filename=/var/lib/www/html/abcd --rw=randrw --bs=4k --di
 
 cd results
 
-tar -cvf ../fio-results.tar .
+tar -cvf ../fio-results.tar . >/dev/null 2>&1
