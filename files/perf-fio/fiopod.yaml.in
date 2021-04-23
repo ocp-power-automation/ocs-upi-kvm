@@ -1,0 +1,36 @@
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: $PVC_NAME
+spec:
+  accessModes:
+  - ReadWriteOnce
+  resources:
+    requests:
+      storage: $PVC_SIZE
+  storageClassName: $STORAGE_CLASS
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: $POD_NAME
+spec:
+  nodeName: $WORKER_NAME
+  containers:
+  - env:
+    - name: http_proxy
+      value: $BASTION_HTTP_PROXY
+    - name: https_proxy
+      value: $BASTION_HTTP_PROXY
+    - name: no_proxy
+      value: .cluster.local,.$CLUSTER_ID.$CLUSTER_DOMAIN,.svc,10.0.0.0/16,10.128.0.0/14,127.0.0.1,172.30.0.0/16,$BASTION_CIDR,api-int.$CLUSTER_ID.$CLUSTER_DOMAIN,localhost
+    name: web-server
+    image: quay.io/ocsci/nginx:latest
+    volumeMounts:
+      - name: mypvc
+        mountPath: /var/lib/www/html
+  volumes:
+    - name: mypvc
+      persistentVolumeClaim:
+        claimName: $PVC_NAME
+        readOnly: false
