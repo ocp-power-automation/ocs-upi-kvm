@@ -86,6 +86,9 @@ function create_pods () {
 }
 
 function install_fio_in_pods () {
+	cat $WORKSPACE/ocs-upi-kvm/files/perf-fio/run_fio_pod.sh.in | envsubst > $WORKSPACE/run_fio_pod.sh
+	chmod a+x $WORKSPACE/run_fio_pod.sh
+
 	echo "Preparing fio pods ..."
 	npods=${#pods[@]}
 	i=0
@@ -104,9 +107,6 @@ function install_fio_in_pods () {
 }
 
 function run_fio_in_pods () {
-	cat $WORKSPACE/ocs-upi-kvm/files/perf-fio/run_fio_pod.sh.in | envsubst > $WORKSPACE/run_fio_pod.sh
-	chmod a+x $WORKSPACE/run_fio_pod.sh
-
 	npods=${#pods[@]}
 	i=0
 	while (( i < npods ))
