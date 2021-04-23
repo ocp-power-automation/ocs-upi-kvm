@@ -1,0 +1,26 @@
+#!/bin/bash
+
+sleep 15s
+
+mkdir results
+
+echo "Starting Fio tests -- $(hostname) -- $(date '+%D %T')" 
+
+set -x
+
+fio --name=fio-fillup --filename=/var/lib/www/html/abcd --rw=read --bs=128k --direct=1 --numjobs=1 --time_based=0 --runtime=300 --size=${FSIZE} --ioengine=sync --iodepth=64 --output=results/fio-read-128k.out
+fio --name=fio-fillup --filename=/var/lib/www/html/abcd --rw=write --bs=128k --direct=1 --numjobs=1 --time_based=0 --runtime=300 --size=${FSIZE} --ioengine=sync --iodepth=64 --output=results/fio-write-128k.out
+fio --name=fio-fillup --filename=/var/lib/www/html/abcd --rw=randrw --bs=128k --direct=1 --numjobs=1 --time_based=0 --runtime=300 --size=${FSIZE} --ioengine=sync --iodepth=64 --output=results/fio-randrw-128k.out
+fio --name=fio-fillup --filename=/var/lib/www/html/abcd --rw=read --bs=64k --direct=1 --numjobs=1 --time_based=0 --runtime=300 --size=${FSIZE} --ioengine=sync --iodepth=64 --output=results/fio-read-64k.out
+fio --name=fio-fillup --filename=/var/lib/www/html/abcd --rw=write --bs=64k --direct=1 --numjobs=1 --time_based=0 --runtime=300 --size=${FSIZE} --ioengine=sync --iodepth=64 --output=results/fio-write-64k.out
+fio --name=fio-fillup --filename=/var/lib/www/html/abcd --rw=randrw --bs=64k --direct=1 --numjobs=1 --time_based=0 --runtime=300 --size=${FSIZE} --ioengine=sync --iodepth=64 --output=results/fio-randrw-64k.out
+fio --name=fio-fillup --filename=/var/lib/www/html/abcd --rw=read --bs=16k --direct=1 --numjobs=1 --time_based=0 --runtime=300 --size=${FSIZE} --ioengine=sync --iodepth=64 --output=results/fio-read-16k.out
+fio --name=fio-fillup --filename=/var/lib/www/html/abcd --rw=write --bs=16k --direct=1 --numjobs=1 --time_based=0 --runtime=300 --size=${FSIZE} --ioengine=sync --iodepth=64 --output=results/fio-write-16k.out
+fio --name=fio-fillup --filename=/var/lib/www/html/abcd --rw=randrw --bs=16k --direct=1 --numjobs=1 --time_based=0 --runtime=300 --size=${FSIZE} --ioengine=sync --iodepth=64 --output=results/fio-randrw-16k.out
+fio --name=fio-fillup --filename=/var/lib/www/html/abcd --rw=read --bs=4k --direct=1 --numjobs=1 --time_based=0 --runtime=300 --size=${FSIZE} --ioengine=sync --iodepth=64 --output=results/fio-read-4k.out
+fio --name=fio-fillup --filename=/var/lib/www/html/abcd --rw=write --bs=4k --direct=1 --numjobs=1 --time_based=0 --runtime=300 --size=${FSIZE} --ioengine=sync --iodepth=64 --output=results/fio-write-4k.out
+fio --name=fio-fillup --filename=/var/lib/www/html/abcd --rw=randrw --bs=4k --direct=1 --numjobs=1 --time_based=0 --runtime=300 --size=${FSIZE} --ioengine=sync --iodepth=64 --output=results/fio-randrw-4k.out
+
+cd results
+
+tar -cvf ../fio-results.tar .
