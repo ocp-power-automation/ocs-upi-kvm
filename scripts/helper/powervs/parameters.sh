@@ -163,7 +163,20 @@ function setup_remote_oc_use () {
 		echo "$etc_hosts_entries $append_urls" >> /tmp/hosts.1
 		sudo mv /tmp/hosts.1 /etc/hosts 
 
+		# Preserve variables that are needed after cluster creation.  Mostly, by run_fio.sh
+
+		CLUSTER_ID=$($terraform_cmd output | grep cluster_id | awk '{print $3}' | sed 's/\"//g' )
+		BASTION_PRIVATE_IP=( $($terraform_cmd output | grep bastion_private_ip | awk '{print $3}' | sed 's/\./ /g' ) )
+		BASTION_CIDR="${BASTION_PRIVATE_IP[0]}.${BASTION_PRIVATE_IP[1]}.${BASTION_PRIVATE_IP[2]}.0/24"
+		BASTION_HTTP_PROXY="http://${CLUSTER_ID}-bastion-0:3128"
+
 		echo "export BASTION_IP=$BASTION_IP" > $WORKSPACE/.bastion_ip
+		echo "export CLUSTER_ID=$CLUSTER_ID" >> $WORKSPACE/.bastion_ip
+		echo "export BASTION_PRIVATE_IP=$BASTION_PRIVATE_IP" >> $WORKSPACE/.bastion_ip
+		echo "export BASTION_CIDR=$BASTION_CIDR" >> $WORKSPACE/.bastion_ip
+		echo "export CLUSTER_DOMAIN=$CLUSTER_DOMAIN" >> $WORKSPACE/.bastion_ip
+		echo "export BASTION_HTTP_PROXY=$BASTION_HTTP_PROXY" >> $WORKSPACE/.bastion_ip
+		echo "export PLATFORM=$PLATFORM" >> $WORKSPACE/.bastion_ip
 	else
 		echo "No terraform data for local oc setup"
 		exit 1
