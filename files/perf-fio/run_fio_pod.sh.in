@@ -19,6 +19,8 @@ fio --name=fio-fillup --filename=/var/lib/www/html/abcd --rw=read --bs=4k --dire
 fio --name=fio-fillup --filename=/var/lib/www/html/abcd --rw=write --bs=4k --direct=1 --numjobs=1 --time_based=0 --runtime=300 --size=${FSIZE} --ioengine=sync --iodepth=64 --output=results/fio-write-4k.out
 fio --name=fio-fillup --filename=/var/lib/www/html/abcd --rw=randrw --bs=4k --direct=1 --numjobs=1 --time_based=0 --runtime=300 --size=${FSIZE} --ioengine=sync --iodepth=64 --output=results/fio-randrw-4k.out
 
+echo "Completed Fio tests -- $(hostname) -- $(date '+%D %T')"
+
 cd results
 
 tar -cvf ../fio-results.tar . >/dev/null 2>&1

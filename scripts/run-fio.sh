@@ -121,8 +121,7 @@ function run_fio_in_pods () {
 }
 
 function wait_for_fio_pods_to_complete () {
-	echo "Fio pods running... Wait 30 minutes..."
-	sleep 30m
+	sleep 30m					# First part is slow - the fill
 
 	npods=${#pods[@]}
 	pod_done=0
@@ -144,16 +143,16 @@ function wait_for_fio_pods_to_complete () {
 				fi
 				(( pod_done = pod_done + 1 ))
 			else
-				result_list=$(oc rsh $pod_name ls -rt results/ 2>/dev/null)
-				echo "Still running...  Fio results for ${pod_name}: ${result_list}"
+				results=$(oc rsh $pod_name ls -rt results/ 2>/dev/null | wc -l)
+				echo "Still running -- ${pod_name} -- working on test $results of 12"
 			fi
 			set -e
 
 			(( i = i + 1 ))
 		done
 		if (( pod_done < npods )); then
-			echo -e "Sleeping 15 minutes... total pods=$npods pods comleted=$pod_done\n"
-			sleep 15m
+			echo -e "Sleeping 10 minutes... total pods=$npods pods comleted=$pod_done\n"
+			sleep 10m
 		fi
 	done
 }
