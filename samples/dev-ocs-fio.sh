@@ -57,6 +57,35 @@ export USE_TIER1_STORAGE=true
 #export OCS_CI_ON_BASTION=false                                 # When true, ocs-ci runs on bastion node
                                                                 # May help with intermittent network problems and testcase timeouts
 
+function config_ceph_for_nvmessd () {
+        echo "Retrieving ceph tools" | tee $WORKSPACE/ceph-fio-config.log
+        ceph_tools=$( oc -n openshift-storage get pods | grep rook-ceph-tools | awk '{print $1}' )
+
+        echo "Dumping ceph configurartion before nvme/ssd enhancements" | tee -a $WORKSPACE/ceph-fio-config.log
+
+        oc -n openshift-storage rsh $ceph_tools ceph config dump | tee -a $WORKSPACE/ceph-fio-config.log
+
+        echo "Performing ceph configuration nvme/ssd enhancements" | tee -a $WORKSPACE/ceph-fio-config.log
+
+        oc -n openshift-storage rsh $ceph_tools ceph config set osd osd_op_num_threads_per_shard 2 | tee -a $WORKSPACE/ceph-fio-config.log
+        oc -n openshift-storage rsh $ceph_tools ceph config set osd osd_op_num_shards 8 | tee -a $WORKSPACE/ceph-fio-config.log
+        oc -n openshift-storage rsh $ceph_tools ceph config set osd osd_recovery_sleep 0 | tee -a $WORKSPACE/ceph-fio-config.log
+        oc -n openshift-storage rsh $ceph_tools ceph config set osd osd_snap_trim_sleep 0 | tee -a $WORKSPACE/ceph-fio-config.log
+        oc -n openshift-storage rsh $ceph_tools ceph config set osd osd_delete_sleep 0 | tee -a $WORKSPACE/ceph-fio-config.log
+        oc -n openshift-storage rsh $ceph_tools ceph config set osd bluestore_min_alloc_size 4K | tee -a $WORKSPACE/ceph-fio-config.log
+        oc -n openshift-storage rsh $ceph_tools ceph config set osd bluestore_prefer_deferred_size 0 | tee -a $WORKSPACE/ceph-fio-config.log
+        oc -n openshift-storage rsh $ceph_tools ceph config set osd bluestore_compression_min_blob_size 8K | tee -a $WORKSPACE/ceph-fio-config.log
+        oc -n openshift-storage rsh $ceph_tools ceph config set osd bluestore_compression_max_blob_size 64K | tee -a $WORKSPACE/ceph-fio-config.log
+        oc -n openshift-storage rsh $ceph_tools ceph config set osd bluestore_max_blob_size 64K | tee -a $WORKSPACE/ceph-fio-config.log
+        oc -n openshift-storage rsh $ceph_tools ceph config set osd bluestore_cache_size 3G | tee -a $WORKSPACE/ceph-fio-config.log
+        oc -n openshift-storage rsh $ceph_tools ceph config set osd bluestore_throttle_cost_per_io 4000 | tee -a $WORKSPACE/ceph-fio-config.log
+        oc -n openshift-storage rsh $ceph_tools ceph config set osd bluestore_deferred_batch_ops 16 | tee -a $WORKSPACE/ceph-fio-config.log
+
+        echo "Dumping ceph configurartion after nvme/ssd enhancements" | tee -a $WORKSPACE/ceph-fio-config.log
+
+        oc -n openshift-storage rsh $ceph_tools ceph config dump | tee -a $WORKSPACE/ceph-fio-config.log
+}
+
 ##############  MAIN ################
 
 set -e
@@ -178,6 +207,9 @@ if [[ ! "$CEPH_STATE" =~ HEALTH_OK ]]; then
 	oc get pods --namespace openshift-storage 2>&1 | tee -a $WORKSPACE/deploy-ocs-ci.log
 	exit 1
 fi
+
+config_ceph_for_nvmessd
+
 set -e
 
 ./run-fio.sh block 2>&1 | tee $WORKSPACE/perf-fio-block.log
