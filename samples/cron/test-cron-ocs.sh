@@ -224,6 +224,10 @@ do
 	oc get cephcluster --namespace openshift-storage 2>&1 | tee -a $logfile
 	echo
 	oc get pods --namespace openshift-storage 2>&1 | tee -a $logfile
+        
+        TOOLS_POD=$(oc get pods -n openshift-storage -l app=rook-ceph-tools -o name)
+        echo
+        oc rsh -n openshift-storage $TOOLS_POD ceph -s 2>&1 | tee -a $logfile
 
 	echo "Invoking ./destroy-ocp.sh after tier test $i"
 	./destroy-ocp.sh | tee $LOGDIR/destroy-ocp-$i-$LOGDATE.log

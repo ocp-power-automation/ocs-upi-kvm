@@ -31,18 +31,23 @@ source $WORKSPACE/venv/bin/activate		# enter 'deactivate' in venv shell to exit
 echo "Invoking run-ci command for upgrade..."
 
 run-ci -m "pre_upgrade or ocs_upgrade or post_upgrade" --ocs-version $OCS_VERSION \
-        --upgrade-ocs-version $UPGRADE_OCS_VERSION --upgrade-ocs-registry-image "'$UPGRADE_OCS_REGISTRY'" \
+        --upgrade-ocs-version $UPGRADE_OCS_VERSION --upgrade-ocs-registry-image $UPGRADE_OCS_REGISTRY \
         --ocsci-conf conf/ocsci/production_powervs_upi.yaml \
         --ocsci-conf conf/ocsci/lso_enable_rotational_disks.yaml \
-        --ocsci-conf conf/ocsci/manual_subscription_plan_approval.yaml \
+        --ocsci-conf conf/ocsci/upgrade_to_next_build.yaml \
         --ocsci-conf $WORKSPACE/ocs-ci-conf.yaml \
         --cluster-name ocstest --cluster-path $WORKSPACE \
         --collect-logs tests/ 2>&1 | tee $WORKSPACE/upgrade-ocs-$UPGRADE_OCS_VERSION.log
 
 echo -e "\n After Upgrading..." >> $WORKSPACE/upgrade-ocs-$UPGRADE_OCS_VERSION.log
 
+echo -e "\n CSV version...\n" >> $WORKSPACE/upgrade-ocs-$UPGRADE_OCS_VERSION.log 
 oc get csv -n openshift-storage 2>&1 | tee -a $WORKSPACE/upgrade-ocs-$UPGRADE_OCS_VERSION.log
+
+echo -e "\n Pods in openshift-storage namespace...\n" >> $WORKSPACE/upgrade-ocs-$UPGRADE_OCS_VERSION.log
 oc get pods -n openshift-storage 2>&1 | tee -a $WORKSPACE/upgrade-ocs-$UPGRADE_OCS_VERSION.log
+
+echo -e "\n Ceph Status...\n" >> $WORKSPACE/upgrade-ocs-$UPGRADE_OCS_VERSION.log
 TOOLS_POD=$(oc get pods -n openshift-storage -l app=rook-ceph-tools -o name)
 oc rsh -n openshift-storage $TOOLS_POD ceph -s 2>&1 | tee -a $WORKSPACE/upgrade-ocs-$UPGRADE_OCS_VERSION.log 
 
