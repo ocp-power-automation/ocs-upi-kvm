@@ -219,6 +219,7 @@ rm -rf $fio_results_dir
 mkdir -p $fio_results_dir
 
 echo "Fio results directory: $fio_results_dir"
+echo "Fio run number: $log_date"
 
 pods=()
 pvcs=()
