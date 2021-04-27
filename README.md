@@ -3,6 +3,7 @@
   - [Overview](#overview)
   - [Scripts](#scripts)
   - [Workflow Sample Scripts](#workflow-sample-scripts)
+  - [Standalone Fio Performance Test](#standalone-fio-performance-test)
   - [Workspace Directory](#workspace-directory)
   - [Required Files](#required-files)
   - [Environment Variables](#environment-variables)
@@ -155,6 +156,23 @@ be used instead which may improve performance and resilience.
 
 As noted above, these scripts may be relocated, customized, and invoked from the
 [workspace directory](https://github.com/lukebrowning/ocs-upi-kvm#workspace-directory)
+
+## Standalone Fio Performance Test
+
+```
+scripts/run-fio.sh { block | file }
+scripts/fio-report.sh { block | file  } <fio run number>
+```
+
+The **run-fio.sh** script will create a variable number of fio client pods that will
+individually run the same fio commands in parallel.  The parameter *block or file* specifies
+the type of ceph storage, ocs-storagecluster-ceph-rbd or ocs-storagecluster-cephfs, to
+be allocated and evaluated per the OCS Persistent Volume Claim that is made for each pod.
+
+The **fio-report.sh** script generates a simple report of aggregated bandwidth and IOPs
+across the set of FIO client pods.  The parameter *fio run number* is output by the run-fio.sh
+script.  It refers to a directory under which the intermediate fio results are located.
+Specifically, workspace/fio-results/block or file/fio run number/pod name/tar file
 
 ## Workspace Directory
 
