@@ -23,7 +23,7 @@ spec:
     - name: https_proxy
       value: $BASTION_HTTP_PROXY
     - name: no_proxy
-      value: .cluster.local,.$CLUSTER_ID.$CLUSTER_DOMAIN,.svc,10.0.0.0/16,10.128.0.0/14,127.0.0.1,172.30.0.0/16,$BASTION_CIDR,api-int.$CLUSTER_ID.$CLUSTER_DOMAIN,localhost
+      value: $NO_PROXY
     name: web-server
     image: quay.io/ocsci/nginx:latest
     volumeMounts:

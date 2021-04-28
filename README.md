@@ -10,7 +10,7 @@
   - [Cluster Creation Setup](#cluster-creation-setup)
   - [Cluster Commands And Logs Files](#cluster-commands-and-log-files)
   - [Remote Webconsole Support](#remote-webconsole-support)
-  - [Adding And Removing OCS-CI Patches](#post-ocp-cluster-creation)
+  - [Adding And Removing OCS-CI Patches](#adding-and-removing-ocs-ci-patches)
   - [Crontab Automation](#crontab-automation)
   - [Troubleshooting](#troubleshooting)
 
@@ -160,7 +160,7 @@ As noted above, these scripts may be relocated, customized, and invoked from the
 ## Standalone Fio Performance Test
 
 ```
-scripts/run-fio.sh { block | file }
+scripts/run-fio.sh [ --devmode ] { block | file }
 scripts/fio-report.sh { block | file  } <fio run number>
 ```
 
@@ -168,6 +168,7 @@ The **run-fio.sh** script will create a variable number of fio client pods that 
 individually run the same fio commands in parallel.  The parameter *block or file* specifies
 the type of ceph storage, ocs-storagecluster-ceph-rbd or ocs-storagecluster-cephfs, to
 be allocated and evaluated per the OCS Persistent Volume Claim that is made for each pod.
+The *--devmode* parameter tests pod and pvc creation without running fio.
 
 The **fio-report.sh** script generates a simple report of aggregated bandwidth and IOPs
 across the set of FIO client pods.  The parameter *fio run number* is output by the run-fio.sh
