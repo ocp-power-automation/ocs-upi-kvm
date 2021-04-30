@@ -196,3 +196,7 @@ function prepare_new_cluster_delete_old_cluster ( ) {
 function setup_remote_oc_use () {
 	return
 }
+
+function config_ceph_for_nvmessd () {
+	return
+}

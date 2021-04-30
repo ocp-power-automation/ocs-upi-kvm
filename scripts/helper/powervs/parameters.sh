@@ -219,3 +219,41 @@ function invoke_ocs_ci_on_bastion ()
 	ocs_ci_on_bastion_rc=$?
 	echo -e "\n=> $cmd complete rc=$ocs_ci_on_bastion_rc"
 }
+
+function config_ceph_for_nvmessd ()
+{
+	echo "Retrieving ceph tools"
+	ceph_tools=$( oc -n openshift-storage get pods | grep rook-ceph-tools | awk '{print $1}' )
+
+	echo "Dumping ceph configurartion before nvme/ssd enhancements"
+
+	oc -n openshift-storage rsh $ceph_tools ceph config dump
+
+	echo "Performing ceph configuration nvme/ssd enhancements"
+
+	# TODO Add check for pre-existing settings and don't update.  These are new settings
+	# TODO Does this apply to powervm?
+
+	oc -n openshift-storage rsh $ceph_tools ceph config set osd osd_op_num_threads_per_shard 2
+	oc -n openshift-storage rsh $ceph_tools ceph config set osd osd_op_num_shards 8
+	oc -n openshift-storage rsh $ceph_tools ceph config set osd osd_recovery_sleep 0
+	oc -n openshift-storage rsh $ceph_tools ceph config set osd osd_snap_trim_sleep 0
+	oc -n openshift-storage rsh $ceph_tools ceph config set osd osd_delete_sleep 0
+	oc -n openshift-storage rsh $ceph_tools ceph config set osd bluestore_min_alloc_size 4K
+	oc -n openshift-storage rsh $ceph_tools ceph config set osd bluestore_prefer_deferred_size 0
+	oc -n openshift-storage rsh $ceph_tools ceph config set osd bluestore_compression_min_blob_size 8K
+	oc -n openshift-storage rsh $ceph_tools ceph config set osd bluestore_compression_max_blob_size 64K
+	oc -n openshift-storage rsh $ceph_tools ceph config set osd bluestore_max_blob_size 64K
+	oc -n openshift-storage rsh $ceph_tools ceph config set osd bluestore_cache_size 3G
+	oc -n openshift-storage rsh $ceph_tools ceph config set osd bluestore_throttle_cost_per_io 4000
+	oc -n openshift-storage rsh $ceph_tools ceph config set osd bluestore_deferred_batch_ops 16
+
+	echo "Dumping ceph configurartion after nvme/ssd enhancements"
+
+	oc -n openshift-storage rsh $ceph_tools ceph config dump
+
+	# Delay a little for new settings to take effect
+
+	sleep 1m
+}
+
