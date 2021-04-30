@@ -36,10 +36,10 @@ case "$OCP_VERSION" in
 		RHCOS_SUFFIX="-$RHCOS_RELEASE"
 		;;
 	4.7)
-		OCP_RELEASE="4.7.2"
+		OCP_RELEASE="4.7.8"
 		RHCOS_VERSION="4.7"
 		if [ -z "$RHCOS_RELEASE" ]; then
-			RHCOS_RELEASE="4.7.0"                   # Latest release of RHCOS 4.7 at this time
+			RHCOS_RELEASE="4.7.7"                   # Latest release of RHCOS 4.7 at this time
 		fi
 		RHCOS_SUFFIX="-$RHCOS_RELEASE"
 		;;
