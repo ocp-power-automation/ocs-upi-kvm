@@ -74,3 +74,5 @@ run-ci -m deployment --deploy \
 deactivate
 
 popd
+
+config_ceph_for_nvmessd
