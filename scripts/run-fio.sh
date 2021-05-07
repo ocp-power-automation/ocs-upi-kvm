@@ -3,18 +3,25 @@
 arg1=$1
 
 if [[ "$arg1" =~ "help" ]] || [ "$arg1" == "-?" ] ; then
-        echo "Usage: $0 [ --devmode ] [ --fioworkers n ] { block | file }"
+	echo "Usage: $0 [ --devmode ] [ --tuneceph ] [ --fioworkers n ] { block | file }"
 	echo "Specify --devmode to test pod and pvc creation without running fio"
-        exit 1
+	echo "Specify --tuneceph to apply ssd settings for ceph on Power.  Beware there is no reset option.  Still under development...!"
+	exit 1
 fi
 
-fio_workers=-1
 dev_mode=false
+tune_ceph=false
+fio_workers=-1
 while :
 do
 	case "$arg1" in
 	--devmode)
 		dev_mode=true
+		shift
+		arg1=$1
+		;;
+	--tuneceph)
+		tune_ceph=true
 		shift
 		arg1=$1
 		;;
@@ -35,7 +42,9 @@ do
 		break
 		;;
 	*)
-		echo "Usage: $0 [ --devmode ] [ --fioworkers n ] { block | file }"
+		echo "Usage: $0 [ --devmode ] [ --tuneceph ] [ --fioworkers n ] { block | file }"
+		echo "Specify --devmode to test pod and pvc creation without running fio"
+		echo "Specify --tuneceph to apply ssd settings for ceph on Power.  Beware there is no reset option.  Still under development...!"
 		exit 1
 		;;
 	esac
@@ -64,6 +73,18 @@ fi
 
 if [ -e $WORKSPACE/env-ocp.sh ]; then
 	source $WORKSPACE/env-ocp.sh
+fi
+
+ceph_tools=$( oc -n openshift-storage get pods | grep rook-ceph-tools | awk '{print $1}' )
+if [ -z "$ceph_tools" ]; then
+	echo "rook-ceph-tools pod must be installed!"
+	exit 1
+fi
+
+if [ "$tune_ceph" == true ] && [ -e helper/parameters.sh ]; then
+	export PLATFORM=${PLATFORM:=powervs}
+	source helper/parameters.sh
+	config_ceph_for_nvmessd
 fi
 
 # The user can specify the number of worker nodes to use when running fio via the
@@ -217,7 +238,6 @@ oc project default >/dev/null 2>&1
 
 # Determine how much ceph memory is available in the pool
 
-ceph_tools=$( oc -n openshift-storage get pods | grep rook-ceph-tools | awk '{print $1}' ) 
 max_avail_GiB=$( oc -n openshift-storage rsh $ceph_tools ceph df | grep ocs-storagecluster-cephblockpool | awk '{print $9}' )
 
 use_GiB_per_worker=$(( max_avail_GiB * 80 / 100 / fio_workers ))

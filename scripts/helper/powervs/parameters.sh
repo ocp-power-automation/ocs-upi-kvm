@@ -222,12 +222,14 @@ function invoke_ocs_ci_on_bastion ()
 
 function config_ceph_for_nvmessd ()
 {
-	echo "Retrieving ceph tools"
 	ceph_tools=$( oc -n openshift-storage get pods | grep rook-ceph-tools | awk '{print $1}' )
 
-	echo "Dumping ceph configurartion before nvme/ssd enhancements"
-
-	oc -n openshift-storage rsh $ceph_tools ceph config dump
+	oc -n openshift-storage rsh $ceph_tools ceph config dump 2>&1 | grep osd_op_num_threads_per_shard > /dev/null
+	if [ "$?" == 0 ]; then
+		echo "Ceph configuration:"
+		oc -n openshift-storage rsh $ceph_tools ceph config dump
+		return
+	fi
 
 	echo "Performing ceph configuration nvme/ssd enhancements"
 
@@ -248,7 +250,7 @@ function config_ceph_for_nvmessd ()
 	oc -n openshift-storage rsh $ceph_tools ceph config set osd bluestore_throttle_cost_per_io 4000
 	oc -n openshift-storage rsh $ceph_tools ceph config set osd bluestore_deferred_batch_ops 16
 
-	echo "Dumping ceph configurartion after nvme/ssd enhancements"
+	echo "Dumping ceph configuration after nvme/ssd enhancements"
 
 	oc -n openshift-storage rsh $ceph_tools ceph config dump
 
