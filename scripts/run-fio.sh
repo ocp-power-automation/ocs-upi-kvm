@@ -3,31 +3,43 @@
 arg1=$1
 
 if [[ "$arg1" =~ "help" ]] || [ "$arg1" == "-?" ] ; then
-        echo "Usage: $0 [ --devmode ] { block | file }"
+        echo "Usage: $0 [ --devmode ] [ --fioworkers n ] { block | file }"
 	echo "Specify --devmode to test pod and pvc creation without running fio"
         exit 1
 fi
 
-if [ "$arg1" == "--devmode" ]; then
-	devmode=true
-	arg1=$2
-else
-	devmode=false
-fi
-
-io_type=$arg1
-
-case "$io_type" in
+fio_workers=-1
+dev_mode=false
+while :
+do
+	case "$arg1" in
+	--devmode)
+		dev_mode=true
+		shift
+		arg1=$1
+		;;
+	--fioworkers)
+		shift
+		fio_workers=$1
+		shift
+		arg1=$1
+		;;
 	block)
+		io_type=$arg1
 		export STORAGE_CLASS=ocs-storagecluster-ceph-rbd
+		break
 		;;
 	file)
+		io_type=$arg1
 		export STORAGE_CLASS=ocs-storagecluster-cephfs
+		break
 		;;
 	*)
-		echo "Usage: $0 [ --devmode ] { block | file }"
+		echo "Usage: $0 [ --devmode ] [ --fioworkers n ] { block | file }"
 		exit 1
-esac
+		;;
+	esac
+done
 
 if [ -z "$WORKSPACE" ]; then
         cwdir=$(pwd)
@@ -54,16 +66,37 @@ if [ -e $WORKSPACE/env-ocp.sh ]; then
 	source $WORKSPACE/env-ocp.sh
 fi
 
+# The user can specify the number of worker nodes to use when running fio via the
+# parameter --fioworkers.  The last N worker nodes as reported by the oc command are used.
+# By default, OCS is installed on the first three worker nodes.  If this parameter is
+# not specified, then all worker nodes are used.
+
+worker_list=( $(oc get nodes | grep worker | awk '{print $1}' ) )
+num_workers="${#worker_list[@]}"
+
+if [ "$fio_workers" == -1 ]; then
+	worker_index=0
+	fio_workers=$num_workers
+else
+	if (( fio_workers > num_workers )); then
+		echo "Invalid argument: --fioworkers n, $fio_workers > num_workers=$num_workers"
+		exit 1
+	fi
+	(( worker_index = num_workers - fio_workers ))
+fi
+
+
+
 function create_pods () {
 	export PROXY_NAME=$(oc get proxy | head -2 | tail -1 | awk '{print $1}')
 	export BASTION_HTTP_PROXY=$(oc describe proxy/$PROXY_NAME | grep "Http Proxy" | tail -1 | awk '{ print $3}')
 	export NO_PROXY=$(oc describe proxy/cluster | grep "No Proxy" | tail -1 | awk '{ print $3}')
 
 	echo "Creating fio pods ..."
-	i=0
+	i=$worker_index
 	while (( i < num_workers ))
 	do
-		export WORKER_NAME="${workers[$i]}"
+		export WORKER_NAME="${worker_list[$i]}"
 
 		j=0
 		while (( j < num_pods_per_worker ))
@@ -96,7 +129,7 @@ function install_fio_in_pods () {
 
 		oc wait --for=condition=Ready pod/$pod_name --timeout=30s > /dev/null 2>&1
 
-		if [ "$devmode" == false ]; then
+		if [ "$dev_mode" == false ]; then
 			oc rsh $pod_name /usr/bin/apt-get update > /dev/null 2>&1
 			oc rsh $pod_name /usr/bin/apt-get -y install fio procps > /dev/null 2>&1
 			oc cp $WORKSPACE/run_fio_pod.sh $pod_name:run_fio_pod.sh
@@ -114,7 +147,7 @@ function run_fio_in_pods () {
 		pod_name=${pods[$i]}
 		echo "Invoking fio command on pod $pod_name"
 
-		if [ "$devmode" == true ]; then
+		if [ "$dev_mode" == true ]; then
 			oc rsh $pod_name hostname
 		else
 			oc rsh $pod_name ./run_fio_pod.sh &
@@ -126,7 +159,7 @@ function run_fio_in_pods () {
 
 function wait_for_fio_pods_to_complete () {
 
-	if [ "$devmode" == true ]; then
+	if [ "$dev_mode" == true ]; then
 		return
 	fi
 
@@ -172,9 +205,11 @@ function delete_pods () {
 	sleep 5s
 	oc get pod | grep ^fio | awk '{ print $1 }' | xargs oc delete pod
 	oc get pvc | grep ^fio | awk '{ print $1 }' | xargs oc delete pvc
+
+	echo "Fio results directory: $fio_results_dir"
+
 	exit
 }
-
 
 # FIO pods are created in the default project
 
@@ -185,45 +220,42 @@ oc project default >/dev/null 2>&1
 ceph_tools=$( oc -n openshift-storage get pods | grep rook-ceph-tools | awk '{print $1}' ) 
 max_avail_GiB=$( oc -n openshift-storage rsh $ceph_tools ceph df | grep ocs-storagecluster-cephblockpool | awk '{print $9}' )
 
-# Pool may have other PVC allocations for registries.  Try to stay below 75% to avoid certs alerts, etc
-
-workers=( $(oc get nodes | grep worker | awk '{print $1}' ) )
-num_workers="${#workers[@]}"
-
-use_GiB_per_worker=$(( max_avail_GiB * 60 / 100 / num_workers ))
+use_GiB_per_worker=$(( max_avail_GiB * 80 / 100 / fio_workers ))
 
 # We need to know the amount of memory each worker node has in order to create a high memory load
 
-worker0="${workers[0]}"
-worker_node_mem=$(oc debug node/$worker0 -- chroot /host lsmem 2>/dev/null | grep "^Total online memory" | awk '{ print $4 }' | sed 's/G//')
+first_fioworker="${worker_list[$worker_index]}"
+worker_node_mem=$(oc debug node/$first_fioworker -- chroot /host lsmem 2>/dev/null | grep "^Total online memory" | awk '{ print $4 }' | sed 's/G//')
 
 # Determine the number of pods and the amount of storage in each pod's pvc.  Assume 16 GiB pvc is minimal viable size
 
-if [ "$devmode" == true ]; then
-	num_pods_per_worker=1
-	pvc_size=16
-else
-	min_pvc_allocated_per_worker=$(( worker_node_mem * 75 / 100 ))
-	if (( use_GiB_per_worker < min_pvc_allocated_per_worker )); then
-		echo "ERROR: Available storage in ceph blockpool is insufficient to run FIO test.  Increase the size of worker node data disks!"
-		echo "       use_GiB_per_worker=$use_GiB_per_worker must be >= min_pvc_allocated_per_worker=$min_pvc_allocated_per_worker"
-		exit 1
-	fi
-
-	num_pods_per_worker=16
-	pvc_size=$(( use_GiB_per_worker / num_pods_per_worker ))
-	while (( pvc_size < 16 ))
-	do
-		(( num_pods_per_worker = num_pods_per_worker / 2 ))
-		(( pvc_size = pvc_size * 2 ))
-	done
+min_pvc_allocated_per_worker=$(( worker_node_mem * 80 / 100 ))
+if (( use_GiB_per_worker < min_pvc_allocated_per_worker )); then
+	echo "ERROR: Available storage in ceph blockpool is insufficient to run FIO test.  Increase the size of worker node data disks!"
+	echo "       use_GiB_per_worker=$use_GiB_per_worker must be >= min_pvc_allocated_per_worker=$min_pvc_allocated_per_worker"
+	exit 1
 fi
+
+if [ "$dev_mode" == true ]; then
+	dev_mode_output="dev_mode"
+	num_pods_per_worker=1
+else
+	num_pods_per_worker=16
+fi
+
+pvc_size=$(( use_GiB_per_worker / num_pods_per_worker ))
+while (( pvc_size < 16 ))
+do
+	(( num_pods_per_worker = num_pods_per_worker / 2 ))
+	(( pvc_size = pvc_size * 2 ))
+done
 	
-total_pods=$(( num_pods_per_worker * num_workers ))
-echo "Available ceph storage: $max_avail_GiB"
-echo "Total fio pods: $total_pods"
+total_pods=$(( num_pods_per_worker * fio_workers ))
+echo "Available ceph storage: ${max_avail_GiB}G"
+echo "Total fio pods: $total_pods $dev_mode_output"
 echo "PVC size: ${pvc_size}G"
 echo "Number of worker nodes: $num_workers"
+echo "Number of fio worker nodes: $fio_workers"
 echo "Memory per worker node: ${worker_node_mem}G"
 
 # These enviroment variables are used in fiopod.yaml.in
@@ -242,8 +274,6 @@ fio_results_dir=$WORKSPACE/fio-results/$io_type/$log_date
 rm -rf $fio_results_dir
 mkdir -p $fio_results_dir
 
-echo "Fio results directory: $fio_results_dir"
-echo "Fio run number: $log_date"
 
 pods=()
 pvcs=()
