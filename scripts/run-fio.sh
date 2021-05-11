@@ -214,8 +214,8 @@ function wait_for_fio_pods_to_complete () {
 			(( i = i + 1 ))
 		done
 		if (( pod_done < npods )); then
-			echo -e "Sleeping 10 minutes... total pods=$npods pods comleted=$pod_done\n"
-			sleep 10m
+			echo -e "Sleeping 5 minutes... total pods=$npods pods comleted=$pod_done\n"
+			sleep 5m
 		fi
 	done
 }
@@ -242,10 +242,10 @@ max_avail_GiB=$( oc -n openshift-storage rsh $ceph_tools ceph df | grep ocs-stor
 
 use_GiB_per_worker=$(( max_avail_GiB * 80 / 100 / fio_workers ))
 
-# We need to know the amount of memory each worker node has in order to create a high memory load
+# Determine the amount of system memory on ceph worker nodes
 
-first_fioworker="${worker_list[$worker_index]}"
-worker_node_mem=$(oc debug node/$first_fioworker -- chroot /host lsmem 2>/dev/null | grep "^Total online memory" | awk '{ print $4 }' | sed 's/G//')
+ceph_node=$(oc get pods -n openshift-storage  -o wide | grep osd | head -n 1 | awk '{print $7}')
+worker_node_mem=$(oc debug node/$ceph_node -- chroot /host lsmem 2>/dev/null | grep "^Total online memory" | awk '{ print $4 }' | sed 's/G//')
 
 # Determine the number of pods and the amount of storage in each pod's pvc.  Assume 16 GiB pvc is minimal viable size
 
