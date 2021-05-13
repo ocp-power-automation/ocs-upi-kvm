@@ -198,12 +198,10 @@ function wait_for_fio_pods_to_complete () {
 			set +e
 			oc rsh $pod_name ls fio-results.tar >/dev/null 2>&1
 			rc=$?
-			if [ "$rc" == 0 ]; then
-				if [ ! -e $fio_results_dir/$pod_name/fio-results-$pod_name.tar ]; then
-					echo "Transferring fio results for $pod_name"
-					mkdir -p $fio_results_dir/$pod_name
-					oc cp $pod_name:fio-results.tar $fio_results_dir/$pod_name/fio-results-$pod_name.tar
-				fi
+			if [ "$rc" == 0 ] && [ ! -e $fio_results_dir/$pod_name/fio-results-$pod_name.tar ]; then
+				echo "Transferring fio results for $pod_name"
+				mkdir -p $fio_results_dir/$pod_name
+				oc cp $pod_name:fio-results.tar $fio_results_dir/$pod_name/fio-results-$pod_name.tar
 				(( pod_done = pod_done + 1 ))
 			else
 				results=$(oc rsh $pod_name ls -rt results/ 2>/dev/null | wc -l)
@@ -260,14 +258,14 @@ if [ "$dev_mode" == true ]; then
 	dev_mode_output="dev_mode"
 	num_pods_per_worker=1
 else
-	num_pods_per_worker=16
+	num_pods_per_worker=16			# Maximum number of pods per worker
 fi
 
 pvc_size=$(( use_GiB_per_worker / num_pods_per_worker ))
 while (( pvc_size < 16 ))
 do
-	(( num_pods_per_worker = num_pods_per_worker / 2 ))
-	(( pvc_size = pvc_size * 2 ))
+	(( num_pods_per_worker = num_pods_per_worker - 1 ))
+	pvc_size=$(( use_GiB_per_worker / num_pods_per_worker ))
 done
 	
 total_pods=$(( num_pods_per_worker * fio_workers ))

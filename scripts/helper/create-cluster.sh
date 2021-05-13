@@ -88,6 +88,23 @@ fi
 
 source helper/parameters.sh
 
+# Compute kernel boot parameters
+
+export CMA_PERCENT=${CMA_PERCENT:=0}		# If not set in platform parameters.sh
+
+# Prefill with args that apply to all platforms -- rhcos_kernel_args=( "\"max_slub_order=0\"" )
+
+rhcos_kernel_args=( )
+if (( "$CMA_PERCENT" > 0 )); then
+	cma=$(( $WORKER_DESIRED_MEM * $CMA_PERCENT / 100 ))
+	if (( "$cma" > 0 )); then
+		rhcos_kernel_args+=("\"cma=${cma}G\"")
+	fi
+fi
+RHCOS_KERNEL_ARGS="${rhcos_kernel_args[@]}"
+export RHCOS_KERNEL_ARGS=${RHCOS_KERNEL_ARGS/ /,}
+
+
 export GOROOT=$WORKSPACE/usr/local/go
 export PATH=$WORKSPACE/bin:$PATH
 

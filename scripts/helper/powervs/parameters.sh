@@ -16,6 +16,7 @@ if [ -z "$CLUSTER_ID_PREFIX" ]; then
 fi
 
 export USE_TIER1_STORAGE=${USE_TIER1_STORAGE:="false"}
+export CMA_PERCENT=${CMA_PERCENT:=8}					# Kernel contiguous memory area for DMA
 
 # Check service instance first, since it is not set above to a default value.  It
 # over rides zone and region if the service instance is set and recognized
@@ -224,8 +225,12 @@ function config_ceph_for_nvmessd ()
 {
 	ceph_tools=$( oc -n openshift-storage get pods | grep rook-ceph-tools | awk '{print $1}' )
 
+	set +e
 	oc -n openshift-storage rsh $ceph_tools ceph config dump 2>&1 | grep osd_op_num_threads_per_shard > /dev/null
-	if [ "$?" == 0 ]; then
+	rc=$?
+	set -e
+
+	if [ "$rc" == 0 ]; then
 		echo "Ceph configuration:"
 		oc -n openshift-storage rsh $ceph_tools ceph config dump
 		return
