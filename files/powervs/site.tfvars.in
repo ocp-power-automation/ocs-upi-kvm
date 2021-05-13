@@ -40,3 +40,4 @@ worker_volume_size          = "$WORKER_VOLUME_SIZE"
 
 storage_type                = "no"
 
+rhcos_kernel_options        = [$RHCOS_KERNEL_ARGS]
