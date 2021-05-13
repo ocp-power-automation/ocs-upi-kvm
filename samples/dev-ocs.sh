@@ -78,13 +78,13 @@ do
 		echo
 		echo "Use --retry when an error occurs while creating the ocp cluster."
 		echo
-		echo "For KVM, the existing VMs can be re-used.  Terraform will be re-invoked."
-		echo "The default behaviour is to destroy the existing cluster."
+		echo "For KVM, if the retry fails, one can destroy the cluster by invoking"
+		echo "the destroy-ocp.sh script.  There is no manual cleanup required."
 		echo
-		echo "For PowerVS, the retry attempts to re-use the existing LPARs which is"
-		echo "the best option, because the alternative, cluster destroy, is not always"
-		echo "successful for partially created clusters and the user must then"
-		echo "manually delete cluster resources using the cloud GUI."
+		echo "For PowerVS, the destroy operation is not always successful as the"
+		echo "create operation may not have gotten far enough to generate build"
+		echo "artifacts identifying the items to be destroyed.  In this case, one"
+		echo "has to destroy the cluster manually using the Cloud GUI."
 		echo
 		echo "Use --latest-ocs to pull the latest commit from the ocsi-ci GH repo."
 		echo
