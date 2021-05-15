@@ -107,7 +107,7 @@ do
 			cnt=6
 			(( master_success = master_success + 1 ))
 		else
-			sleep 10
+			sleep 15
 		fi
 	done
 done
@@ -146,7 +146,7 @@ do
 			cnt=6
 			(( worker_success = worker_success + 1 ))
 		else
-			sleep 10
+			sleep 15
 		fi
 	done
 done
