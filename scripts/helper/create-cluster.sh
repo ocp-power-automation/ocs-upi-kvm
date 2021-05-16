@@ -92,13 +92,11 @@ source helper/parameters.sh
 
 export CMA_PERCENT=${CMA_PERCENT:=0}		# If not set in platform parameters.sh
 
-# Prefill with args that apply to all platforms -- rhcos_kernel_args=( "\"max_slub_order=0\"" )
-
-rhcos_kernel_args=( )
+rhcos_kernel_args=( "\"max_slub_order=0\"" )
 if (( "$CMA_PERCENT" > 0 )); then
 	cma=$(( $WORKER_DESIRED_MEM * $CMA_PERCENT / 100 ))
 	if (( "$cma" > 0 )); then
-		rhcos_kernel_args+=("\"cma=${cma}G\"")
+		rhcos_kernel_args+=(" \"cma=${cma}G\"")
 	fi
 fi
 RHCOS_KERNEL_ARGS="${rhcos_kernel_args[@]}"
@@ -346,6 +344,11 @@ else
 	else
 		git checkout master
 	fi
+	# Temporary workaround to avoid new features - snat and IBM Cloud VPC - TO be removed
+	if [ "$OCP_VERSION" == 4.7 ]; then
+		git checkout a87bf5b274cf9c7cec70c85dc90609939065a948
+	fi
+
 fi
 set -e
 
