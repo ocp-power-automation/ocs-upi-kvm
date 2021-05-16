@@ -32,6 +32,8 @@ dns_forwarders              = "$DNS_FORWARDERS"
 chrony_config               = "$CHRONY_CONFIG"
 chrony_config_servers       = [$CHRONY_CONFIG_SERVERS]
 
+setup_squid_proxy           = true
+
 # Master and Worker nodes
 
 worker_volume_size          = "$WORKER_VOLUME_SIZE"
@@ -41,3 +43,5 @@ worker_volume_size          = "$WORKER_VOLUME_SIZE"
 storage_type                = "no"
 
 rhcos_kernel_options        = [$RHCOS_KERNEL_ARGS]
+
+setup_snat                  = false

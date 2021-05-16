@@ -26,6 +26,12 @@ fi
 
 source helper/parameters.sh
 
+if [ -e "$WORKSPACE/.bastion_ip" ]; then
+	source $WORKSPACE/.bastion_ip
+else
+	unset BASTION_IP
+fi
+
 function wait_vm_reboot ( ) {
 	vm="$1"
 
@@ -97,12 +103,31 @@ if [ "$PLATFORM" == kvm ]; then
 	done
 fi
 
+# This list is composed of IP Addresses and applies to both master and worker nodes
+
+nodes_restarted=( )
+
 declare -i master_success=0
 for (( i=0; i<3; i++ ))
 do
 	for (( cnt=0; cnt<6; cnt++ ))
 	do
-		state=$($WORKSPACE/bin/oc get nodes -o wide | grep master-$i | tail -n 1 | awk '{print $2}')
+		node_info=$($WORKSPACE/bin/oc get nodes -o wide | grep master-$i | tail -n 1)
+		state=$(echo $node_info | awk '{print $2}')
+		ip=$(echo $node_info | awk '{print $6}')
+
+		if [[ "$state" =~ SchedulingDisabled ]] && [[ ! "${nodes_restarted[@]}" =~ $ip ]]; then
+			echo "master-$i $state -- restarting node.  This may take several minutes..."
+			restart_kubelet="ssh core@$IP sudo systemctl restart kubelet.service"
+			if [ -n "$BASTION_IP" ]; then
+				ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null root@$BASTION_IP bash -c "$restart_kubelet"
+			else
+				bash -c "$restart_kubelet"
+			fi
+			sleep 5m
+			nodes_restarted+=( "$ip" )
+		fi
+
 		if [ "$state" == Ready ]; then
 			cnt=6
 			(( master_success = master_success + 1 ))
@@ -141,7 +166,22 @@ for (( i=0; i<$WORKERS; i++ ))
 do
 	for (( cnt=0; cnt<6; cnt++ ))
 	do
-		state=$($WORKSPACE/bin/oc get nodes -o wide | grep worker-$i | tail -n 1 | awk '{print $2}')
+		node_info=$($WORKSPACE/bin/oc get nodes -o wide | grep worker-$i | tail -n 1)
+		state=$(echo $node_info | awk '{print $2}')
+		ip=$(echo $node_info | awk '{print $6}')
+
+		if [[ "$state" =~ SchedulingDisabled ]] && [[ ! "${nodes_restarted[@]}" =~ $ip ]]; then
+			echo "worker-$i $state -- restarting node.  This may take several minutes..."
+			restart_kubelet="ssh core@$IP sudo systemctl restart kubelet.service"
+			if [ -n "$BASTION_IP" ]; then
+				ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null root@$BASTION_IP bash -c "$restart_kubelet"
+			else
+				bash -c "$restart_kubelet"
+			fi
+			sleep 5m
+			nodes_restarted+=( "$ip" )
+		fi
+
 		if [ "$state" == Ready ]; then
 			cnt=6
 			(( worker_success = worker_success + 1 ))
