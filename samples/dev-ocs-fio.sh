@@ -51,6 +51,7 @@ export WORKER_DESIRED_MEM=96
 #export BASTION_IMAGE=rhel-83-02182021
 export WORKER_VOLUME_SIZE=768
 export USE_TIER1_STORAGE=true
+export CMA_PERCENT=8
 
 # These are optional for PowerVS ocs-ci.  Default values are shown
 

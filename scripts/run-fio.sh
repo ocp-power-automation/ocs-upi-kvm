@@ -204,7 +204,7 @@ function wait_for_fio_pods_to_complete () {
 				oc cp $pod_name:fio-results.tar $fio_results_dir/$pod_name/fio-results-$pod_name.tar
 				(( pod_done = pod_done + 1 ))
 			else
-				results=$(oc rsh $pod_name ls -rt results/ 2>/dev/null | wc -l)
+				results=$(oc rsh $pod_name ls -rt results/ 2>/dev/null | wc -w)
 				echo "Still running -- ${pod_name} -- working on test $results of 12"
 			fi
 			set -e

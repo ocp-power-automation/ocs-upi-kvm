@@ -16,7 +16,7 @@ if [ -z "$CLUSTER_ID_PREFIX" ]; then
 fi
 
 export USE_TIER1_STORAGE=${USE_TIER1_STORAGE:="false"}
-export CMA_PERCENT=${CMA_PERCENT:=8}					# Kernel contiguous memory area for DMA
+export CMA_PERCENT=${CMA_PERCENT:=0}					# Kernel contiguous memory area for DMA
 
 # Check service instance first, since it is not set above to a default value.  It
 # over rides zone and region if the service instance is set and recognized
@@ -75,10 +75,9 @@ fi
 # Example 0.5 processors == 0.5 physical core entitlements == ceil[0.5] = 1 vCPU == 8 logical OS CPUs (SMT=8)
 # Example 1.5 processors == 1.5 physical core entitlements == ceil[1.5] = 2 vCPU == 16 logical OS CPUs (SMT=8)
 # Example 2 processors == 2 physical core entitlements == ceil[2] = 2 vCPU == 16 logical OS CPUs (SMT=8)
-# CMA_PERCENT is calculated based on WORKER_DESIRED_MEM, so add extra memory to master nodes
 
 export MASTER_DESIRED_CPU=${MASTER_DESIRED_CPU:="1.25"}
-export MASTER_DESIRED_MEM=${MASTER_DESIRED_MEM:="40"}
+export MASTER_DESIRED_MEM=${MASTER_DESIRED_MEM:="32"}
 export WORKER_DESIRED_CPU=${WORKER_DESIRED_CPU:="1.25"}
 export WORKER_DESIRED_MEM=${WORKER_DESIRED_MEM:="64"}
 
