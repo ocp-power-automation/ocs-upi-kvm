@@ -68,8 +68,9 @@ if (( CMA_PERCENT > 0 )); then
 		cat ../files/powervs/05-worker-kernelarg-cma.yaml.in | envsubst > $WORKSPACE/05-worker-kernelarg-cma.yaml
 		oc create -f $WORKSPACE/05-worker-kernelarg-cma.yaml
 
-		echo "Sleeping 30 minutes for worker node reboot... Kernel boot parameter: cma=$KARG_CMA"
-		sleep 30m
+		(( delay = BOOT_DELAY_PER_WORKER * WORKERS ))
+		echo "Delaying $delay minutes for worker nodes to reboot...  New kernel boot argument: cma=$KARG_CMA"
+		sleep ${delay}m
 
 		helper/check-health-cluster.sh
 	fi

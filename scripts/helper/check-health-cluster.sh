@@ -118,20 +118,19 @@ else
 
 		restart_node="ssh core@$name sudo systemctl restart kubelet.service"
 
-		set -x
 		for (( cnt=0; cnt<10; cnt++ ))
 		do
-			set +e
+			set +e -x
 			ssh $bastion_ssh_args $restart_node
 			rc=$?
-			set -e
+			set +x -e
 			if [ "$rc" == 0 ]; then
 				cnt=10
 			else
+				echo -e "\nTry again in 30 seconds..."
 				sleep 30
 			fi
 		done
-		set +x
 
 		(( i = i + 1 ))
 	done
@@ -164,20 +163,19 @@ else
 
 		restart_node="ssh core@$name sudo systemctl restart kubelet.service"
 
-		set -x
 		for (( cnt=0; cnt<10; cnt++ ))
 		do
-			set +e
+			set +e -x
 			ssh $bastion_ssh_args $restart_node
 			rc=$?
-			set -e
+			set +x -e
 			if [ "$rc" == 0 ]; then
 				cnt=10
 			else
+				echo -e "\nTry again in 30 seconds..."
 				sleep 30
 			fi
 		done
-		set +x
 
 		(( i = i + 1 ))
 	done
@@ -192,7 +190,7 @@ do
 		state=$(echo $node_info | awk '{print $2}')
 
 		if [ "$state" == Ready ]; then
-			cnt=6
+			cnt=50
 			(( master_success = master_success + 1 ))
 		else
 			sleep 15
@@ -210,7 +208,7 @@ do
 		ip=$(echo $node_info | awk '{print $6}')
 
 		if [ "$state" == Ready ]; then
-			cnt=6
+			cnt=50
 			(( worker_success = worker_success + 1 ))
 		else
 			sleep 15
