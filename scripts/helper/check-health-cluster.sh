@@ -11,13 +11,11 @@
 
 # Assumes caller sets environment variable KUBECONFIG
 
-set -e
+# For PowerVS, we automatically restart nodes as RHCOS kernel boot parameters
+# are specified at cluster creation and the nodes are left in DisabledScheduling
+# state. Restarting the pods resolves this issue.
 
-user=$(whoami)
-if [ "$user" != root ]; then
-	echo "You must be root user to invoke this script $0"
-	exit 1
-fi
+set -e
 
 if [ ! -e helper/parameters.sh ]; then
 	echo "Please invoke this script from the directory ocs-upi-kvm/scripts"
@@ -27,9 +25,15 @@ fi
 source helper/parameters.sh
 
 if [ -e "$WORKSPACE/.bastion_ip" ]; then
+	ocp_nodes=( $(oc get nodes | egrep 'master|worker' | awk '{print $1}') )
+	if [ -z "$ocp_nodes" ]; then
+		echo "Cluster is not online"
+		exit 1
+	fi
+	ocp_status=( $(oc get nodes | egrep 'master|worker' | awk '{print $2}') )
+
 	source $WORKSPACE/.bastion_ip
-else
-	unset BASTION_IP
+	bastion_ssh_args="-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null root@$BASTION_IP"
 fi
 
 function wait_vm_reboot ( ) {
@@ -86,66 +90,57 @@ function wait_vm_reboot ( ) {
 	fi
 }
 
+
+echo "Checking master nodes..."
+
 if [ "$PLATFORM" == kvm ]; then
-	echo "Checking health of master nodes..."
 	for (( i=0; i<3; i++ ))
 	do
-		vmline=$(virsh list --all | grep master-$i | tail -n 1)
+		vmline=$(sudo -sE virsh list --all | grep master-$i | tail -n 1)
 		vm=$(echo $vmline | awk '{print $2}')
 		state=$(echo $vmline | awk '{print $3}')
 		if [ "$state" == paused ]; then
 			echo "State of VM $vm is 'paused'"
-		 	virsh destroy $vm
-			virsh start $vm
+			sudo -sE virsh destroy $vm
+			sudo -sE virsh start $vm
 			sleep 15
 			wait_vm_reboot master-$i 
 		fi
 	done
-fi
-
-# This list is composed of IP Addresses and applies to both master and worker nodes
-
-nodes_restarted=( )
-
-declare -i master_success=0
-for (( i=0; i<3; i++ ))
-do
-	for (( cnt=0; cnt<6; cnt++ ))
-	do
-		node_info=$($WORKSPACE/bin/oc get nodes -o wide | grep master-$i | tail -n 1)
-		state=$(echo $node_info | awk '{print $2}')
-		ip=$(echo $node_info | awk '{print $6}')
-
-		if [[ "$state" =~ SchedulingDisabled ]] && [[ ! "${nodes_restarted[@]}" =~ $ip ]]; then
-			echo "master-$i $state -- restarting node.  This may take several minutes..."
-			restart_kubelet="ssh core@$IP sudo systemctl restart kubelet.service"
-			if [ -n "$BASTION_IP" ]; then
-				ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null root@$BASTION_IP bash -c "$restart_kubelet"
-			else
-				bash -c "$restart_kubelet"
-			fi
-			sleep 5m
-			nodes_restarted+=( "$ip" )
-		fi
-
-		if [ "$state" == Ready ]; then
-			cnt=6
-			(( master_success = master_success + 1 ))
-		else
-			sleep 15
-		fi
-	done
-done
-if [ "$master_success" -eq "3" ]; then
-	echo "Master nodes healthy"
 else
-	echo "ERROR: all master nodes must be ready"
-	$WORKSPACE/bin/oc get nodes
-	exit 1
+	i=0
+	for name in "${ocp_nodes[@]}"
+	do
+		if [[ ! "$name" =~ master ]] || [ "${ocp_status[$i]}" == Ready ]; then
+			(( i = i + 1 ))
+			continue
+		fi
+
+		restart_node="ssh core@$name sudo systemctl restart kubelet.service"
+
+		set -x
+		for (( cnt=0; cnt<10; cnt++ ))
+		do
+			set +e
+			ssh $bastion_ssh_args $restart_node
+			rc=$?
+			set -e
+			if [ "$rc" == 0 ]; then
+				cnt=10
+			else
+				sleep 30
+				(( cnt++ ))
+			fi
+		done
+		set +x
+
+		(( i = i + 1 ))
+	done
 fi
+
+echo "Checking worker nodes..."
 
 if [ "$PLATFORM" == kvm ]; then
-	echo "Checking health of worker nodes..."
 	for (( i=0; i<$WORKERS; i++ ))
 	do
 		vmline=$(virsh list --all | grep worker-$i | tail -n 1)
@@ -159,7 +154,53 @@ if [ "$PLATFORM" == kvm ]; then
 			wait_vm_reboot worker-$i
 		fi
 	done
+else
+	i=0
+	for name in "${ocp_nodes[@]}"
+	do
+		if [[ ! "$name" =~ worker ]] || [ "${ocp_status[$i]}" == Ready ]; then
+			(( i = i + 1 ))
+			continue
+		fi
+
+		restart_node="ssh core@$name sudo systemctl restart kubelet.service"
+
+		set -x
+		for (( cnt=0; cnt<10; cnt++ ))
+		do
+			set +e
+			ssh $bastion_ssh_args $restart_node
+			rc=$?
+			set -e
+			if [ "$rc" == 0 ]; then
+				cnt=10
+			else
+				sleep 30
+				(( cnt++ ))
+			fi
+		done
+		set +x
+
+		(( i = i + 1 ))
+	done
 fi
+
+declare -i master_success=0
+for (( i=0; i<3; i++ ))
+do
+	for (( cnt=0; cnt<6; cnt++ ))
+	do
+		node_info=$($WORKSPACE/bin/oc get nodes -o wide | grep master-$i | tail -n 1)
+		state=$(echo $node_info | awk '{print $2}')
+
+		if [ "$state" == Ready ]; then
+			cnt=6
+			(( master_success = master_success + 1 ))
+		else
+			sleep 15
+		fi
+	done
+done
 
 declare -i worker_success=0
 for (( i=0; i<$WORKERS; i++ ))
@@ -170,18 +211,6 @@ do
 		state=$(echo $node_info | awk '{print $2}')
 		ip=$(echo $node_info | awk '{print $6}')
 
-		if [[ "$state" =~ SchedulingDisabled ]] && [[ ! "${nodes_restarted[@]}" =~ $ip ]]; then
-			echo "worker-$i $state -- restarting node.  This may take several minutes..."
-			restart_kubelet="ssh core@$IP sudo systemctl restart kubelet.service"
-			if [ -n "$BASTION_IP" ]; then
-				ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null root@$BASTION_IP bash -c "$restart_kubelet"
-			else
-				bash -c "$restart_kubelet"
-			fi
-			sleep 5m
-			nodes_restarted+=( "$ip" )
-		fi
-
 		if [ "$state" == Ready ]; then
 			cnt=6
 			(( worker_success = worker_success + 1 ))
@@ -190,6 +219,15 @@ do
 		fi
 	done
 done
+
+if [ "$master_success" -eq "3" ]; then
+	echo "Master nodes healthy"
+else
+	echo "ERROR: all master nodes must be ready"
+	$WORKSPACE/bin/oc get nodes
+	exit 1
+fi
+
 if [ "$worker_success" -eq "$WORKERS" ]; then
 	echo "Worker nodes healthy"
 else

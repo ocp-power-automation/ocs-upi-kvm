@@ -88,17 +88,9 @@ fi
 
 source helper/parameters.sh
 
-# Compute kernel boot parameters
+# Set common kernel boot parameters
 
-export CMA_PERCENT=${CMA_PERCENT:=0}		# If not set in platform parameters.sh
-
-rhcos_kernel_args=( "\"max_slub_order=0\"" )
-if (( "$CMA_PERCENT" > 0 )); then
-	cma=$(( $WORKER_DESIRED_MEM * $CMA_PERCENT / 100 ))
-	if (( "$cma" > 0 )); then
-		rhcos_kernel_args+=(" \"cma=${cma}G\"")
-	fi
-fi
+rhcos_kernel_args=( "\"slub_max_order=0\"" )
 RHCOS_KERNEL_ARGS="${rhcos_kernel_args[@]}"
 export RHCOS_KERNEL_ARGS=${RHCOS_KERNEL_ARGS/ /,}
 
@@ -130,6 +122,11 @@ if [ "$ARG1" == "--retry" ]; then
 			# Delete bootstrap to save system resources after successful cluster creation
 			export BOOTSTRAP_CNT=0
 			terraform_apply
+
+			if [ -n "$RHCOS_KERNEL_ARGS" ]; then
+				echo "Delaying 30 minutes for nodes to reboot...  Kernel boot arguments: ${RHCOS_KERNEL_ARGS[@]}"
+				sleep 30m
+			fi
 		fi
 		popd
 		exit $rc
@@ -334,22 +331,39 @@ git submodule update --init  src/$OCP_PROJECT
 pushd src/$OCP_PROJECT
 
 set +e
-if [ "$OCP_VERSION" == 4.4 ]; then
-	git checkout origin/release-4.5
-else
-	git branch -r | grep release-$OCP_VERSION
-	rc=$?
-	if [ "$rc" == 0 ]; then
-		git checkout origin/release-$OCP_VERSION
-	else
-		git checkout master
-	fi
-	# Temporary workaround to avoid new features - snat and IBM Cloud VPC - TO be removed
-	if [ "$OCP_VERSION" == 4.7 ]; then
-		git checkout a87bf5b274cf9c7cec70c85dc90609939065a948
-	fi
 
-fi
+#if [ "$OCP_VERSION" == 4.4 ]; then
+#	git checkout origin/release-4.5
+#else
+#	git branch -r | grep release-$OCP_VERSION
+#	rc=$?
+#	if [ "$rc" == 0 ]; then
+#		git checkout origin/release-$OCP_VERSION
+#	else
+#		git checkout master
+#	fi
+#fi
+
+# Temporary workaround to avoid new features and defaults
+# snat and IBM Cloud VPC are new defaults with new proxy services
+# Needs to be investigated further
+
+case "$OCP_VERSION" in
+4.4|4.5)
+	git checkout origin/release-4.5
+	;;
+4.6)
+	git checkout d0a2c1ff486cc0a2db5ea85aeff7627a912f28e5
+	;;
+4.7)
+	git checkout a87bf5b274cf9c7cec70c85dc90609939065a948
+	;;
+*)
+	# submodule is committed to ocs-pi-kvm at the desired commit on master branch
+	git checkout master
+	;;
+esac
+
 set -e
 
 if [ -e $WORKSPACE/ocs-upi-kvm/files/$OCP_PROJECT/$OCP_VERSION/$OCP_PROJECT.patch ]; then
@@ -384,6 +398,11 @@ if [ "$rc" == 0 ]; then
 	terraform_apply
 	if [ "$?" != 0 ]; then
 		echo "Terraform_apply failed deleting bootstrap node"
+	fi
+
+	if [ -n "$RHCOS_KERNEL_ARGS" ]; then
+		echo "Delaying 30 minutes for nodes to reboot...  Kernel boot arguments: ${RHCOS_KERNEL_ARGS[@]}"
+		sleep 30m
 	fi
 fi
 

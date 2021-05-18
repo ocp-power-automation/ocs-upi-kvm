@@ -1,0 +1,12 @@
+apiVersion: machineconfiguration.openshift.io/v1
+kind: MachineConfig
+metadata:
+  labels:
+    machineconfiguration.openshift.io/role: worker
+  name: 05-worker-kernelarg-cma
+spec:
+  config:
+    ignition:
+      version: 3.2.0
+  kernelArguments:
+    - cma="$KARG_CMA"

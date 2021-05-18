@@ -59,7 +59,21 @@ if [ "$PLATFORM" == kvm ]; then
 	sudo -sE helper/kvm/add-vdisk-workers.sh
 fi
 
-sudo -sE helper/check-health-cluster.sh
+helper/check-health-cluster.sh
+
+if (( CMA_PERCENT > 0 )); then
+	KARG_CMA=$(( WORKER_DESIRED_MEM * CMA_PERCENT / 100 ))
+	if (( KARG_CMA > 0 )); then
+		export KARG_CMA=${KARG_CMA}G
+		cat ../files/powervs/05-worker-kernelarg-cma.yaml.in | envsubst > $WORKSPACE/05-worker-kernelarg-cma.yaml
+		oc create -f $WORKSPACE/05-worker-kernelarg-cma.yaml
+
+		echo "Sleeping 30 minutes for worker node reboot... Kernel boot parameter: cma=$KARG_CMA"
+		sleep 30m
+
+		helper/check-health-cluster.sh
+	fi
+fi
 
 echo ""
 echo "To access the cluster:"
