@@ -124,8 +124,9 @@ if [ "$ARG1" == "--retry" ]; then
 			terraform_apply
 
 			if [ -n "$RHCOS_KERNEL_ARGS" ]; then
-				echo "Delaying 30 minutes for nodes to reboot...  Kernel boot arguments: ${RHCOS_KERNEL_ARGS[@]}"
-				sleep 30m
+				(( delay = BOOT_DELAY_PER_WORKER * WORKERS ))
+				echo "Delaying $delay minutes for nodes to reboot...  New kernel boot arguments: ${RHCOS_KERNEL_ARGS[@]}"
+				sleep ${delay}m
 			fi
 		fi
 		popd
@@ -401,8 +402,9 @@ if [ "$rc" == 0 ]; then
 	fi
 
 	if [ -n "$RHCOS_KERNEL_ARGS" ]; then
-		echo "Delaying 30 minutes for nodes to reboot...  Kernel boot arguments: ${RHCOS_KERNEL_ARGS[@]}"
-		sleep 30m
+		(( delay = BOOT_DELAY_PER_WORKER * WORKERS ))
+		echo "Delaying $delay minutes for nodes to reboot...  New kernel boot arguments: ${RHCOS_KERNEL_ARGS[@]}"
+		sleep ${delay}m
 	fi
 fi
 
