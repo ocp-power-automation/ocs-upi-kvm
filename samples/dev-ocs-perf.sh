@@ -1,14 +1,36 @@
 #!/bin/bash
 
 # This script may be relocated to the parent directory of ocs-upi-kvm project and
-# edited to invoke a different sequence.  Sometimes to comment a line of execution
-# to avoid recreating the cluster and other times to invoke ocs-ci with different
-# parameters.  This script is relocatable, so the project itself is not modified.
+# edited to invoke a different sequence.  Perhaps, to skip cluster creation.
+# Or to invoke a specific ocs-ci test for debug purposes.  The script is written
+# to show how an individual test may be invoked.  One can edit the test line
+# to just specify the python test file to run all of the tests in that file.
+#
+# The E2E performance test sequence is different from other automation test
+# scripts in this project.  This script is relocated to the bastion node and
+# remotely invoked via ssh to run the ocs-ci perf test, because the ocs-ci
+# performance code assumes that an elasticsearch cluster is externally setup.
+#
+# However, we deploy elasticsearch within the cluster, which means that it cannot
+# be referenced outside the cluster, either by the bastion node or the local server.
+# The elasticsearch server needs to be exposed, which in this case is inapplicable
+# because the performance suite tests references elasticsearch by ip address,
+# not by hostname.com syntax, so we need to setup an ip route on the bastion
+# node to facilitate this access.  At this point, we are still investigating
+# how to extend ip routes to local server.
+#
+# The E2E flow for ocs-ci performance test is:
+#
+# 1.  Create ocp cluster, deploy ocs, deploy elasticsearch (inside the cluster)
+# 2.  Setup a route on the bastion node to provide network access to elasticsearch
+# 3.  Relocate this script to bastion node and remotely invoke it with --run-perf
+# 4.  The user then needs to extract logs and reports from the bastion
 
+export OCS_CI_ON_BASTION=true                                   # When true, ocs-ci is run from the bastion node
 
 # These environment variables are required for all platforms
 
-export PLATFORM=${PLATFORM:="kvm"}				# Also supported: powervs.   Defaults to kvm
+export PLATFORM=powervs
 
 #export RHID_USERNAME=<your registered username>		# Change this line or preset in shell
 #export RHID_PASSWORD=<your password>				# Edit or preset
@@ -44,17 +66,48 @@ export OCS_VERSION=${OCS_VERSION:=4.7}
 #export SYSTEM_TYPE=s922
 #export PROCESSOR_TYPE=shared
 #export BASTION_IMAGE=rhel-83-02182021
-#export WORKER_VOLUME_SIZE=500
+export WORKER_VOLUME_SIZE=768
 #export USE_TIER1_STORAGE=false
 
 # These are optional for PowerVS ocs-ci.  Default values are shown
 
-#export OCS_CI_ON_BASTION=false                                 # When true, ocs-ci runs on bastion node
-                                                                # May help with intermittent network problems and testcase timeouts
+#export CMA_PERCENT=8
 
 ##############  MAIN ################
 
 set -e
+
+function perf_test () {
+
+	pushd $WORKSPACE/ocs-upi-kvm/src/ocs-ci
+
+	export ES_CLUSTER_IP=$(oc get service elasticsearch -n elastic | grep ^elasticsearch | awk '{print $3}')
+	if [ -z "$ES_CLUSTER_IP" ]; then
+		echo "Elasticsearch is required for this test"
+		exit 1
+	fi
+
+	source $WORKSPACE/venv/bin/activate             # enter 'deactivate' in venv shell to exit
+
+	yq -y -i '.PERF.production_es |= false' $WORKSPACE/ocs-ci-conf.yaml
+	yq -y -i '.PERF.deploy_internal_es |= false' $WORKSPACE/ocs-ci-conf.yaml
+	yq -y -i '.PERF.internal_es_server |= env.ES_CLUSTER_IP' $WORKSPACE/ocs-ci-conf.yaml
+
+	# The 'tests/e2e/...' can be obtained from the html report of performance, workloads, tier tests, ...
+
+	run-ci -m "performance" --cluster-name ocstest --cluster-path $WORKSPACE \
+		--ocp-version $OCP_VERSION --ocs-version=$OCS_VERSION \
+		--ocsci-conf conf/ocsci/production_powervs_upi.yaml \
+		--ocsci-conf conf/ocsci/lso_enable_rotational_disks.yaml \
+		--ocsci-conf $WORKSPACE/ocs-ci-conf.yaml \
+		--collect-logs \
+		tests/e2e/performance/test_fio_benchmark.py::TestFIOBenchmark::test_fio_workload_simple[CephBlockPool-random] 2>&1 | tee $WORKSPACE/test-fio.log
+
+	deactivate
+}
+
+cmd=$0
+cmdpath=$(dirname $0)
 
 retry_ocp_arg=
 get_latest_ocs=false
@@ -72,18 +125,23 @@ do
 		get_latest_ocs=true
 		shift 1
 		;;
+	--run-test)
+		export WORKSPACE=~
+		perf_test
+		exit
+		;;
 	*)
 		echo "Usage: $0 [ --retry-ocp ] [ --latest-ocs ]"
 		echo
-		echo "Use --retry-ocp when an error occurs while creating the ocp cluster."
+		echo "Use --retry when an error occurs while creating the ocp cluster."
 		echo
-		echo "For KVM, if the retry fails, one can destroy the cluster by invoking"
-		echo "the destroy-ocp.sh script.  There is no manual cleanup required."
+		echo "For KVM, the existing VMs can be re-used.  Terraform will be re-invoked."
+		echo "The default behaviour is to destroy the existing cluster."
 		echo
-		echo "For PowerVS, the destroy operation is not always successful as the"
-		echo "create operation may not have gotten far enough to generate build"
-		echo "artifacts identifying the items to be destroyed.  In this case, one"
-		echo "has to destroy the cluster manually using the Cloud GUI."
+		echo "For PowerVS, the retry attempts to re-use the existing LPARs which is"
+		echo "the best option, because the alternative, cluster destroy, is not always"
+		echo "successful for partially created clusters and the user must then"
+		echo "manually delete cluster resources using the cloud GUI."
 		echo
 		echo "Use --latest-ocs to pull the latest commit from the ocsi-ci GH repo."
 		echo
@@ -107,10 +165,8 @@ else
 	OCP_PROJECT=ocp4-upi-kvm
 fi
 
-
 if [ -z "$WORKSPACE" ]; then
 	cwdir=$(pwd)
-	cmdpath=$(dirname $0)
 	if [ "$cmdpath" == "." ]; then
 		if [ -d ocs-upi-kvm ]; then
 			export WORKSPACE=$cwdir
@@ -142,15 +198,19 @@ fi
 if [ ! -e src/ocs-ci/README.md ]; then
 	echo "Refreshing submodule ocs-ci..."
 	git submodule update --init src/ocs-ci
+	pushd src/ocs-ci
+	git fetch origin pull/4127/head:avi
+	git checkout avi
 fi
 
-if [ "$get_latest_ocs" == true ]; then
-	echo "Getting latest ocs-ci..."
-	pushd $WORKSPACE/ocs-upi-kvm/src/ocs-ci
-	git checkout master
-	git pull
-	popd
-fi
+#if [ "$get_latest_ocs" == true ]; then
+#	echo "Getting latest ocs-ci..."
+#	pushd $WORKSPACE/ocs-upi-kvm/src/ocs-ci
+#	git checkout master
+#	git pull
+#	popd
+#fi
+
 
 echo "Invoking scripts..."
 
@@ -175,33 +235,67 @@ if [[ ! "$CEPH_STATE" =~ HEALTH_OK ]]; then
 fi
 set -e
 
-# Cluster-logging provides Elasticsearch.  Uses OCS storage.  Run after deploy-ocs-ci.sh
+function delete_elasticsearch () {
+        echo "Deleting elasticsearch..."
 
-./deploy-ocp-logging.sh 2>&1 | tee $WORKSPACE/deploy-ocp-logging.log
+	set +e
+	oc delete deployments.apps/elasticsearch -n elastic
+	oc delete route/elasticsearch -n elastic
+	oc delete service/elasticsearch -n elastic
+	oc delete project/elastic
+	if [ -n "$BASTION_IP" ]; then
+		ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null root@$BASTION_IP ip route del $service_cidr via $master0_ip
+		sudo ip route del $service_cidr via $BASTION_IP
+	else
+		sudo ip route del $service_cidr via $master0_ip
+	fi
 
-pushd ../src/ocs-ci
+        exit
+}
 
-source $WORKSPACE/venv/bin/activate             # enter 'deactivate' in venv shell to exit
+trap delete_elasticsearch SIGINT SIGTERM
 
-# Set elasticsearch cluster ip for performance suite.  Depends on cluster logging
+oc new-project elastic
+oc new-app quay.io/piyushgupta1551/elasticsearch:7.11
+oc expose service/elasticsearch
+oc project default
 
-export ES_CLUSTER_IP=$(oc get service elasticsearch -n openshift-logging | grep ^elasticsearch | awk '{print $3}')
-echo "ES_CLUSTER_IP=$ES_CLUSTER_IP"
-if [ -n "$ES_CLUSTER_IP" ]; then
-	yq -y -i '.ENV_DATA.es_cluster_ip |= env.ES_CLUSTER_IP' $WORKSPACE/ocs-ci-conf.yaml
+export ES_CLUSTER_IP=$(oc get service elasticsearch -n elastic | grep ^elasticsearch | awk '{print $3}')
+if [ -z "$ES_CLUSTER_IP" ]; then
+	echo "ES_CLUSTER_IP is not set"
+	delete_elasticsearch
+	exit 1
 fi
 
-# The 'tests/e2e/...' can be obtained from the html report of performance, workloads, tier tests, ...
+# The cluster IP is visible only inside the cluster.  Add route to bastion node for the ocp service network
 
-run-ci -m "performance" --cluster-name ocstest --cluster-path $WORKSPACE \
-	--ocp-version $OCP_VERSION --ocs-version=$OCS_VERSION \
-        --ocsci-conf conf/ocsci/production_powervs_upi.yaml \
-	--ocsci-conf conf/ocsci/lso_enable_rotational_disks.yaml \
-        --ocsci-conf $WORKSPACE/ocs-ci-conf.yaml \
-        --collect-logs \
-        tests/e2e/performance/test_fio_benchmark.py::TestFIOBenchmark::test_fio_workload_simple[CephBlockPool-random] 2>&1 | tee $WORKSPACE/test-fio.log
+service_cidr=$(oc get networks.config/cluster -o jsonpath='{$.status.serviceNetwork}')
+service_cidr=${service_cidr//\"/}
+service_cidr=${service_cidr/[/}
+service_cidr=${service_cidr/]/}
+node_cidr="192.168.0.0\/24"
+master0_ip=$(oc get node/master-0 -o wide | tail -1 | awk '{print $6}')
 
-oc get cephcluster --namespace openshift-storage 2>&1 | tee -a $WORKSPACE/test-fio.log
-oc get pods --namespace openshift-storage 2>&1 | tee -a $WORKSPACE/test-fio.log
+source $WORKSPACE/.bastion_ip
 
-deactivate
+set -x
+
+netdev=$(ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null root@$BASTION_IP ip r | grep $node_cidr | head -n 1 | awk '{print $3}')
+ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null root@$BASTION_IP ip route add $service_cidr via $master0_ip dev $netdev onlink
+
+# Relocate this script
+
+scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $cmdpath/$cmd root@$BASTION_IP:
+
+# Remotely invoke this script
+
+ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null root@$BASTION_IP ./$cmd --run-test | tee test-perf.out
+
+set +x
+
+oc get cephcluster --namespace openshift-storage 2>&1 | tee -a $WORKSPACE/test-perf.log
+oc get pods --namespace openshift-storage 2>&1 | tee -a $WORKSPACE/test-perf.log
+
+delete_elasticsearch
+
+echo "Don't forget to extract the test logs and report from the bastion node - $BASTION_IP"
