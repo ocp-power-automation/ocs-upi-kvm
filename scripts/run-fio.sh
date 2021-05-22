@@ -236,7 +236,16 @@ oc project default >/dev/null 2>&1
 
 # Determine how much ceph memory is available in the pool
 
-max_avail_GiB=$( oc -n openshift-storage rsh $ceph_tools ceph df | grep ocs-storagecluster-cephblockpool | awk '{print $9}' )
+cephblockpool=$(oc -n openshift-storage rsh $ceph_tools ceph df | grep ocs-storagecluster-cephblockpool)
+max_avail_GiB=$(echo $cephblockpool | awk '{print $9}')
+max_avail_unit=$(echo $cephblockpool | awk '{print $10}')
+if [ "$max_avail_unit" == TiB ]; then
+        max_avail_GiB=$(echo $max_avail_GiB*1000 | bc)
+        max_avail_GiB=${max_avail_GiB/\.*/}
+elif [ "$max_avail_unit" != GiB ]; then
+        echo "Not enough available storage in ocs-storagecluster-cephblockpool - $max_avail_GiB $max_avail_unit"
+        exit 1
+fi
 
 use_GiB_per_worker=$(( max_avail_GiB * 80 / 100 / fio_workers ))
 
