@@ -1,36 +1,30 @@
 #!/bin/bash
 
-# This script may be relocated to the parent directory of ocs-upi-kvm project and
-# edited to invoke a different sequence.  Perhaps, to skip cluster creation.
-# Or to invoke a specific ocs-ci test for debug purposes.  The script is written
-# to show how an individual test may be invoked.  One can edit the test line
-# to just specify the python test file to run all of the tests in that file.
+# This script may be relocated to the parent directory of the ocs-upi-kvm project
+# and edited to invoke different sequences and/or to input credentials without
+# having to modify the project.
 #
 # The E2E performance test sequence is different from other automation test
-# scripts in this project.  This script is relocated to the bastion node and
-# remotely invoked via ssh to run the ocs-ci perf test, because the ocs-ci
-# performance code assumes that an elasticsearch cluster is externally setup.
-#
-# However, we deploy elasticsearch within the cluster, which means that it cannot
-# be referenced outside the cluster, either by the bastion node or the local server.
-# The elasticsearch server needs to be exposed, which in this case is inapplicable
-# because the performance suite tests references elasticsearch by ip address,
-# not by hostname.com syntax, so we need to setup an ip route on the bastion
-# node to facilitate this access.  At this point, we are still investigating
-# how to extend ip routes to local server.
+# scripts in this project.  OCS_CI_ON_BASTION must be set to true as the
+# ocs-ci performance suite accesses the service elasticserch via an IP Address.
+# An IP route is added to the bastion node to facilitate this connection.
 #
 # The E2E flow for ocs-ci performance test is:
 #
-# 1.  Create ocp cluster, deploy ocs, deploy elasticsearch (inside the cluster)
-# 2.  Setup a route on the bastion node to provide network access to elasticsearch
-# 3.  Relocate this script to bastion node and remotely invoke it with --run-perf
-# 4.  The user then needs to extract logs and reports from the bastion
+# 1.  Create ocp cluster from the remote host.  Bastion IP Addr is located in $WORKSPACE/.bastion_ip
+# 2.  Setup ocs-ci on the bastion node and deploy ocs.  OCS_CI_ON_BASTION=true triggers remote operations
+# 3.  From remote host, elasticsearch service.  This utilizes oc command only
+# 4.  Setup an IP route on the bastion node to the OCP service network via ssh root@$BASTION_IP
+# 5.  Relocate this script to bastion node via scp root@$BASTION_IP
+# 6.  Remotely invoke dev-ocs-perf.sh --run-perf on the bastion node via ssh
+# 7.  Remotely copy ocs-ci perf logs from bastion via scp
+# 8.  Destroy elasticsearch and remove route
 
-export OCS_CI_ON_BASTION=true                                   # When true, ocs-ci is run from the bastion node
+export OCS_CI_ON_BASTION=true                                   # This must be set to true
 
 # These environment variables are required for all platforms
 
-export PLATFORM=powervs
+export PLATFORM=powervs						# This must be set to powervs
 
 #export RHID_USERNAME=<your registered username>		# Change this line or preset in shell
 #export RHID_PASSWORD=<your password>				# Edit or preset
@@ -66,7 +60,7 @@ export OCS_VERSION=${OCS_VERSION:=4.7}
 #export SYSTEM_TYPE=s922
 #export PROCESSOR_TYPE=shared
 #export BASTION_IMAGE=rhel-83-02182021
-export WORKER_VOLUME_SIZE=768
+#export WORKER_VOLUME_SIZE=500
 #export USE_TIER1_STORAGE=false
 
 # These are optional for PowerVS ocs-ci.  Default values are shown
@@ -79,6 +73,7 @@ set -e
 
 function perf_test () {
 
+	export WORKSPACE=~
 	pushd $WORKSPACE/ocs-upi-kvm/src/ocs-ci
 
 	export ES_CLUSTER_IP=$(oc get service elasticsearch -n elastic | grep ^elasticsearch | awk '{print $3}')
@@ -106,8 +101,9 @@ function perf_test () {
 	deactivate
 }
 
-cmd=$0
+cwdir=$(pwd)
 cmdpath=$(dirname $0)
+cmd=$0
 
 retry_ocp_arg=
 get_latest_ocs=false
@@ -126,7 +122,6 @@ do
 		shift 1
 		;;
 	--run-test)
-		export WORKSPACE=~
 		perf_test
 		exit
 		;;
@@ -166,7 +161,6 @@ else
 fi
 
 if [ -z "$WORKSPACE" ]; then
-	cwdir=$(pwd)
 	if [ "$cmdpath" == "." ]; then
 		if [ -d ocs-upi-kvm ]; then
 			export WORKSPACE=$cwdir
@@ -245,9 +239,6 @@ function delete_elasticsearch () {
 	oc delete project/elastic
 	if [ -n "$BASTION_IP" ]; then
 		ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null root@$BASTION_IP ip route del $service_cidr via $master0_ip
-		sudo ip route del $service_cidr via $BASTION_IP
-	else
-		sudo ip route del $service_cidr via $master0_ip
 	fi
 
         exit
@@ -281,21 +272,24 @@ source $WORKSPACE/.bastion_ip
 set -x
 
 netdev=$(ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null root@$BASTION_IP ip r | grep $node_cidr | head -n 1 | awk '{print $3}')
-ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null root@$BASTION_IP ip route add $service_cidr via $master0_ip dev $netdev onlink
+ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null root@$BASTION_IP ip route add $service_cidr via $master0_ip dev $netdev onlink | tee $WORKSPACE/perf-ocs-ci.log
 
-# Relocate this script
+echo "Relocating this script..."
 
-scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $cmdpath/$cmd root@$BASTION_IP:
+scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $cwdir/$cmd root@$BASTION_IP: | tee -a $WORKSPACE/perf-ocs-ci.log
 
-# Remotely invoke this script
+echo "Remotely invoking this script..."
 
-ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null root@$BASTION_IP ./$cmd --run-test | tee test-perf.out
+cmdname=$(echo $cmd | sed "s|$cmdpath/||")
+ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null root@$BASTION_IP ./$cmdname --run-test | tee -a $WORKSPACE/perf-ocs-ci.log
+
+echo "Getting the test logs..."
+
+scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -p -r root@$BASTION_IP:logs-ocs-ci $WORKSPACE | tee $WORKSPACE/perf-ocs-ci.log
 
 set +x
 
-oc get cephcluster --namespace openshift-storage 2>&1 | tee -a $WORKSPACE/test-perf.log
-oc get pods --namespace openshift-storage 2>&1 | tee -a $WORKSPACE/test-perf.log
+oc get cephcluster --namespace openshift-storage 2>&1 | tee -a $WORKSPACE/perf-ocs-ci.log
+oc get pods --namespace openshift-storage 2>&1 | tee -a $WORKSPACE/perf-ocs-ci.log
 
 delete_elasticsearch
-
-echo "Don't forget to extract the test logs and report from the bastion node - $BASTION_IP"
