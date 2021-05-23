@@ -49,7 +49,7 @@ TERRAFORM_IGNITION_VERSION=${TERRAFORM_IGNITION_VERSION:="2.1.1"}
 TERRAFORM_IGNITION_LEGACY_VERSION=${TERRAFORM_IGNITION_LEGACY_VERSION:="1.2.1"}
 TERRAFORM_POWERVS_VERSION=${TERRAFORM_POWERVS_VERSION:="1.21.0"}
 
-BOOT_DELAY_PER_WORKER=${BOOT_DELAY_PER_WORKER:=6}
+BOOT_DELAY_PER_WORKER=${BOOT_DELAY_PER_WORKER:=7}
 
 # WORKSPACE is a jenkins environment variable denoting a dedicated execution environment
 # that does not overlap with other jobs.  For this project, there are required input and
