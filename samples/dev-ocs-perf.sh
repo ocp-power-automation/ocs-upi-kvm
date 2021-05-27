@@ -24,7 +24,7 @@ export OCS_CI_ON_BASTION=true                                   # This must be s
 
 # These environment variables are required for all platforms
 
-export PLATFORM=powervs						# This must be set to powervs
+export PLATFORM=powervs                                         # This must be set to powervs
 
 #export RHID_USERNAME=<your registered username>		# Change this line or preset in shell
 #export RHID_PASSWORD=<your password>				# Edit or preset
@@ -53,9 +53,9 @@ export OCS_VERSION=${OCS_VERSION:=4.7}
 
 # These are optional for PowerVS OCP cluster create.  Default values are shown
 
-#export CLUSTER_ID_PREFIX=$RHID_USERNAME                        # Actually first 6 chars of rhid_username + ocp version
+#export CLUSTER_ID_PREFIX=$RHID_USERNAME                        # Actually first 3 chars of rhid_username + ocp version
 #export PVS_SUBNET_NAME=ocp-net
-#export PVS_REGION=lon  	                                # Or tok/tok04 sao/sao01 depending on service instance id
+#export PVS_REGION=lon  	                                # Or tok/tok04 sao/sao01 mon/mon01 depending on service instance id
 #export PVS_ZONE=lon06
 #export SYSTEM_TYPE=s922
 #export PROCESSOR_TYPE=shared
