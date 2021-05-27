@@ -41,7 +41,7 @@ export OCS_VERSION=${OCS_VERSION:=4.7}                          # 4.6 is support
 
 export CLUSTER_ID_PREFIX=${HOSTNAME:0:5}-${OCP_VERSION/./}
 export PVS_SUBNET_NAME=ocs-cron-test
-#export PVS_REGION=lon                                          # Or tok/tok04 sao/sao01 depending on service instance id
+#export PVS_REGION=lon                                          # Or tok/tok04 sao/sao01 mon/mon01 depending on service instance id
 #export PVS_ZONE=lon06
 #export SYSTEM_TYPE=s922
 #export PROCESSOR_TYPE=shared
