@@ -16,6 +16,7 @@ export OCP_VERSION=${OCP_VERSION:="4.6"}
 
 export OCS_VERSION=${OCS_VERSION:="4.6"}
 export OCS_REGISTRY_IMAGE=${OCS_REGISTRY_IMAGE:="quay.io/rhceph-dev/ocs-registry:latest-$OCS_VERSION"}
+export OPTIONAL_OPERATORS_IMAGE=${OPTIONAL_OPERATORS_IMAGE:="quay.io/openshift-release-dev/ocp-release-nightly:iib-int-index-art-operators-$OCP_VERSION"}
 
 export WORKERS=${WORKERS:=3}
 
@@ -100,6 +101,7 @@ function update_supplemental_ocsci_config () {
 	yq -y -i '.RUN.log_dir |= env.LOGDIR' $WORKSPACE/ocs-ci-conf.yaml
 	yq -y -i '.DEPLOYMENT.ocs_registry_image |= env.OCS_REGISTRY_IMAGE' $WORKSPACE/ocs-ci-conf.yaml
 	yq -y -i '.DEPLOYMENT.skip_download_client |= true' $WORKSPACE/ocs-ci-conf.yaml
+        yq -y -i '.DEPLOYMENT.optional_operators_image |= env.OPTIONAL_OPERATORS_IMAGE' $WORKSPACE/ocs-ci-conf.yaml
 
 	export ocp_must_gather=quay.io/rhceph-dev/ocs-must-gather:latest-$OCS_VERSION
 	yq -y -i '.REPORTING.ocp_must_gather_image |= env.ocp_must_gather' $WORKSPACE/ocs-ci-conf.yaml
