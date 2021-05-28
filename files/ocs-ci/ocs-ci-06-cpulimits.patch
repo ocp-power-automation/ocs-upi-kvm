@@ -1,8 +1,8 @@
 diff --git a/ocs_ci/deployment/deployment.py b/ocs_ci/deployment/deployment.py
-index da5fb75a..4b2bd7ea 100644
+index dcc024d5..2bdf91cd 100644
 --- a/ocs_ci/deployment/deployment.py
 +++ b/ocs_ci/deployment/deployment.py
-@@ -635,11 +635,6 @@ class Deployment(object):
+@@ -668,11 +668,6 @@ class Deployment(object):
                  and not lso_type == constants.AWS_EBS
              ):
                  deviceset_data["count"] = 2
