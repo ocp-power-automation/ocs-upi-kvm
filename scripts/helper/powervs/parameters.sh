@@ -176,30 +176,37 @@ function setup_remote_oc_use () {
 		exit 1
 	fi
 
-	# Setup ocs-ci on bastion node if specified.  Default is local server
+	popd
+}
+
+function setup_remote_ocsci_use () {
+	source $WORKSPACE/.bastion_ip
 
 	if [[ "$OCS_CI_ON_BASTION" == "true" ]] && [[ -n "$BASTION_IP" ]]; then
+
 		echo "Copy ocs-ci secrets to bastion node $BASTION_IP"
-		cat $WORKSPACE/ocs-upi-kvm/files/$PLATFORM/env-ocs-ci.sh.in | envsubst > $WORKSPACE/env-ocs-ci.sh.bastion
-		scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $WORKSPACE/env-ocs-ci.sh.bastion  root@$BASTION_IP:env-ocs-ci.sh
-		scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $WORKSPACE/pull-secret.txt root@$BASTION_IP:
-		scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $WORKSPACE/auth.yaml root@$BASTION_IP:
+
+		cat $WORKSPACE/ocs-upi-kvm/files/$PLATFORM/env-ocs-ci.sh.in | envsubst > $WORKSPACE/bastion-env-ocs-ci.sh
+		scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $WORKSPACE/bastion-env-ocs-ci.sh root@$BASTION_IP:env-ocs-ci.sh >/dev/null 2>&1
+		scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $WORKSPACE/pull-secret.txt root@$BASTION_IP: >/dev/null 2>&1
+		scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $WORKSPACE/auth.yaml root@$BASTION_IP: >/dev/null 2>&1
 
 		BASTION_CMD="mkdir -p ~/bin && cp /usr/local/bin/oc ~/bin"
-		ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null root@$BASTION_IP $BASTION_CMD
+		ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null root@$BASTION_IP $BASTION_CMD >/dev/null 2>&1
 		BASTION_CMD="cp -r openstack-upi/auth ~"
-		ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null root@$BASTION_IP $BASTION_CMD
+		ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null root@$BASTION_IP $BASTION_CMD >/dev/null 2>&1
 
 		echo "Copy ocs-ci code with development patches to bastion node $BASTION_IP"
+
 		pushd $WORKSPACE
 		tar -zcvf bastion-ocs-upi-ci.tar.gz ocs-upi-kvm >/dev/null 2>&1
 		popd
-		scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $WORKSPACE/bastion-ocs-upi-ci.tar.gz root@$BASTION_IP:
+		ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null root@$BASTION_IP rm -rf ocs-upi-kvm >/dev/null 2>&1
+		scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $WORKSPACE/bastion-ocs-upi-ci.tar.gz root@$BASTION_IP: >/dev/null 2>&1
 		BASTION_CMD="tar -xvzf bastion-ocs-upi-ci.tar.gz >/dev/null 2>&1"
-		ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null root@$BASTION_IP $BASTION_CMD
+		ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null root@$BASTION_IP $BASTION_CMD >/dev/null 2>&1
+		ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null root@$BASTION_IP chown -R root:root ocs-upi-kvm >/dev/null 2>&1
 	fi
-
-	popd
 }
 
 ocs_ci_on_bastion_rc=

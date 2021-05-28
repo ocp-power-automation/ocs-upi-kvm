@@ -1,5 +1,5 @@
 diff --git a/ocs_ci/ocs/amq.py b/ocs_ci/ocs/amq.py
-index cb53ec09..bcd7cac6 100644
+index 49ceb61e..55aca214 100644
 --- a/ocs_ci/ocs/amq.py
 +++ b/ocs_ci/ocs/amq.py
 @@ -23,7 +23,7 @@ from ocs_ci.helpers.helpers import storagecluster_independent_check, validate_pv
@@ -51,10 +51,10 @@ index cb53ec09..bcd7cac6 100644
                  except (CommandFailed, CalledProcessError) as cf:
                      log.error("Failed to delete help app")
 diff --git a/ocs_ci/ocs/constants.py b/ocs_ci/ocs/constants.py
-index 2624cc6d..0e4dbae0 100644
+index ea6adaac..082ce0a9 100644
 --- a/ocs_ci/ocs/constants.py
 +++ b/ocs_ci/ocs/constants.py
-@@ -175,7 +175,7 @@ OCS_MONKEY_REPOSITORY = "https://github.com/red-hat-storage/ocs-monkey.git"
+@@ -177,7 +177,7 @@ OCS_MONKEY_REPOSITORY = "https://github.com/red-hat-storage/ocs-monkey.git"
  
  # AMQ
  AMQ_NAMESPACE = "myproject"
