@@ -35,6 +35,9 @@ export PLATFORM=powervs                                         # This must be s
 export OCP_VERSION=${OCP_VERSION:=4.7}                          # 4.5, 4.7, and 4.8 are also supported
 export OCS_VERSION=${OCS_VERSION:=4.7}
 
+export WORKER_DESIRED_CPU=6                                     # ~50 fio pods + ceph on 3 workers
+export WORKER_DESIRED_MEM=96
+
 # These are optional for KVM OCP cluster create.  Default values are shown
 
 #export IMAGES_PATH=/var/lib/libvirt/images                     # File system space is important.  Else try /home/libvirt/images
@@ -60,7 +63,7 @@ export OCS_VERSION=${OCS_VERSION:=4.7}
 #export SYSTEM_TYPE=s922
 #export PROCESSOR_TYPE=shared
 #export BASTION_IMAGE=rhel-83-02182021
-#export WORKER_VOLUME_SIZE=500
+export WORKER_VOLUME_SIZE=768
 export USE_TIER1_STORAGE=true
 
 # These are optional for PowerVS ocs-ci.  Default values are shown
@@ -85,11 +88,24 @@ function perf_test () {
 		exit 1
 	fi
 
+	export LOGDIR_BASE=logs-ocs-ci
+	export LOGDIR_INSTANCE=$LOGDIR_BASE/$OCS_VERSION
+	export LOGDIR=$WORKSPACE/$LOGDIR_INSTANCE
+	mkdir -p $LOGDIR
+
+	export SANITIZED_OCP_VERSION=${OCP_VERSION/./}
+	export SANITIZED_OCS_VERSION=${OCS_VERSION/./}
+
+	run_id=$(ls -t -1 $LOGDIR/run*.yaml | head -n 1 | xargs grep run_id | awk '{print $2}')
+	html_fname=performance_ocp${SANITIZED_OCP_VERSION}_ocs${SANITIZED_OCS_VERSION}_${PLATFORM}_${run_id}_report.html
+
 	source $WORKSPACE/venv/bin/activate             # enter 'deactivate' in venv shell to exit
 
 	yq -y -i '.PERF.production_es |= false' $WORKSPACE/ocs-ci-conf.yaml
 	yq -y -i '.PERF.deploy_internal_es |= false' $WORKSPACE/ocs-ci-conf.yaml
 	yq -y -i '.PERF.internal_es_server |= env.ES_CLUSTER_IP' $WORKSPACE/ocs-ci-conf.yaml
+
+	pytest --junitxml=$LOGDIR/test_results.xml
 
 	echo "Supplemental ocs-ci config file:"
 	cat $WORKSPACE/ocs-ci-conf.yaml
@@ -103,11 +119,12 @@ function perf_test () {
 		--ocsci-conf conf/ocsci/production_powervs_upi.yaml \
 		--ocsci-conf conf/ocsci/lso_enable_rotational_disks.yaml \
 		--ocsci-conf $WORKSPACE/ocs-ci-conf.yaml \
-		--collect-logs \
-		tests/e2e/performance/test_fio_benchmark.py::TestFIOBenchmark::test_fio_workload_simple[CephBlockPool-random] 2>&1 | tee $WORKSPACE/test-fio.log
+		--self-contained-html --junit-xml $LOGDIR/test_results.xml \
+		--html $LOGDIR/$html_fname tests/e2e/performance/test_fio_benchmark.py \
+		--collect-logs tests/
 	rc=$?
-	echo -e "\n=> Test result: run-ci performance rc=$rc"
 
+	echo -e "\n=> Test result: run-ci performance rc=$rc html=$html_fname"
 
 	deactivate
 }
