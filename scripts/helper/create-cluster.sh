@@ -361,7 +361,6 @@ case "$OCP_VERSION" in
 	;;
 *)
 	# submodule is committed to ocs-pi-kvm at the desired commit on master branch
-	git checkout master
 	;;
 esac
 
