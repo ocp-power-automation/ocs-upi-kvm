@@ -77,14 +77,6 @@ if [ ! -e $WORKSPACE/ocs-ci-conf.yaml ]; then
 	update_supplemental_ocsci_config
 fi
 
-# Set elasticsearch cluster ip for performance suite.  Depends on cluster logging which occurs after deploy ocs
-
-export ES_CLUSTER_IP=$(oc get service elasticsearch -n openshift-logging | grep ^elasticsearch | awk '{print $3}')
-if [ -n "$ES_CLUSTER_IP" ]; then
-	echo "ES_CLUSTER_IP=$ES_CLUSTER_IP"
-	yq -y -i '.ENV_DATA.es_cluster_ip |= env.ES_CLUSTER_IP' $WORKSPACE/ocs-ci-conf.yaml
-fi
-
 # Relate the report generated below with the ocs-ci deployment via run_id 
 
 run_id=$(ls -t -1 $LOGDIR/run*.yaml | head -n 1 | xargs grep run_id | awk '{print $2}')
