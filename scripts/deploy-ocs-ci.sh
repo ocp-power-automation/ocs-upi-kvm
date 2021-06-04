@@ -43,12 +43,6 @@ cp -f $WORKSPACE/bin/oc bin
 
 mkdir -p data
 
-# This tar file patches the esdumper pod in elastic-system project for performance suite
-
-if [ -e ../../files/ocs-ci/esdumper.tar ]; then
-        cp -f ../../files/ocs-ci/esdumper.tar data
-fi
-
 cp $WORKSPACE/auth.yaml data/auth.yaml
 cp $WORKSPACE/pull-secret.txt data/pull-secret
 
