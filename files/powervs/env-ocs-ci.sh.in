@@ -2,3 +2,4 @@ export PLATFORM=powervs
 export OCP_VERSION=$OCP_VERSION
 export OCS_VERSION=$OCS_VERSION
 export OCS_REGISTRY_IMAGE=$OCS_REGISTRY_IMAGE
+export KUBECONFIG=~/auth/kubeconfig

@@ -45,3 +45,5 @@ storage_type                = "no"
 rhcos_kernel_options        = [$RHCOS_KERNEL_ARGS]
 
 setup_snat                  = false
+
+ansible_extra_options       = "-v -e '{\"powervm_rmc\": false}'"
