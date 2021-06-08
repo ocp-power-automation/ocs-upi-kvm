@@ -7,8 +7,18 @@ fi
 
 source helper/parameters.sh
 
+if [ ! -e $WORKSPACE/pull-secret.txt ]; then
+	echo "Missing $WORKSPACE/pull-secret.txt.  Download it from https://cloud.redhat.com/openshift/install/pull-secret"
+	exit 1
+fi
+
+if [ ! -e $WORKSPACE/auth.yaml ]; then
+	echo "$WORKSPACE/auth.yaml is required"
+	exit 1
+fi
+
 if [ "$OCS_CI_ON_BASTION" == true ]; then
-	setup_remote_ocsci_use
+	setup_remote_ocsci_use			# Copy pull-secret.txt, auth.yaml, and ocs-upi-kvm to bastion
 	invoke_ocs_ci_on_bastion $0 $@
 	exit $ocs_ci_on_bastion_rc
 fi
