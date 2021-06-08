@@ -136,6 +136,8 @@ function prepare_new_cluster_delete_old_cluster () {
 	./destroy-ocp.sh
 }
 
+# This is invoked at the end of ocp cluster create
+
 function setup_remote_oc_use () {
 	pushd $WORKSPACE/ocs-upi-kvm/src/$OCP_PROJECT
 
@@ -179,6 +181,8 @@ function setup_remote_oc_use () {
 	popd
 }
 
+# This is invoked at the start of setup-ocs-ci.sh
+
 function setup_remote_ocsci_use () {
 	source $WORKSPACE/.bastion_ip
 
@@ -196,14 +200,14 @@ function setup_remote_ocsci_use () {
 		BASTION_CMD="cp -r openstack-upi/auth ~"
 		ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null root@$BASTION_IP $BASTION_CMD >/dev/null 2>&1
 
-		echo "Copy ocs-ci code with development patches to bastion node $BASTION_IP"
+		echo "Copy ocs-upi-kvm to bastion node $BASTION_IP"
 
 		pushd $WORKSPACE
-		tar -zcvf bastion-ocs-upi-ci.tar.gz ocs-upi-kvm >/dev/null 2>&1
+		tar -zcvf bastion-ocs-upi-kvm.tar.gz ocs-upi-kvm >/dev/null 2>&1
 		popd
 		ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null root@$BASTION_IP rm -rf ocs-upi-kvm >/dev/null 2>&1
-		scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $WORKSPACE/bastion-ocs-upi-ci.tar.gz root@$BASTION_IP: >/dev/null 2>&1
-		BASTION_CMD="tar -xvzf bastion-ocs-upi-ci.tar.gz >/dev/null 2>&1"
+		scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $WORKSPACE/bastion-ocs-upi-kvm.tar.gz root@$BASTION_IP: >/dev/null 2>&1
+		BASTION_CMD="tar -xvzf bastion-ocs-upi-kvm.tar.gz >/dev/null 2>&1"
 		ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null root@$BASTION_IP $BASTION_CMD >/dev/null 2>&1
 		ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null root@$BASTION_IP chown -R root:root ocs-upi-kvm >/dev/null 2>&1
 	fi

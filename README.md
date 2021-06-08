@@ -141,18 +141,20 @@ of the dynamic add storage capability.
 ## Workflow Sample Scripts
 
 ```
-samples/dev-ocs.sh [--retry-ocp] [--latest-ocs] 
+samples/dev-ocs.sh [--retry-ocp] [--latest-ocs]
+samples/dev-ocs-fio.sh [--retry-ocp] [--latest-ocs]
+samples/dev-ocs-perf.sh [--retry-ocp] [--latest-ocs]
 samples/test-ocs.sh [--retry-ocp] [--latest-ocs]
+samples/test-ocs-perf.sh [--retry-ocp] [--latest-ocs]
 ```
 
 These scripts are useful in getting started.  They implement the full sequence of
-high level tasks defined above.  The **test-ocs.sh** invokes **ocs-ci** tier tests
-2, 3, 4, 4a, 4b, and 4c.  Both scripts designate the use of file backed Ceph disks
-which are based on qcow2 files.  These files are sparsely populated enabling the 
-use of servers with as little as 256 GBs of storage, depending on the number of 
-worker nodes that are requested.  The use of file backed data disks is the default.
-The test-ocs scripts include comments showing how physical disk partitions may
-be used instead which may improve performance and resilience.
+high level tasks defined above.  The *dev-ocs* scripts are intended for developer
+use and provide examples of invoking individual ocs-ci tests.  In contrast, the
+*test-ocs* scripts invoke an entire ocs-ci suite.  The **test-ocs.sh** script supports
+tier tests 2, 3, 4, 4a, 4b, and 4c as well as scale and workloads tests.  Dedicated
+scripts are provided for Standalone Fio Testing and Performance, because they have
+external ocs-ci requirements.
 
 As noted above, these scripts may be relocated, customized, and invoked from the
 [workspace directory](https://github.com/lukebrowning/ocs-upi-kvm#workspace-directory)

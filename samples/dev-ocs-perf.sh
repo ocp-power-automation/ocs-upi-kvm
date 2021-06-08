@@ -35,6 +35,10 @@ export PLATFORM=powervs                                         # This must be s
 export OCP_VERSION=${OCP_VERSION:=4.7}                          # 4.5, 4.7, and 4.8 are also supported
 export OCS_VERSION=${OCS_VERSION:=4.7}
 
+export WORKERS=4                                                # Extra worker node for elasticsearch
+export WORKER_DESIRED_CPU=3                                     # ~20 fio pods + ceph on 4 workers based on WORKER_VOLUME_SIZE
+export WORKER_DESIRED_MEM=64
+
 # These are optional for KVM OCP cluster create.  Default values are shown
 
 #export IMAGES_PATH=/var/lib/libvirt/images                     # File system space is important.  Else try /home/libvirt/images
@@ -59,8 +63,9 @@ export OCS_VERSION=${OCS_VERSION:=4.7}
 #export PVS_ZONE=lon06
 #export SYSTEM_TYPE=s922
 #export PROCESSOR_TYPE=shared
-#export BASTION_IMAGE=rhel-83-02182021
-#export WORKER_VOLUME_SIZE=500
+#export BASTION_IMAGE=rhel-83-03192021				# Default is based on OCP_VERSION and USE_TIER1_STORAGE
+#export RHCOS_IMAGE=rhcos-47-02172021				# Default is based on OCP_VERSION and USE_TIER1_STORAGE
+export WORKER_VOLUME_SIZE=768
 export USE_TIER1_STORAGE=true
 
 # These are optional for PowerVS ocs-ci.  Default values are shown
@@ -104,10 +109,11 @@ function perf_test () {
 		--ocsci-conf conf/ocsci/lso_enable_rotational_disks.yaml \
 		--ocsci-conf $WORKSPACE/ocs-ci-conf.yaml \
 		--collect-logs \
-		tests/e2e/performance/test_fio_benchmark.py::TestFIOBenchmark::test_fio_workload_simple[CephBlockPool-random] 2>&1 | tee $WORKSPACE/test-fio.log
-	rc=$?
-	echo -e "\n=> Test result: run-ci performance rc=$rc"
+		tests/e2e/performance/test_fio_benchmark.py::TestFIOBenchmark::test_fio_workload_simple[CephBlockPool-random]
 
+	rc=$?
+
+	echo -e "\n=> Test result: run-ci performance rc=$rc html=$html_fname"
 
 	deactivate
 }
@@ -240,20 +246,31 @@ set -e
 
 function delete_elasticsearch () {
         echo "Deleting elasticsearch..."
-
 	set +e
 	oc delete deployments.apps/elasticsearch -n elastic
 	oc delete route/elasticsearch -n elastic
 	oc delete service/elasticsearch -n elastic
 	oc delete project/elastic
-	if [ -n "$BASTION_IP" ]; then
-		ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null root@$BASTION_IP ip route del $service_cidr via $master0_ip
-	fi
-
-        exit
+	ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null root@$BASTION_IP ip route del $service_cidr
+	set -e
 }
 
-trap delete_elasticsearch SIGINT SIGTERM
+function cleanup_exit () {
+	delete_elastic_search
+	exit
+}
+
+source $WORKSPACE/.bastion_ip
+
+service_cidr=$(oc get networks.config/cluster -o jsonpath='{$.status.serviceNetwork}')
+service_cidr=${service_cidr//\"/}
+service_cidr=${service_cidr/[/}
+service_cidr=${service_cidr/]/}
+
+es_worker_hostname=$(oc get nodes | tail -1 | awk '{print $1}')
+es_worker_ip=$(oc get nodes -o wide | tail -1 | awk '{print $6}')
+
+trap cleanup_exit SIGINT SIGTERM
 
 > $WORKSPACE/perf-ocs-ci.log
 
@@ -261,51 +278,42 @@ set +e
 oc get svc/elasticsearch -n elastic >/dev/null 2>&1
 rc=$?
 set -e
-if [ "$rc" != 0 ]; then
-	echo "Creating elasticsearch pod" | tee -a $WORKSPACE/perf-ocs-ci.log
-	oc new-project elastic
-	oc new-app "discovery.type=single-node" quay.io/piyushgupta1551/elasticsearch:7.11
-	oc expose service/elasticsearch
-	oc status --suggest
-	oc project default
+if [ "$rc" == 0 ]; then
+	delete_elasticsearch | tee -a $WORKSPACE/perf-ocs-ci.log
 fi
+
+echo "Deploy elasticsearch on $es_worker_hostname at $es_worker_ip" | tee -a $WORKSPACE/perf-ocs-ci.log
+
+oc adm new-project elastic --node-selector="kubernetes.io/hostname=$es_worker_hostname"
+oc project elastic
+oc new-app "discovery.type=single-node" quay.io/piyushgupta1551/elasticsearch:7.11
+oc expose service/elasticsearch
+oc project default
+
 oc get service elasticsearch -n elastic | tee -a $WORKSPACE/perf-ocs-ci.log
 
 export ES_CLUSTER_IP=$(oc get service elasticsearch -n elastic | grep ^elasticsearch | awk '{print $3}')
 if [ -z "$ES_CLUSTER_IP" ]; then
 	echo "Elasticsearch is required for this test" | tee -a $WORKSPACE/perf-ocs-ci.log
-	delete_elasticsearch | tee -a $WORKSPACE/perf-ocs-ci.log
 	exit 1
 fi
 
 # The cluster IP is visible only inside the cluster.  Add route to bastion node for the ocp service network
 
-service_cidr=$(oc get networks.config/cluster -o jsonpath='{$.status.serviceNetwork}')
-service_cidr=${service_cidr//\"/}
-service_cidr=${service_cidr/[/}
-service_cidr=${service_cidr/]/}
-node_cidr="192.168.0.0\/24"
-master0_ip=$(oc get node/master-0 -o wide | tail -1 | awk '{print $6}')
-
-source $WORKSPACE/.bastion_ip
+echo "Add route to bastion $BASTION_IP" | tee -a $WORKSPACE/perf-ocs-ci.log
 
 set +e
 
-echo "Add route to bastion $BASTION_IP" | tee -a $WORKSPACE/perf-ocs-ci.log
-
-routes=$(ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null root@$BASTION_IP ip r 2>/dev/null)
-if [[ "$routes" =~ "$service_cidr" ]]; then
-        echo "Delete old route for $service_cidr on bastion" | tee -a $WORKSPACE/perf-ocs-ci.log
-        ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null root@$BASTION_IP ip route delete $service_cidr 2>&1 | tee -a $WORKSPACE/perf-ocs-ci.log
-fi
+node_cidr="192.168.0.0\/24"
 netdev=$(ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null root@$BASTION_IP ip r 2>/dev/null | grep $node_cidr | head -n 1 | awk '{print $3}')
-ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null root@$BASTION_IP ip route add $service_cidr via $master0_ip dev $netdev onlink 2>&1 | tee -a $WORKSPACE/perf-ocs-ci.log
+
+ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null root@$BASTION_IP ip route add $service_cidr via $es_worker_ip dev $netdev metric 101 onlink 2>&1 | tee -a $WORKSPACE/perf-ocs-ci.log
 
 echo "Relocate this script to bastion" | tee -a $WORKSPACE/perf-ocs-ci.log
 
 scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $cwdir/$cmd root@$BASTION_IP: 2>&1 | tee -a $WORKSPACE/perf-ocs-ci.log
 
-echo "Remotely invoking this script on bastion" | tee -a $WORKSPACE/perf-ocs-ci.log
+echo "Remotely invoke this script on bastion" | tee -a $WORKSPACE/perf-ocs-ci.log
 
 cmdname=$(echo $cmd | sed "s|$cmdpath/||")
 ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null root@$BASTION_IP ./$cmdname --run-test 2>&1 | tee -a $WORKSPACE/perf-ocs-ci.log
@@ -313,6 +321,8 @@ ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null root@$BASTION_IP
 echo "Get perf logs from bastion" | tee -a $WORKSPACE/perf-ocs-ci.log
 
 scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -p -r root@$BASTION_IP:logs-ocs-ci $WORKSPACE 2>&1 | tee -a $WORKSPACE/perf-ocs-ci.log
+
+set -e
 
 oc get cephcluster --namespace openshift-storage 2>&1 | tee -a $WORKSPACE/perf-ocs-ci.log
 oc get pods --namespace openshift-storage 2>&1 | tee -a $WORKSPACE/perf-ocs-ci.log
