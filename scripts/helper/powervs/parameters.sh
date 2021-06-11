@@ -62,7 +62,7 @@ case $OCP_VERSION in
 	export RHCOS_IMAGE=${RHCOS_IMAGE:="rhcos-47-02172021"}
 	;;
 4.8)
-	export RHCOS_IMAGE=${RHCOS_IMAGE:="rhcos-48-02102021"}
+	export RHCOS_IMAGE=${RHCOS_IMAGE:="rhcos-48-05132021"}
 	;;
 *)
 	echo "ERROR: OCP Version=$OCP_VERSION not supported"
