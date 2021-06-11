@@ -36,6 +36,8 @@ export OCP_VERSION=${OCP_VERSION:=4.7}                          # 4.5, 4.7, and 
 export OCS_VERSION=${OCS_VERSION:=4.7}
 
 export WORKERS=4                                                # Extra worker node for elasticsearch
+export MASTER_DESIRED_CPU=1.5
+export MASTER_DESIRED_MEM=48
 export WORKER_DESIRED_CPU=6                                     # WORKER_VOLUME_SIZE(1024) -> 42 fio pods + ceph on 4 workers
 export WORKER_DESIRED_MEM=96
 

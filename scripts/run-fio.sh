@@ -195,7 +195,6 @@ function wait_for_fio_pods_to_complete () {
 		do
 			pod_name=${pods[$i]}
 
-			set +e
 			oc rsh $pod_name ls fio-results.tar >/dev/null 2>&1
 			rc=$?
 			if [ "$rc" == 0 ] && [ ! -e $fio_results_dir/$pod_name/fio-results-$pod_name.tar ]; then
@@ -205,9 +204,8 @@ function wait_for_fio_pods_to_complete () {
 				(( pod_done = pod_done + 1 ))
 			else
 				results=$(oc rsh $pod_name ls -rt results/ 2>/dev/null | wc -w)
-				echo "Still running -- ${pod_name} -- working on test $results of 12"
+				echo "Still running -- ${pod_name} -- working on test $results of 15"
 			fi
-			set -e
 
 			(( i = i + 1 ))
 		done
@@ -222,6 +220,7 @@ function delete_pods () {
 	echo "Deleting fio pods and pvcs..."
 
 	sleep 5s
+
 	oc get pod | grep ^fio | awk '{ print $1 }' | xargs oc delete pod
 	oc get pvc | grep ^fio | awk '{ print $1 }' | xargs oc delete pvc
 
@@ -247,14 +246,14 @@ elif [ "$max_avail_unit" != GiB ]; then
         exit 1
 fi
 
-use_GiB_per_worker=$(( max_avail_GiB * 80 / 100 / fio_workers ))
+use_GiB_per_worker=$(( max_avail_GiB * 85 / 100 / fio_workers ))
 
 # Determine the amount of system memory on ceph worker nodes
 
 ceph_node=$(oc get pods -n openshift-storage  -o wide | grep osd | head -n 1 | awk '{print $7}')
 worker_node_mem=$(oc debug node/$ceph_node -- chroot /host lsmem 2>/dev/null | grep "^Total online memory" | awk '{ print $4 }' | sed 's/G//')
 
-# Determine the number of pods and the amount of storage in each pod's pvc.  Assume 16 GiB pvc is minimal viable size
+# Determine the number of pods and the amount of storage in each pod's pvc
 
 min_pvc_allocated_per_worker=$(( worker_node_mem * 80 / 100 ))
 if (( use_GiB_per_worker < min_pvc_allocated_per_worker )); then
@@ -270,8 +269,11 @@ else
 	num_pods_per_worker=16			# Maximum number of pods per worker
 fi
 
+# Assume minimum viable pvc fio size is 14 GBs.  Operate on 75% of pvc to avoid ceph alerts.  Yields a 10 GB fio file
+
+min_pvc_size=14
 pvc_size=$(( use_GiB_per_worker / num_pods_per_worker ))
-while (( pvc_size < 16 ))
+while (( pvc_size < min_pvc_size ))
 do
 	(( num_pods_per_worker = num_pods_per_worker - 1 ))
 	pvc_size=$(( use_GiB_per_worker / num_pods_per_worker ))
@@ -291,7 +293,7 @@ export PVC_SIZE=${pvc_size}Gi
 
 # These environment variables are used in the run_fio.sh file
 
-fsize=$(( pvc_size * 70 / 100 ))
+fsize=$(( pvc_size * 75 / 100 ))
 export FSIZE=${fsize}G
 
 echo "Size of fio file: $FSIZE"

@@ -36,8 +36,10 @@ export OCP_VERSION=${OCP_VERSION:=4.7}                          # 4.5, 4.7, and 
 export OCS_VERSION=${OCS_VERSION:=4.7}
 
 export WORKERS=4                                                # Extra worker node for elasticsearch
-export WORKER_DESIRED_CPU=3                                     # WORKER_VOLUME_SIZE(768) -> 30 fio pods + ceph on 4 workers
-export WORKER_DESIRED_MEM=64
+export MASTER_DESIRED_CPU=1.5
+export MASTER_DESIRED_MEM=48
+export WORKER_DESIRED_CPU=5                                     # WORKER_VOLUME_SIZE(768) -> 30 fio pods + ceph on 4 workers
+export WORKER_DESIRED_MEM=96
 
 # These are optional for KVM OCP cluster create.  Default values are shown
 

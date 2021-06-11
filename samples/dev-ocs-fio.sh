@@ -19,9 +19,9 @@ export PLATFORM=powervs
 export OCP_VERSION=${OCP_VERSION:=4.7}                          # 4.5, 4.7, and 4.8 are also supported
 export OCS_VERSION=${OCS_VERSION:=4.7}
 
-export MASTER_DESIRED_CPU=1.25
+export MASTER_DESIRED_CPU=1.5
 export MASTER_DESIRED_MEM=48
-export WORKER_DESIRED_CPU=2.5
+export WORKER_DESIRED_CPU=6
 export WORKER_DESIRED_MEM=96
 
 # These are optional for KVM OCP cluster create.  Default values are shown
@@ -180,7 +180,17 @@ if [[ ! "$CEPH_STATE" =~ HEALTH_OK ]]; then
 	exit 1
 fi
 
-set -e
+function delete_pods () {
+        echo "Deleting fio pods and pvcs..."
+
+        sleep 5s
+
+        oc get pod | grep ^fio | awk '{ print $1 }' | xargs oc delete pod
+        oc get pvc | grep ^fio | awk '{ print $1 }' | xargs oc delete pvc
+
+        exit
+}
+trap delete_pods SIGINT SIGTERM
 
 ./run-fio.sh block 2>&1 | tee $WORKSPACE/perf-fio-block.log
 

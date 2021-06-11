@@ -25,10 +25,6 @@ if [ -z "$run_number" ]; then
 	exit 1
 fi
 
-
-# The goal here is to come up with an absolute path to the fio data as
-# there is a lot of data manipulation and the code changes directories.
-
 fiodir=$WORKSPACE/fio-results/$iotype/$run_number
 if [ ! -e "$fiodir" ]; then
 	echo "Usage $0 { block | file } <fio run number>"
@@ -40,6 +36,9 @@ if [ ! -e "$fiodir" ]; then
 	fi
 	exit 1
 fi
+
+# Aggregate fio test results in a single file to simplify report generation.  Each fio pod produces
+# a tar file of fio results.  There is one fio result file per fio test.
 
 pushd $fiodir >/dev/null 2>&1
 tars=$(find | grep tar)
@@ -78,15 +77,18 @@ echo -e "Fio data file: $file\n"
 ./helper/fio-extract-data.sh $file read 16k
 ./helper/fio-extract-data.sh $file read 64k
 ./helper/fio-extract-data.sh $file read 128k
+./helper/fio-extract-data.sh $file read 1024k
 
 ./helper/fio-extract-data.sh $file write 4k
 ./helper/fio-extract-data.sh $file write 16k
 ./helper/fio-extract-data.sh $file write 64k
 ./helper/fio-extract-data.sh $file write 128k
+./helper/fio-extract-data.sh $file write 1024k
 
 ./helper/fio-extract-data.sh $file randrw 4k
 ./helper/fio-extract-data.sh $file randrw 16k
 ./helper/fio-extract-data.sh $file randrw 64k
 ./helper/fio-extract-data.sh $file randrw 128k
+./helper/fio-extract-data.sh $file randrw 1024k
 
 exit

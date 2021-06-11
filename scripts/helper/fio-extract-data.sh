@@ -20,7 +20,7 @@ esac
 
 bs=$3                   # 4k, 64k, 128k
 case "$bs" in
-        4k|16k|64k|128k)
+        4k|16k|64k|128k|1024k)
                 ;;
         *)
                 echo "$0 <file> <test> <bs>"
