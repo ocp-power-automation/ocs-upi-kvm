@@ -9,3 +9,6 @@
 [submodule "src/ocp4-upi-powervs"]
 	path = src/ocp4-upi-powervs
 	url = https://github.com/ocp-power-automation/ocp4-upi-powervs.git
+[submodule "src/ocp4-upi-powervm"]
+	path = src/ocp4-upi-powervm
+	url = https://github.com/ocp-power-automation/ocp4-upi-powervm

@@ -1,89 +1,46 @@
 #!/bin/bash
 
-export PVS_API_KEY=${PVS_API_KEY:=""}					# Obtained from CLI - ibmcloud pi service-list
-export PVS_REGION=${PVS_REGION:="tok"}
-export PVS_ZONE=${PVS_ZONE:="tok04"}
-export PVS_SERVICE_INSTANCE_ID=${PVS_SERVICE_INSTANCE_ID:=""}
+export PVC_URL=${PVC_URL:=https://scnlpowercloud.pok.stglabs.ibm.com:5000/v3/}
+export PVC_TENANT=${PVC_TENANT:=icp-test}
+export PVC_DOMAIN=${PVC_DOMAIN:=Default}
+export PVC_SUBNET_NAME=${PVC_SUBNET_NAME:=icp_network2}
+export PVC_SUBNET_TYPE=${PVC_SUBNET_TYPE:=SEA}
 
-export PVS_SUBNET_NAME=${PVS_SUBNET_NAME:="ocp-net"}
-
-export SYSTEM_TYPE=${SYSTEM_TYPE:="s922"}				# The type of system (s922/e980)
-export PROCESSOR_TYPE=${PROCESSOR_TYPE:="shared"}			# The type of processor mode (shared/dedicated)
+export BASTION_COMPUTE_TEMPLATE=${BASTION_COMPUTE_TEMPLATE:=ocp4-qa-bastion}
+export BOOTSTRAP_COMPUTE_TEMPLATE=${BOOTSTRAP_COMPUTE_TEMPLATE:=ocp4-qa-bootstrap}
+export MASTER_COMPUTE_TEMPLATE=${MASTER_COMPUTE_TEMPLATE:=medium}
+export WORKER_COMPUTE_TEMPLATE=${WORKER_COMPUTE_TEMPLATE:=large}
 
 if [ -z "$CLUSTER_ID_PREFIX" ]; then
 	CLUSTER_ID_PREFIX=rdr-${RHID_USERNAME:0:3}
 	export CLUSTER_ID_PREFIX=$CLUSTER_ID_PREFIX${OCP_VERSION/./}
 fi
 
-export USE_TIER1_STORAGE=${USE_TIER1_STORAGE:="false"}
 export CMA_PERCENT=${CMA_PERCENT:=0}					# Kernel contiguous memory area for DMA
-
-# Check service instance first, since it is not set above to a default value.  It
-# over rides zone and region if the service instance is set and recognized
-
-if [ "$PVS_SERVICE_INSTANCE_ID" == fac4755e-8aff-45f5-8d5c-1d3b58b7a229 ]; then
-	PVS_REGION=lon
-	PVS_ZONE=lon06
-elif [ "$PVS_SERVICE_INSTANCE_ID" == 60e43366-08de-4287-8c42-b7942406efc9 ]; then
-	PVS_REGION=tok
-	PVS_ZONE=tok04
-elif [ "$PVS_SERVICE_INSTANCE_ID" == 481377eb-e843-46df-9afa-a815da381ffa ]; then
-	PVS_REGION=sao
-	PVS_ZONE=sao01
-elif [ "$PVS_SERVICE_INSTANCE_ID" == 73585ea1-0d40-4c0f-b97c-e3d6923aa153 ]; then
-	PVS_REGION=mon
-	PVS_ZONE=mon01
-elif [ "$PVS_REGION" == lon ] && [ "$PVS_ZONE" == lon06 ]; then
-	PVS_SERVICE_INSTANCE_ID=fac4755e-8aff-45f5-8d5c-1d3b58b7a229
-elif [ "$PVS_REGION" == tok ] && [ "$PVS_ZONE" == tok04 ]; then
-	PVS_SERVICE_INSTANCE_ID=60e43366-08de-4287-8c42-b7942406efc9
-elif [ "$PVS_REGION" == sao ] && [ "$PVS_ZONE" == sao01 ]; then
-	PVS_SERVICE_INSTANCE_ID=481377eb-e843-46df-9afa-a815da381ffa
-elif [ "$PVS_REGION" == mon ] && [ "$PVS_ZONE" == mon01 ]; then
-	PVS_SERVICE_INSTANCE_ID=73585ea1-0d40-4c0f-b97c-e3d6923aa153
-fi
 
 # The boot images below are common across OCS development zones, except where noted
 
-export BASTION_IMAGE=${BASTION_IMAGE:="rhel-83-03192021"}
+export BASTION_IMAGE=${BASTION_IMAGE:=6d9e7fc7-ae10-463c-b3bf-14ee6ff3647a}
 
 case $OCP_VERSION in
 4.4|4.5)
-	if [ "$PVS_REGION" == tok ] && [ "$PVS_ZONE" == tok04 ] && [ -z "$RHCOS_IMAGE" ]; then
-		echo "WARNING: Validate boot image rhcos-454-09242020-001 is available in PowerVS zone ocp-ocs-tokyo-04"
-		echo "WARNING: Choose PowerVS zone ocp-ocs-london-06 instead"
-	fi
-	export RHCOS_IMAGE=${RHCOS_IMAGE:="rhcos-454-09242020-001"}
-	export OCP_PROJECT_COMMIT="origin/release-4.5"
+	export RHCOS_IMAGE=${RHCOS_IMAGE:=ca2f9631-9fd3-4fa5-b349-3e93dd057d46}   # cicd-rhcos-45.82.202007072057-0-openstack.ppc64le
+	export OCP_PROJECT_COMMIT=origin/release-4.5
 	;;
 4.6)
-	export RHCOS_IMAGE=${RHCOS_IMAGE:="rhcos-46-09182020"}
-	export OCP_PROJECT_COMMIT=d0a2c1ff486cc0a2db5ea85aeff7627a912f28e5
+	export RHCOS_IMAGE=${RHCOS_IMAGE:=a08e13ae-897b-4ce1-b945-80c3b59fcc86}   # rhcos-46.82.20200918070611-0-openstack.ppc64le
+	export OCP_PROJECT_COMMIT=origin/release-4.6
+	export INSTALL_PLAYBOOK_TAG=e89bef76cec089a481d6de2b7fa07944ae0481a5      # Align with powervs.  Was 1 commit down level
 	;;
 4.7)
-	export RHCOS_IMAGE=${RHCOS_IMAGE:="rhcos-47-02172021"}
-	export OCP_PROJECT_COMMIT=a87bf5b274cf9c7cec70c85dc90609939065a948
+	export RHCOS_IMAGE=${RHCOS_IMAGE:=ad1e6a7e-02f3-4253-994a-985bb548f9ec}   # cicd-rhcos-47.0.20210216-rc2-openstack.ppc64le 
+	export OCP_PROJECT_COMMIT=origin/release-4.7
+	export INSTALL_PLAYBOOK_TAG=86b12e097f430dca95a151cb1073c1b1f07be024	  # Align with powervs.  Was 7 commits down level
 	;;
 4.8)
-	export RHCOS_IMAGE=${RHCOS_IMAGE:="rhcos-48-05132021"}
+	export RHCOS_IMAGE=${RHCOS_IMAGE:=09e18a43-8440-40f2-abe6-b8824fb679cd}   # rhcos-48.84.202105130819-0-openstack.ppc64le
 	;;
 esac
-
-if [[ "$USE_TIER1_STORAGE" == "true" ]] && [[ ! "$BASTION_IMAGE" =~ tier1 ]] && [[ ! "$RHCOS_IMAGE" =~ tier1 ]]; then
-	export BASTION_IMAGE=$BASTION_IMAGE-tier1
-	export RHCOS_IMAGE=$RHCOS_IMAGE-tier1
-fi
-
-# This is default minimalistic config. For PowerVS processors are equal to entitled physical count
-# So N processors == N physical core entitlements == ceil[N] vCPUs.
-# Example 0.5 processors == 0.5 physical core entitlements == ceil[0.5] = 1 vCPU == 8 logical OS CPUs (SMT=8)
-# Example 1.5 processors == 1.5 physical core entitlements == ceil[1.5] = 2 vCPU == 16 logical OS CPUs (SMT=8)
-# Example 2 processors == 2 physical core entitlements == ceil[2] = 2 vCPU == 16 logical OS CPUs (SMT=8)
-
-export MASTER_DESIRED_CPU=${MASTER_DESIRED_CPU:="1.25"}
-export MASTER_DESIRED_MEM=${MASTER_DESIRED_MEM:="32"}
-export WORKER_DESIRED_CPU=${WORKER_DESIRED_CPU:="1.25"}
-export WORKER_DESIRED_MEM=${WORKER_DESIRED_MEM:="64"}
 
 export WORKER_VOLUME_SIZE=${WORKER_VOLUME_SIZE:="500"}
 
@@ -99,12 +56,12 @@ export OCS_CI_ON_BASTION=${OCS_CI_ON_BASTION:="false"}			# ocs-ci runs locally b
 ########################### Internal variables & functions #############################
 
 
-# IMPORTANT: Increment POWERVS_SETUP_GENCNT if the powervs_setup_host.sh file changes
+# IMPORTANT: Increment POWERVM_SETUP_GENCNT if the powervs_setup_host.sh file changes
 #            Increments by more than 2 will rebuild terraform modules also.  ie. 1->4
 
-POWERVS_SETUP_GENCNT=4
+POWERVM_SETUP_GENCNT=1
 
-OCP_PROJECT=ocp4-upi-powervs
+OCP_PROJECT=ocp4-upi-powervm
 
 # List of OCS DNS Entries to be added to /etc/hosts.  List is separated by spaces
 
@@ -114,20 +71,20 @@ function prepare_new_cluster_delete_old_cluster () {
 
 	POWERVS_SETUP_GENCNT_INSTALLED=-1
 
-	invoke_powervs_setup=false
-	if [ ! -e ~/.powervs_setup ]; then
-		invoke_powervs_setup=true
+	invoke_powervm_setup=false
+	if [ ! -e ~/.powervm_setup ]; then
+		invoke_powervm_setup=true
 	else
-		source ~/.powervs_setup
-		if [[ "$POWERVS_SETUP_GENCNT_INSTALLED" -lt "$POWERVS_SETUP_GENCNT" ]]; then
-			invoke_powervs_setup=true
+		source ~/.powervm_setup
+		if [[ "$POWERVM_SETUP_GENCNT_INSTALLED" -lt "$POWERVM_SETUP_GENCNT" ]]; then
+			invoke_powervm_setup=true
 		fi
 	fi
 
-        if [ "$invoke_powervs_setup" == true ]; then
-                echo "Invoking setup-powervs-client.sh"
-                sudo -sE helper/powervs/setup-powervs-client.sh
-                echo "POWERVS_SETUP_GENCNT_INSTALLED=$POWERVS_SETUP_GENCNT" > ~/.powervs_setup
+        if [ "$invoke_powervm_setup" == true ]; then
+                echo "Invoking setup-powervm-client.sh"
+                sudo -sE helper/powervm/setup-powervm-client.sh
+                echo "POWERVM_SETUP_GENCNT_INSTALLED=$POWERVM_SETUP_GENCNT" > ~/.powervm_setup
         fi
 
         # Remove pre-existing cluster.  We are going to create a new one
@@ -143,9 +100,9 @@ function setup_remote_oc_use () {
 
 	terraform_cmd=$WORKSPACE/bin/terraform
 
-	# BASTION_IP is used by caller
+	# BASTION_IP is used by caller.   bastion_public_ip on powervs
 
-	BASTION_IP=$($terraform_cmd output | grep ^bastion_public_ip | awk '{print $3}')
+	BASTION_IP=$($terraform_cmd output | grep ^bastion_ip | awk '{print $3}')
 
 	etc_hosts_entries=$($terraform_cmd output | awk '/^etc_hosts_entries/{getline;print;}')
 

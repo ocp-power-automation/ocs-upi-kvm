@@ -1,0 +1,46 @@
+### PowerVC Details
+
+auth_url                    = "$PVC_URL"                             # https://<HOSTNAME>:5000/v3/>
+user_name                   = "$PVC_LOGIN_NAME"
+password                    = "$PVC_LOGIN_PASSWORD"
+tenant_name                 = "$PVC_TENANT"                                               # ibm-default
+domain_name                 = "$PVC_DOMAIN"
+network_name		    = "$PVC_SUBNET_NAME"
+network_type                = "$PVC_SUBNET_TYPE"                                          # SEA (default) or SRIOV
+
+bastion                     = {instance_type    = "$BASTION_COMPUTE_TEMPLATE",   image_id    = "$BASTION_IMAGE"}
+bootstrap                   = {instance_type    = "$BOOTSTRAP_COMPUTE_TEMPLATE", image_id    = "$RHCOS_IMAGE",  "count"   = 1}
+master                      = {instance_type    = "$MASTER_COMPUTE_TEMPLATE",    image_id    = "$RHCOS_IMAGE",  "count"   = 3}
+worker                      = {instance_type    = "$WORKER_COMPUTE_TEMPLATE",    image_id    = "$RHCOS_IMAGE",  "count"   = "$WORKERS"}
+
+rhel_subscription_username      = "$RHID_USERNAME"
+rhel_subscription_password      = "$RHID_PASSWORD"
+rhel_subscription_org           = "$RHID_ORG"
+rhel_subscription_activationkey = "$RHID_KEY"
+
+openshift_install_tarball   = "https://mirror.openshift.com/pub/openshift-v4/ppc64le/clients/$OCP_INSTALLER_SUBPATH/openshift-install-linux.tar.gz"
+openshift_client_tarball    = "https://mirror.openshift.com/pub/openshift-v4/ppc64le/clients/$OCP_INSTALLER_SUBPATH/openshift-client-linux.tar.gz"
+
+release_image_override      = "$OPENSHIFT_INSTALL_RELEASE_IMAGE_OVERRIDE"
+
+cluster_domain              = "$CLUSTER_DOMAIN"
+cluster_id_prefix           = "$CLUSTER_ID_PREFIX"
+cluster_id                  = ""
+
+dns_forwarders              = "$DNS_FORWARDERS"
+chrony_config               = "$CHRONY_CONFIG"
+chrony_config_servers       = [$CHRONY_CONFIG_SERVERS]
+
+# TBD -- Needs to be enhanced to support extra disk for worker nodes
+
+volume_size                 = "$WORKER_VOLUME_SIZE"
+
+# Bastion node
+
+storage_type                = "notnfs"
+
+rhcos_kernel_options        = [$RHCOS_KERNEL_ARGS]
+
+ansible_extra_options       = "-v"
+
+install_playbook_tag        = "$INSTALL_PLAYBOOK_TAG"

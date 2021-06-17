@@ -188,6 +188,7 @@ if [ "$OLD_GO_VERSION" != "$GO_VERSION" ]; then
 
 	rm -rf $PLUGIN_PATH/dmacvicar/libvirt/1.0.0
 	rm -rf $PLUGIN_PATH/IBM-Cloud/ibm/$TERRAFORM_POWERVS_VERSION
+	rm -rf $PLUGIN_PATH/terraform-provider-openstack/openstack/$TERRAFORM_OPENSTACK_VERSION
 	rm -rf $PLUGIN_PATH/hashicorp/random/$TERRAFORM_RANDOM_VERSION
 	rm -rf $PLUGIN_PATH/hashicorp/null/$TERRAFORM_NULL_VERSION
 	rm -rf $PLUGIN_PATH/community-terraform-providers/ignition/$TERRAFORM_IGNITION_VERSION
@@ -230,7 +231,19 @@ if [[ "$INSTALLED_GO" == "true" ]] || [[ "$OLD_TERRAFORM_VERSION" != "$TERRAFORM
 
 	cp -f $GOPATH/bin/terraform $WORKSPACE/bin/terraform
 
-	mkdir -p $GOPATH/src/github.com/dmacvicar; cd $GOPATH/src/github.com/dmacvicar
+	popd
+fi
+
+# The modules below are copied into the user's home directory and may be shared across cronjobs,
+# so don't update them if they are present at the desired version.  The go version that built
+# them may be different which is an exposure.  An exception is made for libvirt, because only
+# one KVM cluster is supported at a time at the system level
+
+if [ ! -e $PLUGIN_PATH/dmacvicar/libvirt/1.0.0/$LPLATFORM/terraform-provider-libvirt ]; then
+	pushd $GOPATH/src/github.com
+
+	mkdir -p $GOPATH/src/github.com/dmacvicar/; cd $GOPATH/src/github.com/dmacvicar
+	rm -rf terraform-provider-libvirt
 	git clone https://github.com/dmacvicar/terraform-provider-libvirt.git
 	pushd terraform-provider-libvirt
 	make install
@@ -238,79 +251,109 @@ if [[ "$INSTALLED_GO" == "true" ]] || [[ "$OLD_TERRAFORM_VERSION" != "$TERRAFORM
 
 	mkdir -p $PLUGIN_PATH/dmacvicar/libvirt/1.0.0/$LPLATFORM/
 	cp -f $GOPATH/bin/terraform-provider-libvirt $PLUGIN_PATH/dmacvicar/libvirt/1.0.0/$LPLATFORM/
+	popd
+fi
 
-	# The modules below are copied into the user's home directory and may be shared across cronjobs,
-	# so don't update them if they are present at the desired version.  The go version that built
-	# them may be different which is an exposure.  An exception is made for libvirt, because only
-        # one KVM cluster is supported at a time at the system level
+VERSION=$TERRAFORM_POWERVS_VERSION
+if [ ! -e $PLUGIN_PATH/IBM-Cloud/ibm/$VERSION/$LPLATFORM/terraform-provider-ibm ]; then
+	pushd $GOPATH/src/github.com
 
-	VERSION=$TERRAFORM_POWERVS_VERSION
-	if [ ! -e $PLUGIN_PATH/IBM-Cloud/ibm/$VERSION/$LPLATFORM/terraform-provider-ibm ]; then
-		mkdir -p $GOPATH/src/github.com/IBM-Cloud; cd $GOPATH/src/github.com/IBM-Cloud
-		git clone https://github.com/IBM-Cloud/terraform-provider-ibm.git  --branch v$VERSION
-		pushd terraform-provider-ibm
-		make build
-		popd
+	mkdir -p $GOPATH/src/github.com/IBM-Cloud; cd $GOPATH/src/github.com/IBM-Cloud
+	rm -rf terraform-provider-ibm
+	git clone https://github.com/IBM-Cloud/terraform-provider-ibm.git  --branch v$VERSION
+	pushd terraform-provider-ibm
+	make build
+	popd
 
-		mkdir -p $PLUGIN_PATH/IBM-Cloud/ibm/$VERSION/$LPLATFORM/
-		cp -f $GOPATH/bin/terraform-provider-ibm $PLUGIN_PATH/IBM-Cloud/ibm/$VERSION/$LPLATFORM/
-	fi
+	mkdir -p $PLUGIN_PATH/IBM-Cloud/ibm/$VERSION/$LPLATFORM/
+	cp -f $GOPATH/bin/terraform-provider-ibm $PLUGIN_PATH/IBM-Cloud/ibm/$VERSION/$LPLATFORM/
+	popd
+fi
 
-	VERSION=$TERRAFORM_RANDOM_VERSION
-	if [ ! -e $PLUGIN_PATH/hashicorp/random/$VERSION/$LPLATFORM/terraform-provider-random ]; then
-		mkdir -p $GOPATH/src/github.com/terraform-providers; cd $GOPATH/src/github.com/terraform-providers
-		git clone https://github.com/terraform-providers/terraform-provider-random --branch v$VERSION
-		pushd terraform-provider-random
-		make build
-		popd
+VERSION=$TERRAFORM_OPENSTACK_VERSION
+if [ ! -e $PLUGIN_PATH/terraform-provider-openstack/openstack/$VERSION/$LPLATFORM/terraform-provider-openstack ]; then
+	pushd $GOPATH/src/github.com
 
-		mkdir -p $PLUGIN_PATH/hashicorp/random/$VERSION/$LPLATFORM/
-		cp -f $GOPATH/bin/terraform-provider-random $PLUGIN_PATH/hashicorp/random/$VERSION/$LPLATFORM/
-	fi
+	mkdir -p $GOPATH/src/github.com/terraform-provider-openstack; cd $GOPATH/src/github.com/terraform-provider-openstack
+	rm -rf terraform-provider-openstack
+	git clone https://github.com/terraform-provider-openstack/terraform-provider-openstack --branch v$VERSION
+	pushd terraform-provider-openstack
+	make build
+	popd
 
-	VERSION=$TERRAFORM_NULL_VERSION
-	if [ ! -e $PLUGIN_PATH/hashicorp/null/$VERSION/$LPLATFORM/terraform-provider-null ]; then
-		mkdir -p $GOPATH/src/github.com/terraform-providers; cd $GOPATH/src/github.com/terraform-providers
-		git clone https://github.com/terraform-providers/terraform-provider-null --branch v$VERSION
-		pushd terraform-provider-null
-		make build
-		popd
+	mkdir -p $PLUGIN_PATH/terraform-provider-openstack/openstack/$VERSION/$LPLATFORM/
+	cp -f $GOPATH/bin/terraform-provider-openstack $PLUGIN_PATH/terraform-provider-openstack/openstack/$VERSION/$LPLATFORM/
+	popd
+fi
 
-		mkdir -p $PLUGIN_PATH/hashicorp/null/$VERSION/$LPLATFORM/
-		cp -f $GOPATH/bin/terraform-provider-null $PLUGIN_PATH/hashicorp/null/$VERSION/$LPLATFORM/
-	fi
+VERSION=$TERRAFORM_RANDOM_VERSION
+if [ ! -e $PLUGIN_PATH/hashicorp/random/$VERSION/$LPLATFORM/terraform-provider-random ]; then
+	pushd $GOPATH/src/github.com
 
-	# OCP 4.6 upgraded to Ignition Config Spec v3.0.0 which is incompatible with the
-	# format used by OCP 4.5 and 4.4, so conditionally patch ocp4-upi-xxx terraform code
-	# based on the OCP version of the cluster being deployed.  files/ocp4-upi-XXX.legacy.patch
-	# is used for this purpose.
+	mkdir -p $GOPATH/src/github.com/terraform-providers; cd $GOPATH/src/github.com/terraform-providers
+	rm -rf terraform-provider-random
+	git clone https://github.com/terraform-providers/terraform-provider-random --branch v$VERSION
+	pushd terraform-provider-random
+	make build
+	popd
 
-	VERSION=$TERRAFORM_IGNITION_VERSION
-	if [ ! -e $PLUGIN_PATH/community-terraform-providers/ignition/$VERSION/$LPLATFORM/terraform-provider-ignition ]; then
-		mkdir -p $GOPATH/src/github.com/community-terraform-providers; cd $GOPATH/src/github.com/community-terraform-providers 
-		git clone https://github.com/community-terraform-providers/terraform-provider-ignition --branch v$VERSION
-		pushd terraform-provider-ignition
-		make build
-		popd
+	mkdir -p $PLUGIN_PATH/hashicorp/random/$VERSION/$LPLATFORM/
+	cp -f $GOPATH/bin/terraform-provider-random $PLUGIN_PATH/hashicorp/random/$VERSION/$LPLATFORM/
+	popd
+fi
 
-		mkdir -p $PLUGIN_PATH/community-terraform-providers/ignition/$VERSION/$LPLATFORM/
-		cp -f $GOPATH/bin/terraform-provider-ignition $PLUGIN_PATH/community-terraform-providers/ignition/$VERSION/$LPLATFORM/
-	fi
+VERSION=$TERRAFORM_NULL_VERSION
+if [ ! -e $PLUGIN_PATH/hashicorp/null/$VERSION/$LPLATFORM/terraform-provider-null ]; then
+	pushd $GOPATH/src/github.com
 
-	# This is the legacy version
+	mkdir -p $GOPATH/src/github.com/terraform-providers; cd $GOPATH/src/github.com/terraform-providers
+	rm -rf terraform-provider-null
+	git clone https://github.com/terraform-providers/terraform-provider-null --branch v$VERSION
+	pushd terraform-provider-null
+	make build
+	popd
 
-	VERSION=$TERRAFORM_IGNITION_LEGACY_VERSION
-	if [ ! -e $PLUGIN_PATH/terraform-providers/ignition/$VERSION/$LPLATFORM/terraform-provider-ignition ]; then
-		mkdir -p $GOPATH/src/github.com/terraform-providers; cd $GOPATH/src/github.com/terraform-providers 
-		git clone https://github.com/terraform-providers/terraform-provider-ignition --branch v$VERSION
-		pushd terraform-provider-ignition
-		make build
-		popd
+	mkdir -p $PLUGIN_PATH/hashicorp/null/$VERSION/$LPLATFORM/
+	cp -f $GOPATH/bin/terraform-provider-null $PLUGIN_PATH/hashicorp/null/$VERSION/$LPLATFORM/
+	popd
+fi
 
-		mkdir -p $PLUGIN_PATH/terraform-providers/ignition/$VERSION/$LPLATFORM/
-		cp -f $GOPATH/bin/terraform-provider-ignition $PLUGIN_PATH/terraform-providers/ignition/$VERSION/$LPLATFORM/
-	fi
+# OCP 4.6 upgraded to Ignition Config Spec v3.0.0 which is incompatible with the
+# format used by OCP 4.5 and 4.4, so conditionally patch ocp4-upi-xxx terraform code
+# based on the OCP version of the cluster being deployed.  files/ocp4-upi-XXX.legacy.patch
+# is used for this purpose.
 
+VERSION=$TERRAFORM_IGNITION_VERSION
+if [ ! -e $PLUGIN_PATH/community-terraform-providers/ignition/$VERSION/$LPLATFORM/terraform-provider-ignition ]; then
+	pushd $GOPATH/src/github.com
+
+	mkdir -p $GOPATH/src/github.com/community-terraform-providers; cd $GOPATH/src/github.com/community-terraform-providers 
+	rm -rf terraform-provider-ignition
+	git clone https://github.com/community-terraform-providers/terraform-provider-ignition --branch v$VERSION
+	pushd terraform-provider-ignition
+	make build
+	popd
+
+	mkdir -p $PLUGIN_PATH/community-terraform-providers/ignition/$VERSION/$LPLATFORM/
+	cp -f $GOPATH/bin/terraform-provider-ignition $PLUGIN_PATH/community-terraform-providers/ignition/$VERSION/$LPLATFORM/
+	popd
+fi
+
+# This is the legacy version for ocp pre-4.6
+
+VERSION=$TERRAFORM_IGNITION_LEGACY_VERSION
+if [ ! -e $PLUGIN_PATH/terraform-providers/ignition/$VERSION/$LPLATFORM/terraform-provider-ignition ]; then
+	pushd $GOPATH/src/github.com
+
+	mkdir -p $GOPATH/src/github.com/terraform-providers; cd $GOPATH/src/github.com/terraform-providers 
+	rm -rf terraform-provider-ignition
+	git clone https://github.com/terraform-providers/terraform-provider-ignition --branch v$VERSION
+	pushd terraform-provider-ignition
+	make build
+	popd
+
+	mkdir -p $PLUGIN_PATH/terraform-providers/ignition/$VERSION/$LPLATFORM/
+	cp -f $GOPATH/bin/terraform-provider-ignition $PLUGIN_PATH/terraform-providers/ignition/$VERSION/$LPLATFORM/
 	popd
 fi
 
@@ -333,34 +376,16 @@ pushd src/$OCP_PROJECT
 
 set +e
 
-#if [ "$OCP_VERSION" == 4.4 ]; then
-#	git checkout origin/release-4.5
-#else
-#	git branch -r | grep release-$OCP_VERSION
-#	rc=$?
-#	if [ "$rc" == 0 ]; then
-#		git checkout origin/release-$OCP_VERSION
-#	else
-#		git checkout master
-#	fi
-#fi
-
-# Temporary workaround to avoid new features and defaults
-# snat and IBM Cloud VPC are new defaults with new proxy services
-# Needs to be investigated further
-
 case "$OCP_VERSION" in
-4.4|4.5)
-	git checkout origin/release-4.5
-	;;
-4.6)
-	git checkout d0a2c1ff486cc0a2db5ea85aeff7627a912f28e5
-	;;
-4.7)
-	git checkout a87bf5b274cf9c7cec70c85dc90609939065a948
+4.4|4.5|4.6|4.7)
+	if [ -z "$OCP_PROJECT_COMMIT" ]; then
+		echo "Internal error: OCP_PROJECT_COMMIT is not set"
+		exit 1
+	fi
+	git checkout $OCP_PROJECT_COMMIT
 	;;
 *)
-	# submodule is committed to ocs-pi-kvm at the desired commit on master branch
+	# submodule is committed to ocs-upi-kvm at the desired commit on master branch
 	;;
 esac
 

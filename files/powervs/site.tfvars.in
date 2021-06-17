@@ -40,7 +40,7 @@ worker_volume_size          = "$WORKER_VOLUME_SIZE"
 
 # Bastion node
 
-storage_type                = "no"
+storage_type                = "notnfs"
 
 rhcos_kernel_options        = [$RHCOS_KERNEL_ARGS]
 

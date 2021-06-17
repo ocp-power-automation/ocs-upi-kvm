@@ -8,7 +8,7 @@
 
 # These environment variables are required for all platforms
 
-export PLATFORM=${PLATFORM:="kvm"}				# Also supported: powervs.   Defaults to kvm
+export PLATFORM=${PLATFORM:="kvm"}                              # Also supported: powervs, powervm (implements PowerVC)
 
 #export RHID_USERNAME=<your registered username>		# Change this line or preset in shell
 #export RHID_PASSWORD=<your password>				# Edit or preset
@@ -48,10 +48,22 @@ export OCS_VERSION=${OCS_VERSION:=4.7}
 #export USE_TIER1_STORAGE=false
 
 
-# These are optional for PowerVS ocs-ci.  Default values are shown
+# These are optional for PowerVS and PowerVC ocs-ci.  Default values are shown
 
 #export OCS_CI_ON_BASTION=false                                 # When true, ocs-ci runs on bastion node, which may help
                                                                 # with intermittent network issues and testcase timeouts
+
+# These are required for PowerVC OCP cluster create
+
+#export PVC_URL=<https://<HOSTNAME>:5000/v3/>
+#export PVC_LOGIN_NAME=<PVC email login>                        # IBM Intranet ID - name@us.ibm.com
+#export PVC_LOGIN_PASSWORD=<password>                           # IBM Intranet Password
+#export PVC_TENANT=<PVC tenant>                                 # Below your username in PowerVC GUI
+#export PVC_SUBNET_NAME=<PVC network>                           # PowerVC GUI--> Networks
+
+# These are optional for PowerVC OCP cluster create
+
+#export PVC_NETWORK_TYPE=SEA                                    # SRIOV also supported.  Check PVC GUI if enabled for PVC Network
 
 ##############  MAIN ################
 
@@ -104,6 +116,8 @@ if [ "$PLATFORM" == powervs ]; then
 		exit 1
 	fi
 	OCP_PROJECT=ocp4-upi-powervs
+elif [ "$PLATFORM" == powervm ]; then
+	OCP_PROJECT=ocp4-upi-powervm
 else
 	OCP_PROJECT=ocp4-upi-kvm
 fi

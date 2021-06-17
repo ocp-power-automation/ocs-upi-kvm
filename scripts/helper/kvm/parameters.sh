@@ -76,6 +76,22 @@ KVM_SETUP_GENCNT=7
 
 OCP_PROJECT=ocp4-upi-kvm
 
+case $OCP_VERSION in
+4.4|4.5)
+	export OCP_PROJECT_COMMIT=origin/release-4.5
+	;;
+*)
+	set +e
+	git branch -r | grep release-$OCP_VERSION
+	rc=$?
+	set -e
+	if [ "$rc" == 0 ]; then
+ 		export OCP_PROJECT_COMMIT=release-$OCP_VERSION
+	else
+ 		export OCP_PROJECT_COMMIT=origin/master
+ 	fi
+esac
+
 export OCS_CI_ON_BASTION=false
 export CMA_PERCENT=0
 
