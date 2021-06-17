@@ -24,8 +24,9 @@ Container Storage Version, and the number and size of worker nodes.
 
 This project creates an OpenShift Cluster running in
 
-- libvirt/KVM based VMs on a single RHEL 8 ppc64le server
-- PowerVS based LPARs in IBM Cloud
+- libvirt/KVM on a single RHEL 8 ppc64le server
+- PowerVS
+- PowerVC
 
 ## User Setup
 
@@ -60,6 +61,7 @@ This project uses the following git submodules:
 
 - github.com/ocp-power-automation/ocp4-upi-kvm 
 - github.com/ocp-power-automation/ocp4-upi-powervs
+- github.com/ocp-power-automation/ocp4-upi-powervm
 - github.com/red-hat-storage/ocs-ci
 
 These submodules must be instantiated before the create, setup, deploy, and test 
@@ -265,8 +267,14 @@ DNS_FORWARDERS | no | powervs |	1.1.1.1;9.9.9.9
 CLUSTER_ID_PREFIX | no | powervs | First 6 RHID_USERNAME + OCP_VERSION
 CLUSTER_DOMAIN | no | powervs | ibm.com, xip.io
 WORKER_VOLUME_SIZE | no | powervs | 500
-OCS_CI_ON_BASTION | no | powervs | false
+OCS_CI_ON_BASTION | no | powervs/vm | false
 USE_TIER1_STORAGE | no | powervs | false
+PVC_URL | yes | powervm | PowerVC URL https://<HOSTNAME>:5000/v3/
+PVC_LOGIN_NAME | yes | powervm | PowerVC Login email
+PVC_LOGIN_PASSWORD | yes | powervm | PowerVC Login password
+PVC_TENANT | yes | powervm | PowerVC Tenant (under user login in GUI)
+PVC_SUBNET_NAME | yes | powervm | PowerVC Network
+PVC_SUBNET_TYPE | no | powervm | SEA, SRIOV
 
 Note: 
 

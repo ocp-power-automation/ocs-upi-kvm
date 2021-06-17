@@ -24,7 +24,7 @@ export OCS_CI_ON_BASTION=true                                   # This must be s
 
 # These environment variables are required for all platforms
 
-export PLATFORM=powervs                                         # This must be set to powervs
+export PLATFORM=powervs                                         # Only powervs and powervm (implements PowerVC)
 
 #export RHID_USERNAME=<your registered username>		# Change this line or preset in shell
 #export RHID_PASSWORD=<your password>				# Edit or preset
@@ -34,6 +34,8 @@ export PLATFORM=powervs                                         # This must be s
 
 export OCP_VERSION=${OCP_VERSION:=4.7}                          # 4.5, 4.7, and 4.8 are also supported
 export OCS_VERSION=${OCS_VERSION:=4.7}
+
+# These are optional and apply only to kvm and powervs for now.  They are presently ignored on powervm
 
 export WORKERS=4                                                # Extra worker node for elasticsearch
 export MASTER_DESIRED_CPU=1.5
@@ -70,9 +72,21 @@ export WORKER_DESIRED_MEM=96
 export WORKER_VOLUME_SIZE=1024
 export USE_TIER1_STORAGE=true
 
-# These are optional for PowerVS ocs-ci.  Default values are shown
+# These are optional for PowerVS and PowerVC ocs-ci.  Default values are shown
 
 #export CMA_PERCENT=8
+
+# These are required for PowerVC OCP cluster create
+
+#export PVC_URL=<https://<HOSTNAME>:5000/v3/>
+#export PVC_LOGIN_NAME=<PVC email login>                        # IBM Intranet ID - name@us.ibm.com
+#export PVC_LOGIN_PASSWORD=<password>                           # IBM Intranet Password
+#export PVC_TENANT=<PVC tenant>                                 # Below your username in PowerVC GUI
+#export PVC_SUBNET_NAME=<PVC network>                           # PowerVC GUI--> Networks
+
+# These are optional for PowerVC OCP cluster create
+
+#export PVC_NETWORK_TYPE=SEA                                    # SRIOV also supported.  Check PVC GUI if enabled for PVC Network
 
 ##############  MAIN ################
 
@@ -188,6 +202,8 @@ if [ "$PLATFORM" == powervs ]; then
 		exit 1
 	fi
 	OCP_PROJECT=ocp4-upi-powervs
+elif [ "$PLATFORM" == powervm ]; then
+	OCP_PROJECT=ocp4-upi-powervm
 else
 	OCP_PROJECT=ocp4-upi-kvm
 fi
