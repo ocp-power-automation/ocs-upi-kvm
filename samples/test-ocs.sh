@@ -206,6 +206,5 @@ do
 	fi
 done
 
-#nohup ./test-ocs-ci.sh --performance 2>&1 > $WORKSPACE/perf-ocs-ci.log
 #nohup ./test-ocs-ci.sh --workloads 2>&1 > $WORKSPACE/workloads-ocs-ci.log
 #nohup ./test-ocs-ci.sh --scale 2>&1 > $WORKSPACE/scale-ocs-ci.log

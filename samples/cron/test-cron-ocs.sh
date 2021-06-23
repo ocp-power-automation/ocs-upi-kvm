@@ -166,7 +166,7 @@ pushd $WORKSPACE/ocs-upi-kvm/scripts
 
 set -o pipefail
 
-# for i in 1 2 4a 4b 4c 3 scale performance workloads acceptance
+# for i in 1 2 4a 4b 4c 3 scale workloads acceptance
 
 SECONDS=0
 attempts=0

@@ -7,7 +7,7 @@
 arg1=$1
 
 if [[ "$arg1" =~ "help" ]] || [ "$arg1" == "-?" ] ; then
-	echo "Usage: test-ocs-ci.sh [{ --tier 0,1,2,3,4,4a,4b,4c | --performance | --workloads | --scale | ... }]"
+	echo "Usage: test-ocs-ci.sh [{ --tier 0,1,2,3,4,4a,4b,4c | --workloads | --scale | ... }]"
         echo "No arguments is the same as --tier 0,1"
 	exit 1
 fi
@@ -31,11 +31,15 @@ else
 			fi
 		done
 	elif [[ ! "$arg1" =~ ^-- ]]; then
-		echo "Usage: test-ocs-ci.sh [{ --tier 0,1,2,3,4,4a,4b,4c | --performance | --workloads | --scale | ... }]"
+		echo "Usage: test-ocs-ci.sh [{ --tier 0,1,2,3,4,4a,4b,4c | --workloads | --scale | ... }]"
 		echo "Expecting -- to precede argument, run-ci '-m xxx' is specified as test-ocs-ci.sh --xxx"
 		exit 1
 	else
 		ocsci_cmd="${arg1//\-/}"
+		if [[ "$ocsci_cmd" =~ performance ]]; then
+			echo "ERROR: $0 invalid argument --performance.  Try dev-ocs-perf.sh or test-ocs-perf.sh"
+			exit 1
+		fi
 	fi
 fi
 
