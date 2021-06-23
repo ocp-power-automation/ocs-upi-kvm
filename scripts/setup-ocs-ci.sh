@@ -29,6 +29,8 @@ sudo yum -y install curl libcurl-devel unzip libxml2-devel
 
 pushd ../src/ocs-ci
 
+set +e
+
 patchfiles=( $(ls ../../files/ocs-ci/ocs-ci-[0-9][0-9]-*.patch) )
 echo "patchfiles=${patchfiles[@]}"
 
