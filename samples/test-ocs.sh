@@ -7,7 +7,11 @@
 
 
 # These environment variables are required for all platforms
-
+###
+# While looking how this works, I am doing what Sridhar asked.
+# This branch MUST  be rejected after Sridhar look at it  and not merged
+# Carlos
+###
 export PLATFORM=${PLATFORM:="kvm"}                              # Also supported: powervs.   Defaults to kvm
 
 #export RHID_USERNAME=<your registered username>		# Change this line or preset in shell
