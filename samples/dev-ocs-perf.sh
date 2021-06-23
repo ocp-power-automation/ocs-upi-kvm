@@ -323,9 +323,8 @@ echo "Add route to bastion $BASTION_IP" | tee -a $WORKSPACE/perf-ocs-ci.log
 
 set +e
 
-node_cidr="192.168.0.0\/24"
-netdev=$(ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null root@$BASTION_IP ip r 2>/dev/null | grep $node_cidr | head -n 1 | awk '{print $3}')
-
+subnet=$(ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null root@$BASTION_IP cat /etc/dhcp/dhcpd.conf | grep subnet | tail -1 | awk '{print $2}')
+netdev=$(ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null root@$BASTION_IP ip r 2>/dev/null | grep $subnet | head -1 | awk '{print $3}')
 ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null root@$BASTION_IP ip route add $service_cidr via $es_worker_ip dev $netdev metric 101 onlink 2>&1 | tee -a $WORKSPACE/perf-ocs-ci.log
 
 echo "Relocate this script to bastion" | tee -a $WORKSPACE/perf-ocs-ci.log
