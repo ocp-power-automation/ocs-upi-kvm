@@ -5,6 +5,11 @@
 # to avoid recreating the cluster and other times to invoke ocs-ci with different
 # parameters.  This script is relocatable, so the project itself is not modified.
 
+###
+# Comment added by Carlos
+# Not to be merged, this is only a demo.
+# The previous had merge conflict.
+###
 
 # These environment variables are required for all platforms
 
