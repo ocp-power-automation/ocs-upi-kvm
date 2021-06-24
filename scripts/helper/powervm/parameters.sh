@@ -8,8 +8,8 @@ export PVC_SUBNET_TYPE=${PVC_SUBNET_TYPE:=SEA}
 
 export BASTION_COMPUTE_TEMPLATE=${BASTION_COMPUTE_TEMPLATE:=ocp4-qa-bastion}
 export BOOTSTRAP_COMPUTE_TEMPLATE=${BOOTSTRAP_COMPUTE_TEMPLATE:=ocp4-qa-bootstrap}
-export MASTER_COMPUTE_TEMPLATE=${MASTER_COMPUTE_TEMPLATE:=medium}
-export WORKER_COMPUTE_TEMPLATE=${WORKER_COMPUTE_TEMPLATE:=large}
+export MASTER_COMPUTE_TEMPLATE=${MASTER_COMPUTE_TEMPLATE:=large}
+export WORKER_COMPUTE_TEMPLATE=${WORKER_COMPUTE_TEMPLATE:=xlarge}
 
 if [ -z "$CLUSTER_ID_PREFIX" ]; then
 	CLUSTER_ID_PREFIX=rdr-${RHID_USERNAME:0:3}
@@ -20,7 +20,7 @@ export CMA_PERCENT=${CMA_PERCENT:=0}					# Kernel contiguous memory area for DMA
 
 # The boot images below are common across OCS development zones, except where noted
 
-export BASTION_IMAGE=${BASTION_IMAGE:=6d9e7fc7-ae10-463c-b3bf-14ee6ff3647a}
+export BASTION_IMAGE=${BASTION_IMAGE:=ea8886ed-32f6-4f6c-82b8-c49c5867795d}       # cicd-rhel8.3-2021-03-24-ppc64le
 
 case $OCP_VERSION in
 4.4|4.5)
@@ -28,12 +28,12 @@ case $OCP_VERSION in
 	export OCP_PROJECT_COMMIT=origin/release-4.5
 	;;
 4.6)
-	export RHCOS_IMAGE=${RHCOS_IMAGE:=a08e13ae-897b-4ce1-b945-80c3b59fcc86}   # rhcos-46.82.20200918070611-0-openstack.ppc64le
+	export RHCOS_IMAGE=${RHCOS_IMAGE:=4f244c4d-4979-451c-922f-05d80b426155}   # rhcos-46-4.6.8-15122020-openstack.ppc64le
 	export OCP_PROJECT_COMMIT=origin/release-4.6
 	export INSTALL_PLAYBOOK_TAG=e89bef76cec089a481d6de2b7fa07944ae0481a5      # Align with powervs.  Was 1 commit down level
 	;;
 4.7)
-	export RHCOS_IMAGE=${RHCOS_IMAGE:=ad1e6a7e-02f3-4253-994a-985bb548f9ec}   # cicd-rhcos-47.0.20210216-rc2-openstack.ppc64le 
+	export RHCOS_IMAGE=${RHCOS_IMAGE:=6d9faadb-b0b3-4313-a384-fb6ab9da79ed}   # rhcos-47-4.7.7-21042021-openstack.ppc64le
 	export OCP_PROJECT_COMMIT=origin/release-4.7
 	export INSTALL_PLAYBOOK_TAG=86b12e097f430dca95a151cb1073c1b1f07be024	  # Align with powervs.  Was 7 commits down level
 	;;
