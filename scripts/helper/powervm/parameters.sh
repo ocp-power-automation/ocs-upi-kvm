@@ -3,8 +3,10 @@
 export PVC_URL=${PVC_URL:=https://scnlpowercloud.pok.stglabs.ibm.com:5000/v3/}
 export PVC_TENANT=${PVC_TENANT:=icp-test}
 export PVC_DOMAIN=${PVC_DOMAIN:=Default}
-export PVC_SUBNET_NAME=${PVC_SUBNET_NAME:=icp_network2}
-export PVC_SUBNET_TYPE=${PVC_SUBNET_TYPE:=SEA}
+export PVC_SUBNET_NAME=${PVC_SUBNET_NAME:=workload}
+export PVC_SUBNET_TYPE=${PVC_SUBNET_TYPE:=SEA}				# SEA or SRIOV (needs to be setup on powervc)
+export PVC_HOST_GROUP=${PVC_HOST_GROUP:=p8_pvm}
+export PVC_SCG_ID=${PVC_SCG_ID:=df21cec9-c244-4d3d-b927-df1518672e87}
 
 export BASTION_COMPUTE_TEMPLATE=${BASTION_COMPUTE_TEMPLATE:=medium}
 export BOOTSTRAP_COMPUTE_TEMPLATE=${BOOTSTRAP_COMPUTE_TEMPLATE:=medium}

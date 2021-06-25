@@ -269,12 +269,14 @@ CLUSTER_DOMAIN | no | powervs | ibm.com, xip.io
 WORKER_VOLUME_SIZE | no | powervs | 500
 OCS_CI_ON_BASTION | no | powervs/vm | false
 USE_TIER1_STORAGE | no | powervs | false
-PVC_URL | yes | powervm | PowerVC URL https://<HOSTNAME>:5000/v3/
-PVC_LOGIN_NAME | yes | powervm | PowerVC Login email
-PVC_LOGIN_PASSWORD | yes | powervm | PowerVC Login password
-PVC_TENANT | yes | powervm | PowerVC Tenant (under user login in GUI)
-PVC_SUBNET_NAME | yes | powervm | PowerVC Network
-PVC_SUBNET_TYPE | no | powervm | SEA, SRIOV
+PVC_URL | yes | powervm | PowerVC GUI https://HOSTNAME:5000/v3/
+PVC_LOGIN_NAME | yes | powervm | GUI Login (email)
+PVC_LOGIN_PASSWORD | yes | powervm | GUI Login (password)
+PVC_TENANT | yes | powervm | GUI Login (aka project in parenthesis)
+PVC_SUBNET_NAME | yes | powervm | GUI->Networks
+PVC_SUBNET_TYPE | no | powervm | SEA, SRIOV (must be enabled; see SCG in GUI)
+PVC_SCG_ID | yes | powervm | GUI->Configuration->Storage Connectivity Groups
+PVC_HOST_GROUP | no | powervm | GUI->Hosts->Host Groups
 
 Note: 
 

@@ -318,10 +318,8 @@ if [ ! -e $PLUGIN_PATH/hashicorp/null/$VERSION/$LPLATFORM/terraform-provider-nul
 	popd
 fi
 
-# OCP 4.6 upgraded to Ignition Config Spec v3.0.0 which is incompatible with the
-# format used by OCP 4.5 and 4.4, so conditionally patch ocp4-upi-xxx terraform code
-# based on the OCP version of the cluster being deployed.  files/ocp4-upi-XXX.legacy.patch
-# is used for this purpose.
+# OCP 4.6 upgraded to Ignition Config Spec v3.0.0 which is incompatible with the previous format
+# used with OCP 4.5 and 4.4, so provide both the new and legacy versions of the ignition module
 
 VERSION=$TERRAFORM_IGNITION_VERSION
 if [ ! -e $PLUGIN_PATH/community-terraform-providers/ignition/$VERSION/$LPLATFORM/terraform-provider-ignition ]; then
