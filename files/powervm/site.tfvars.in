@@ -1,17 +1,17 @@
-### PowerVC Details
-
-auth_url                    = "$PVC_URL"                             # https://<HOSTNAME>:5000/v3/>
+auth_url                    = "$PVC_URL"
 user_name                   = "$PVC_LOGIN_NAME"
 password                    = "$PVC_LOGIN_PASSWORD"
-tenant_name                 = "$PVC_TENANT"                                               # ibm-default
+tenant_name                 = "$PVC_TENANT"
 domain_name                 = "$PVC_DOMAIN"
+openstack_availability_zone = "$PVC_HOST_GROUP"
 network_name		    = "$PVC_SUBNET_NAME"
-network_type                = "$PVC_SUBNET_TYPE"                                          # SEA (default) or SRIOV
+network_type                = "$PVC_SUBNET_TYPE"
+scg_id                      = "$PVC_SCG_ID"
 
-bastion                     = {instance_type    = "$BASTION_COMPUTE_TEMPLATE",   image_id    = "$BASTION_IMAGE"}
-bootstrap                   = {instance_type    = "$BOOTSTRAP_COMPUTE_TEMPLATE", image_id    = "$RHCOS_IMAGE",  "count"   = 1}
-master                      = {instance_type    = "$MASTER_COMPUTE_TEMPLATE",    image_id    = "$RHCOS_IMAGE",  "count"   = 3}
-worker                      = {instance_type    = "$WORKER_COMPUTE_TEMPLATE",    image_id    = "$RHCOS_IMAGE",  "count"   = "$WORKERS"}
+bastion                     = {instance_type = "$BASTION_COMPUTE_TEMPLATE", image_id = "$BASTION_IMAGE", "count" = 1}
+bootstrap                   = {instance_type = "$BOOTSTRAP_COMPUTE_TEMPLATE", image_id = "$RHCOS_IMAGE", "count" = 1}
+master                      = {instance_type = "$MASTER_COMPUTE_TEMPLATE", image_id = "$RHCOS_IMAGE", "count" = 3}
+worker                      = {instance_type = "$WORKER_COMPUTE_TEMPLATE", image_id = "$RHCOS_IMAGE", "count" = $WORKERS}
 
 rhel_subscription_username      = "$RHID_USERNAME"
 rhel_subscription_password      = "$RHID_PASSWORD"
@@ -31,11 +31,7 @@ dns_forwarders              = "$DNS_FORWARDERS"
 chrony_config               = "$CHRONY_CONFIG"
 chrony_config_servers       = [$CHRONY_CONFIG_SERVERS]
 
-# TBD -- Needs to be enhanced to support extra disk for worker nodes
-
 volume_size                 = "$WORKER_VOLUME_SIZE"
-
-# Bastion node
 
 storage_type                = "notnfs"
 
