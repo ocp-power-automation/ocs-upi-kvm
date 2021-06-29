@@ -22,6 +22,12 @@ declare -i nvols
 pools=$(virsh pool-list --all | grep test-ocp | awk '{print $1}')
 for i in $pools
 do
+	pool_status=$(virsh pool-info $i | grep State | awk '{ print $2 }')
+	if [[ "$pool_status" == "inactive" ]]; then
+		echo "virsh pool-undefine $i"
+		virsh pool-undefine $i
+	fi
+
 	nvols=$(virsh vol-list $i | wc -l)-3
 	while :
 	do
