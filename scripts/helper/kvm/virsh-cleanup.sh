@@ -22,24 +22,27 @@ declare -i nvols
 pools=$(virsh pool-list --all | grep test-ocp | awk '{print $1}')
 for i in $pools
 do
-	nvols=$(virsh vol-list $i | wc -l)-3
-	while :
-	do
-		if (( nvols < 1 )); then
-			break;
-		fi
-		vol=$(virsh vol-list $i | tail -n 2 | head -n 1 | awk '{ print $1 }')
+	pool_status=$(virsh pool-info $i | grep State | awk '{ print $2 }')
+	if [[ "$pool_status" != "inactive" ]]; then
+		nvols=$(virsh vol-list $i | wc -l)-3
+		while :
+		do
+			if (( nvols < 1 )); then
+				break;
+			fi
+			vol=$(virsh vol-list $i | tail -n 2 | head -n 1 | awk '{ print $1 }')
 
-		echo "virsh vol-delete $vol --pool $i"
-		virsh vol-delete $vol --pool $i
+			echo "virsh vol-delete $vol --pool $i"
+			virsh vol-delete $vol --pool $i
 
-		nvols=nvols-1
-	done
-	echo "virsh pool-destroy $i"
-	virsh pool-destroy $i
+			nvols=nvols-1
+		done
+		echo "virsh pool-destroy $i"
+		virsh pool-destroy $i
 
-	echo "virsh pool-delete $i"
-	virsh pool-delete $i >/dev/null 2>&1
+		echo "virsh pool-delete $i"
+		virsh pool-delete $i >/dev/null 2>&1
+	fi
 
 	echo "virsh pool-undefine $i"
 	virsh pool-undefine $i
