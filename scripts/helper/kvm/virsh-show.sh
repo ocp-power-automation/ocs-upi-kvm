@@ -44,10 +44,14 @@ if [[ "$n_pools" -gt 0 ]]; then
 			echo "Virtual storage pool:"
 			echo ""
 			sudo -sE virsh pool-info $i
-			echo ""
-			echo "Volumes:"
-			echo ""
-			sudo -sE virsh vol-list $i
+
+			state=$(sudo virsh pool-info test-ocp4-6 | grep State | awk '{print $2}')
+			if [ "$state" != inactive ]; then
+				echo ""
+				echo "Volumes:"
+				echo ""
+				sudo -sE virsh vol-list $i
+			fi
 		fi
 	done
 fi
