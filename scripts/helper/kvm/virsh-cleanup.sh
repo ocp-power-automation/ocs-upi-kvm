@@ -69,11 +69,10 @@ do
 	virsh net-undefine $i
 done
 
-echo "Remove worker node data disk files"
-
 if [ -e $WORKSPACE/.images_path ]; then
 	FILES=$(cat $WORKSPACE/.images_path)
 	if [ -n "$FILES" ]; then
+		echo "Removed worker node data disk files"
 		rm -rf $FILES/test-ocp*
 	fi
 fi
