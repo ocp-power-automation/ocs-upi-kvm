@@ -244,7 +244,7 @@ if [ ! -e $PLUGIN_PATH/dmacvicar/libvirt/1.0.0/$LPLATFORM/terraform-provider-lib
 
 	mkdir -p $GOPATH/src/github.com/dmacvicar/; cd $GOPATH/src/github.com/dmacvicar
 	rm -rf terraform-provider-libvirt
-	git clone https://github.com/dmacvicar/terraform-provider-libvirt.git
+	git clone https://github.com/dmacvicar/terraform-provider-libvirt.git --branch v0.6.3
 	pushd terraform-provider-libvirt
 	make install
 	popd
