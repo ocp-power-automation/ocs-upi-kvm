@@ -160,6 +160,7 @@ rm -rf $WORKSPACE/auth
 
 PROVIDER_DIR=$WORKSPACE/.providers
 PLUGIN_PATH=$PROVIDER_DIR/registry.terraform.io
+LPLATFORM=linux_ppc64le
 
 OLD_GO_VERSION=''
 if [ -e $WORKSPACE/bin/go ]; then
@@ -214,8 +215,6 @@ if [[ "$INSTALLED_GO" == "true" ]] || [[ "$OLD_TERRAFORM_VERSION" != "$TERRAFORM
 	mkdir -p $GOPATH/bin
 	export PATH=$GOPATH/bin:$PATH
 	export CGO_ENABLED="1"
-
-	LPLATFORM=linux_ppc64le
 
 	pushd $GOPATH
 
