@@ -54,18 +54,10 @@ export WORKER_DESIRED_MEM=96
 export WORKER_VOLUME_SIZE=768
 export USE_TIER1_STORAGE=true
 
-# These are optional and apply only to powervm and powervs
-
-#export CMA_PERCENT=8
-
-# These are optional for PowerVC and PowerVS ocs-ci.  Default values are shown
-
-#export OCS_CI_ON_BASTION=false                                 # When true, ocs-ci runs on bastion node
-                                                                # May help with intermittent network problems and testcase timeouts
 
 # These are required for PowerVC OCP cluster create
 
-#export PVC_URL=<https://<HOSTNAME>:5000/v3/>
+#export PVC_URL=<https://<HOSTNAME>:5000/v3>
 #export PVC_LOGIN_NAME=<PVC email login>                        # IBM Intranet ID - name@us.ibm.com
 #export PVC_LOGIN_PASSWORD=<password>                           # IBM Intranet Password      
 #export PVC_TENANT=<PVC tenant>                                 # Below your username in PowerVC GUI
@@ -74,6 +66,18 @@ export USE_TIER1_STORAGE=true
 # These are optional for PowerVC OCP cluster create
 
 #export PVC_NETWORK_TYPE=SEA                                    # SRIOV also supported.  Check PVC GUI if enabled for PVC Network
+#export PVC_HOST_GROUP=<a set of servers to target>
+
+
+# These are optional and apply only to PowerVC and PowerVS cluster create.  Only PowerVC has shown a benefit from CMA in practice
+
+#export CMA_PERCENT=8
+
+
+# These are optional for PowerVC and PowerVS ocs-ci.  Default values are shown
+
+#export OCS_CI_ON_BASTION=false                                 # When true, ocs-ci runs on bastion node
+                                                                # May help with intermittent network problems and testcase timeouts
 
 ##############  MAIN ################
 

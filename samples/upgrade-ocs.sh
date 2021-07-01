@@ -5,6 +5,12 @@
 # to avoid recreating the cluster and other times to invoke ocs-ci with different
 # parameters.  This script is relocatable, so the project itself is not modified.
 
+# These environment variables are required for OCS Upgrade
+
+#export OCS_REGISTRY_IMAGE="quay.io/rhceph-dev/ocs-registry:latest-stable-4.7"       # If you want to upgrade OCS from 4.7.x to 4.7.x+1 then use image tag as latest-stable-4.7.0 or 4.7.1 etc.
+#export UPGRADE_OCS_VERSION=4.8                                                      # This will upgrade OCS from 4.7 to 4.8
+#export UPGRADE_OCS_REGISTRY="quay.io/rhceph-dev/ocs-registry:latest-stable-4.8.0"   # OCS  Registry image you want to use for upgrading
+
 
 # These environment variables are required for all platforms
 
@@ -47,9 +53,10 @@ export OCS_VERSION=${OCS_VERSION:=4.7}
 #export WORKER_VOLUME_SIZE=500
 #export USE_TIER1_STORAGE=false
 
+
 # These are required for PowerVC OCP cluster create
 
-#export PVC_URL=<powervc url>                                   # https://<HOSTNAME>:5000/v3/>
+#export PVC_URL=<powervc url>                                   # https://<HOSTNAME>:5000/v3>
 #export PVC_LOGIN_NAME=<powervc login name>                     # email - ie. lukebrowning@us.ibm.com
 #export PVC_LOGIN_PASSWORD=<powervc password>                   # Intranet password
 #export PVC_TENANT=<powervc tenant>                             # Below user profile in PowerVC GUI
@@ -58,31 +65,13 @@ export OCS_VERSION=${OCS_VERSION:=4.7}
 # These are optional for PowerVC OCP cluster create
 
 #export PVC_SUBNET_TYPE=SRIOV                                   # Default is SEA.  Check PowerVC GUI to ensure SRIOV is enabled
+#export PVC_HOST_GROUP=<a set of servers to target>
 
-
-# These environment variables are required for OCS Upgrade 
-
-#export OCS_REGISTRY_IMAGE="quay.io/rhceph-dev/ocs-registry:latest-stable-4.7"       # If you want to upgrade OCS from 4.7.x to 4.7.x+1 then use image tag as latest-stable-4.7.0 or 4.7.1 etc.     
-#export UPGRADE_OCS_VERSION=4.8                                                      # This will upgrade OCS from 4.7 to 4.8 
-#export UPGRADE_OCS_REGISTRY="quay.io/rhceph-dev/ocs-registry:latest-stable-4.8.0"   # OCS  Registry image you want to use for upgrading
 
 # These are optional for PowerVS and PowerVC ocs-ci.  Default values are shown
 
 #export OCS_CI_ON_BASTION=false                                 # When true, ocs-ci runs on bastion node, which may help
                                                                 # with intermittent network issues and testcase timeouts
-
-# These are required for PowerVC OCP cluster create
-
-#export PVC_URL=<https://<HOSTNAME>:5000/v3/>
-#export PVC_LOGIN_NAME=<PVC email login>                        # IBM Intranet ID - name@us.ibm.com
-#export PVC_LOGIN_PASSWORD=<password>                           # IBM Intranet Password
-#export PVC_TENANT=<PVC tenant>                                 # Below your username in PowerVC GUI
-#export PVC_SUBNET_NAME=<PVC network>                           # PowerVC GUI--> Networks
-
-# These are optional for PowerVC OCP cluster create
-
-#export PVC_NETWORK_TYPE=SEA                                    # SRIOV also supported.  Check PVC GUI if enabled for PVC Network
-
 
 ##############  MAIN ################
 

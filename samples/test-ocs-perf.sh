@@ -20,7 +20,7 @@
 # 7.  Remotely copy ocs-ci perf logs from bastion via scp
 # 8.  Destroy elasticsearch and remove route
 
-export OCS_CI_ON_BASTION=true                                   # This must be set to true
+export OCS_CI_ON_BASTION=true                                   # This must be set to true for perf tests
 
 # These environment variables are required for all platforms
 
@@ -35,13 +35,14 @@ export PLATFORM=powervs                                         # Only powervs a
 export OCP_VERSION=${OCP_VERSION:=4.7}                          # 4.5, 4.7, and 4.8 are also supported
 export OCS_VERSION=${OCS_VERSION:=4.7}
 
-# These are optional and apply only to kvm and powervs for now.  They are presently ignored on powervm
+# These are optional and apply only to kvm and powervs.  They are presently ignored on powervm
 
 export WORKERS=4                                                # Extra worker node for elasticsearch
 export MASTER_DESIRED_CPU=1.5
 export MASTER_DESIRED_MEM=48
 export WORKER_DESIRED_CPU=6                                     # WORKER_VOLUME_SIZE(1024) -> 42 fio pods + ceph on 4 workers
 export WORKER_DESIRED_MEM=96
+
 
 # These are optional for KVM OCP cluster create.  Default values are shown
 
@@ -72,13 +73,9 @@ export WORKER_DESIRED_MEM=96
 export WORKER_VOLUME_SIZE=1024
 export USE_TIER1_STORAGE=true
 
-# These are optional for PowerVS and PowerVC ocs-ci.  Default values are shown
-
-#export CMA_PERCENT=8
-
 # These are required for PowerVC OCP cluster create
 
-#export PVC_URL=<https://<HOSTNAME>:5000/v3/>
+#export PVC_URL=<https://<HOSTNAME>:5000/v3>
 #export PVC_LOGIN_NAME=<PVC email login>                        # IBM Intranet ID - name@us.ibm.com
 #export PVC_LOGIN_PASSWORD=<password>                           # IBM Intranet Password
 #export PVC_TENANT=<PVC tenant>                                 # Below your username in PowerVC GUI
@@ -87,6 +84,13 @@ export USE_TIER1_STORAGE=true
 # These are optional for PowerVC OCP cluster create
 
 #export PVC_NETWORK_TYPE=SEA                                    # SRIOV also supported.  Check PVC GUI if enabled for PVC Network
+#export PVC_HOST_GROUP=<a set of servers to target>
+
+
+# These are optional for PowerVS and PowerVC cluster create.  Default values are shown.  Only PowerVM has shown a benefit from CMA
+
+#export CMA_PERCENT=8
+
 
 ##############  MAIN ################
 
