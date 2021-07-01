@@ -51,8 +51,6 @@ TERRAFORM_IGNITION_LEGACY_VERSION=${TERRAFORM_IGNITION_LEGACY_VERSION:="1.2.1"}
 TERRAFORM_POWERVS_VERSION=${TERRAFORM_POWERVS_VERSION:="1.21.0"}
 TERRAFORM_OPENSTACK_VERSION=${TERRAFORM_OPENSTACK_VERSION:="1.32.0"}
 
-BOOT_DELAY_PER_WORKER=${BOOT_DELAY_PER_WORKER:=7}
-
 # WORKSPACE is a jenkins environment variable denoting a dedicated execution environment
 # that does not overlap with other jobs.  For this project, there are required input and
 # output files that should be placed outside the git project itself.  If a workspace
@@ -111,8 +109,12 @@ function update_supplemental_ocsci_config () {
 		yq -y -i '.RUN.ocpdr = "ocpdr"' $WORKSPACE/ocs-ci-conf.yaml
 	fi
 
-	if [ "$PLATFORM" == powervs ]; then
-		yq -y -i '.ENV_DATA.number_of_storage_disks = 8' $WORKSPACE/ocs-ci-conf.yaml
+	if [ "$PLATFORM" != kvm ]; then
+		if [ "$PLATFORM" == powervs ]; then
+			yq -y -i '.ENV_DATA.number_of_storage_disks = 8' $WORKSPACE/ocs-ci-conf.yaml
+		else
+			yq -y -i '.ENV_DATA.number_of_storage_disks = 4' $WORKSPACE/ocs-ci-conf.yaml
+		fi
 
 		# ocs-ci powervs support uses ssh to restart nodes.  Since ocs-ci runs locally
 		# and the cluster is in the cloud, the bastion ip is needed as a jump server

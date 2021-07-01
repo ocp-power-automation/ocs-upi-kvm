@@ -62,6 +62,7 @@ fi
 helper/check-health-cluster.sh
 
 if (( CMA_PERCENT > 0 )); then
+	# TODO Adapt to powervm.  Normalize WORKER_DESIRED_MEM to compute templates
 	KARG_CMA=$(( WORKER_DESIRED_MEM * CMA_PERCENT / 100 ))
 	if (( KARG_CMA > 0 )); then
 		export KARG_CMA=${KARG_CMA}G

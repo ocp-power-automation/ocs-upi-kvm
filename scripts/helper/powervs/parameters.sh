@@ -96,6 +96,20 @@ export CLUSTER_DOMAIN=${CLUSTER_DOMAIN:="ibm.com"}			# xip.io
 
 export OCS_CI_ON_BASTION=${OCS_CI_ON_BASTION:="false"}			# ocs-ci runs locally by default
 
+# Default kernel arguments applied to all nodes: master & workers
+
+
+export BOOT_DELAY_PER_WORKER=${BOOT_DELAY_PER_WORKER:=7}
+
+# RHCOS Kernel Arguments
+
+rhcos_kernel_args=( "\"slub_max_order=0\"" )				# Applies to master and workers
+
+export CMA_PERCENT=${CMA_PERCENT:=0}                                    # Applies to worker nodes only.  Kernel contiguous memory area
+
+export BOOT_DELAY_PER_WORKER=${BOOT_DELAY_PER_WORKER:=15}               # How many minutes to wait for kernel arg changes to take effect
+
+
 ########################### Internal variables & functions #############################
 
 

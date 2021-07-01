@@ -88,15 +88,13 @@ fi
 
 source helper/parameters.sh
 
-# Set common kernel boot parameters
-
-rhcos_kernel_args=( "\"slub_max_order=0\"" )
-RHCOS_KERNEL_ARGS="${rhcos_kernel_args[@]}"
-export RHCOS_KERNEL_ARGS=${RHCOS_KERNEL_ARGS/ /,}
-
-
 export GOROOT=$WORKSPACE/usr/local/go
 export PATH=$WORKSPACE/bin:$PATH
+
+# Pickup platform specific kernel boot parameters that are common across master and worker nodes
+
+RHCOS_KERNEL_ARGS="${rhcos_kernel_args[@]}"
+export RHCOS_KERNEL_ARGS=${RHCOS_KERNEL_ARGS/ /,}
 
 # This is decremented after cluster creation to remove the bootstrap node
 
@@ -358,8 +356,9 @@ pushd ..
 
 # Remove files from previous cluster creation
 
-if [[ "$PLATFORM" == kvm ]] && [[ -d ~/.ssh ]] && [[ "$retry" == false ]]; then
+if [[ "$PLATFORM" != powervs ]] && [[ -d ~/.ssh ]] && [[ "$retry" == false ]]; then
 	# KVM uses the same ip addresses every time, so known hosts contains old keys that conflict
+	# powervm aggregates small sets of ip addresses which results in frequent reuse of a small set
 	rm -f ~/.ssh/known_hosts
 fi
 rm -rf ~/.kube

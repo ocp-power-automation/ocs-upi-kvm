@@ -16,8 +16,8 @@ export PLATFORM=powervs                                         # Only powervs a
 
 # These environment variables are optional for all platforms
 
-export OCP_VERSION=${OCP_VERSION:=4.7}                          # 4.5, 4.7, and 4.8 are also supported
-export OCS_VERSION=${OCS_VERSION:=4.7}
+export OCP_VERSION=${OCP_VERSION:=4.8}                          # 4.5-4.8 are supported
+export OCS_VERSION=${OCS_VERSION:=4.8}
 
 # These are optional and apply only to kvm and powervs for now. They are presently ignored on powervm
 

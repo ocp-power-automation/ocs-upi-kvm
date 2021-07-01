@@ -24,7 +24,7 @@ export OCS_CI_ON_BASTION=true                                   # This must be s
 
 # These environment variables are required for all platforms
 
-export PLATFORM=powervs                                         # Only powervs and powervm (implements PowerVC)
+export PLATFORM=${PLATFORM:=powervs}                            # Only powervs and powervm (the latter implements PowerVC)
 
 #export RHID_USERNAME=<your registered username>		# Change this line or preset in shell
 #export RHID_PASSWORD=<your password>				# Edit or preset
@@ -32,8 +32,8 @@ export PLATFORM=powervs                                         # Only powervs a
 
 # These environment variables are optional for all platforms
 
-export OCP_VERSION=${OCP_VERSION:=4.7}                          # 4.5, 4.7, and 4.8 are also supported
-export OCS_VERSION=${OCS_VERSION:=4.7}
+export OCP_VERSION=${OCP_VERSION:=4.8}                          # 4.5-4.8 are supported
+export OCS_VERSION=${OCS_VERSION:=4.8}
 
 # These are optional and apply only to kvm and powervs.  They are presently ignored on powervm
 

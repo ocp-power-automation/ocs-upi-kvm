@@ -9,7 +9,7 @@ export PVC_HOST_GROUP=${PVC_HOST_GROUP:=p8_pvm}
 export PVC_SCG_ID=${PVC_SCG_ID:=df21cec9-c244-4d3d-b927-df1518672e87}
 
 export BASTION_COMPUTE_TEMPLATE=${BASTION_COMPUTE_TEMPLATE:=medium}
-export BOOTSTRAP_COMPUTE_TEMPLATE=${BOOTSTRAP_COMPUTE_TEMPLATE:=medium}
+export BOOTSTRAP_COMPUTE_TEMPLATE=${BOOTSTRAP_COMPUTE_TEMPLATE:=large}
 export MASTER_COMPUTE_TEMPLATE=${MASTER_COMPUTE_TEMPLATE:=large}
 export WORKER_COMPUTE_TEMPLATE=${WORKER_COMPUTE_TEMPLATE:=xlarge}
 
@@ -17,8 +17,6 @@ if [ -z "$CLUSTER_ID_PREFIX" ]; then
 	CLUSTER_ID_PREFIX=rdr-${RHID_USERNAME:0:3}
 	export CLUSTER_ID_PREFIX=$CLUSTER_ID_PREFIX${OCP_VERSION/./}
 fi
-
-export CMA_PERCENT=${CMA_PERCENT:=0}					# Kernel contiguous memory area for DMA
 
 # The boot images below are common across OCS development zones, except where noted
 
@@ -54,6 +52,14 @@ fi
 export CLUSTER_DOMAIN=${CLUSTER_DOMAIN:="ibm.com"}			# xip.io
 
 export OCS_CI_ON_BASTION=${OCS_CI_ON_BASTION:="false"}			# ocs-ci runs locally by default
+
+# RHCOS Kernel Arguments
+
+rhcos_kernel_args=( )							# Applies to master and workers.  By default, none
+
+export CMA_PERCENT=${CMA_PERCENT:=0}					# Applies to worker nodes only.  Kernel contiguous memory area
+
+export BOOT_DELAY_PER_WORKER=${BOOT_DELAY_PER_WORKER:=15}               # How many minutes to wait for kernel arg changes to take effect
 
 ########################### Internal variables & functions #############################
 
