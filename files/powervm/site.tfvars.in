@@ -9,7 +9,7 @@ network_type                = "$PVC_SUBNET_TYPE"
 scg_id                      = "$PVC_SCG_ID"
 
 bastion                     = {instance_type = "$BASTION_COMPUTE_TEMPLATE", image_id = "$BASTION_IMAGE", "count" = 1}
-bootstrap                   = {instance_type = "$BOOTSTRAP_COMPUTE_TEMPLATE", image_id = "$RHCOS_IMAGE", "count" = 1}
+bootstrap                   = {instance_type = "$BOOTSTRAP_COMPUTE_TEMPLATE", image_id = "$RHCOS_IMAGE", "count" = $BOOTSTRAP_CNT}
 master                      = {instance_type = "$MASTER_COMPUTE_TEMPLATE", image_id = "$RHCOS_IMAGE", "count" = 3}
 worker                      = {instance_type = "$WORKER_COMPUTE_TEMPLATE", image_id = "$RHCOS_IMAGE", "count" = $WORKERS}
 
@@ -38,3 +38,5 @@ rhcos_kernel_options        = [$RHCOS_KERNEL_ARGS]
 ansible_extra_options       = "-v"
 
 install_playbook_tag        = "$INSTALL_PLAYBOOK_TAG"
+
+worker_volume_size          = "$WORKER_VOLUME_SIZE"
