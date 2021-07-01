@@ -31,8 +31,6 @@ dns_forwarders              = "$DNS_FORWARDERS"
 chrony_config               = "$CHRONY_CONFIG"
 chrony_config_servers       = [$CHRONY_CONFIG_SERVERS]
 
-volume_size                 = "$WORKER_VOLUME_SIZE"
-
 storage_type                = "notnfs"
 
 rhcos_kernel_options        = [$RHCOS_KERNEL_ARGS]

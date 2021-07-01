@@ -1,6 +1,6 @@
 #!/bin/bash
 
-export PVC_URL=${PVC_URL:=https://scnlpowercloud.pok.stglabs.ibm.com:5000/v3/}
+export PVC_URL=${PVC_URL:=https://scnlpowercloud.pok.stglabs.ibm.com:5000/v3}
 export PVC_TENANT=${PVC_TENANT:=icp-test}
 export PVC_DOMAIN=${PVC_DOMAIN:=Default}
 export PVC_SUBNET_NAME=${PVC_SUBNET_NAME:=workload}

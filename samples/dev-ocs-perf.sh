@@ -20,7 +20,7 @@
 # 7.  Remotely copy ocs-ci perf logs from bastion via scp
 # 8.  Destroy elasticsearch and remove route
 
-export OCS_CI_ON_BASTION=true                                   # This must be set to true
+export OCS_CI_ON_BASTION=true                                   # This must be set to true for perf tests
 
 # These environment variables are required for all platforms
 
@@ -78,7 +78,7 @@ export USE_TIER1_STORAGE=true
 
 # These are required for PowerVC OCP cluster create
 
-#export PVC_URL=<https://<HOSTNAME>:5000/v3/>
+#export PVC_URL=<https://<HOSTNAME>:5000/v3>
 #export PVC_LOGIN_NAME=<PVC email login>                        # IBM Intranet ID - name@us.ibm.com
 #export PVC_LOGIN_PASSWORD=<password>                           # IBM Intranet Password
 #export PVC_TENANT=<PVC tenant>                                 # Below your username in PowerVC GUI
@@ -87,6 +87,7 @@ export USE_TIER1_STORAGE=true
 # These are optional for PowerVC OCP cluster create
 
 #export PVC_NETWORK_TYPE=SEA                                    # SRIOV also supported.  Check PVC GUI if enabled for PVC Network
+#export PVC_HOST_GROUP=<a set of servers to target>
 
 
 ##############  MAIN ################

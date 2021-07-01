@@ -35,7 +35,6 @@ export OCS_VERSION=${OCS_VERSION:=4.7}                          # 4.7 also
 #export PVS_API_KEY=<your key>
 #export PVS_SERVICE_INSTANCE_ID=<your instance id>              # Click eye icon on the left of IBM CLoud resource list, copy GUID field
 
-
 # These are optional for PowerVS OCP cluster create.  Default values are shown
 
 #export CLUSTER_ID_PREFIX=$RHID_USERNAME                        # Actually first 3 chars of rhid_username + ocp version
@@ -47,15 +46,9 @@ export OCS_VERSION=${OCS_VERSION:=4.7}                          # 4.7 also
 #export BASTION_IMAGE=rhel-83-02182021
 #export USE_TIER1_STORAGE=false
 
-
-# These are optional for PowerVS and PowerVC ocs-ci.  Default values are shown
-
-#export OCS_CI_ON_BASTION=false                                 # When true, ocs-ci runs on bastion node, which may help
-                                                                # with intermittent network issues and testcase timeouts
-
 # These are required for PowerVC OCP cluster create
 
-#export PVC_URL=<https://<HOSTNAME>:5000/v3/>
+#export PVC_URL=<https://<HOSTNAME>:5000/v3>
 #export PVC_LOGIN_NAME=<PVC email login>                        # IBM Intranet ID - name@us.ibm.com
 #export PVC_LOGIN_PASSWORD=<password>                           # IBM Intranet Password
 #export PVC_TENANT=<PVC tenant>                                 # Below your username in PowerVC GUI
@@ -64,6 +57,13 @@ export OCS_VERSION=${OCS_VERSION:=4.7}                          # 4.7 also
 # These are optional for PowerVC OCP cluster create
 
 #export PVC_NETWORK_TYPE=SEA                                    # SRIOV also supported.  Check PVC GUI if enabled for PVC Network
+#export PVC_HOST_GROUP=<a set of servers to target>
+
+
+# These are optional for PowerVS and PowerVC ocs-ci.  Default values are shown
+
+#export OCS_CI_ON_BASTION=false                                 # When true, ocs-ci runs on bastion node, which may help
+                                                                # with intermittent network issues and testcase timeouts
 
 ##############  MAIN ################
 

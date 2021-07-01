@@ -49,14 +49,9 @@ export PVS_SUBNET_NAME=ocs-cron-test
 #export USE_TIER1_STORAGE=false
 
 
-# These are optional for PowerVS and PowerVC ocs-ci.  Default values are shown
-
-#export OCS_CI_ON_BASTION=false                                 # When true, ocs-ci runs on bastion node, which may help
-                                                                # with intermittent network problems and testcase timeouts
-
 # These are required for PowerVC OCP cluster create
 
-#export PVC_URL=<https://<HOSTNAME>:5000/v3/>
+#export PVC_URL=<https://<HOSTNAME>:5000/v3>
 #export PVC_LOGIN_NAME=<PVC email login>                        # IBM Intranet ID - name@us.ibm.com
 #export PVC_LOGIN_PASSWORD=<password>                           # IBM Intranet Password
 #export PVC_TENANT=<PVC tenant>                                 # Below your username in PowerVC GUI
@@ -65,7 +60,13 @@ export PVS_SUBNET_NAME=ocs-cron-test
 # These are optional for PowerVC OCP cluster create
 
 #export PVC_NETWORK_TYPE=SEA                                    # SRIOV also supported.  Check PVC GUI if enabled for PVC Network
+#export PVC_HOST_GROUP=<a set of servers to target>
 
+
+# These are optional for PowerVS and PowerVC ocs-ci.  Default values are shown
+
+#export OCS_CI_ON_BASTION=false                                 # When true, ocs-ci runs on bastion node, which may help
+                                                                # with intermittent network problems and testcase timeouts
 ##############  MAIN ################
 
 get_latest_ocs=false
