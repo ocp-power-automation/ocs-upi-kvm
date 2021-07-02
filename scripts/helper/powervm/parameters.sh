@@ -55,11 +55,9 @@ export OCS_CI_ON_BASTION=${OCS_CI_ON_BASTION:="false"}			# ocs-ci runs locally b
 
 # RHCOS Kernel Arguments
 
-rhcos_kernel_args=( )							# Applies to master and workers.  By default, none
-
 export CMA_PERCENT=${CMA_PERCENT:=0}					# Applies to worker nodes only.  Kernel contiguous memory area
 
-export BOOT_DELAY_PER_WORKER=${BOOT_DELAY_PER_WORKER:=15}               # How many minutes to wait for kernel arg changes to take effect
+export BOOT_DELAY_PER_WORKER=${BOOT_DELAY_PER_WORKER:=6}               # How many minutes to wait for kernel arg changes to take effect
 
 ########################### Internal variables & functions #############################
 

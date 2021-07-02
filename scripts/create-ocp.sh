@@ -29,7 +29,7 @@ if [ ! -e $WORKSPACE/pull-secret.txt ]; then
 	exit 1
 fi
 
-echo "OCS_CI_ON_BASTION=$OCS_CI_ON_BASTION"
+echo "OCS_CI_ON_BASTION=$OCS_CI_ON_BASTION PLATFORM=$PLATFORM"
 
 export PATH=$WORKSPACE/bin:$PATH
 
@@ -45,6 +45,7 @@ rm -f $WORKSPACE/bin/oc
 rm -rf $WORKSPACE/auth
 
 setup_remote_oc_use
+echo "Copying oc cmd from bastion to local host..."
 scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null root@$BASTION_IP:/usr/local/bin/oc $WORKSPACE/bin
 scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -r root@$BASTION_IP:openstack-upi/auth $WORKSPACE
 
@@ -62,15 +63,22 @@ fi
 helper/check-health-cluster.sh
 
 if (( CMA_PERCENT > 0 )); then
-	# TODO Adapt to powervm.  Normalize WORKER_DESIRED_MEM to compute templates
-	KARG_CMA=$(( WORKER_DESIRED_MEM * CMA_PERCENT / 100 ))
+
+	# TODO Adapt to powervm.  Generate compute templates from WORKER_DESIRED_MEM
+
+	if [ "$PLATFORM" == powervs ]; then
+		KARG_CMA=$(( WORKER_DESIRED_MEM * CMA_PERCENT / 100 ))
+	else
+		KARG_CMA=5				# Masters have 32GBs and workers 64GBs presently
+	fi
+
 	if (( KARG_CMA > 0 )); then
 		export KARG_CMA=${KARG_CMA}G
-		cat ../files/powervs/05-worker-kernelarg-cma.yaml.in | envsubst > $WORKSPACE/05-worker-kernelarg-cma.yaml
+		cat ../files/rhcos-kargs/05-worker-kernelarg-cma.yaml.in | envsubst > $WORKSPACE/05-worker-kernelarg-cma.yaml
 		oc create -f $WORKSPACE/05-worker-kernelarg-cma.yaml
 
 		(( delay = BOOT_DELAY_PER_WORKER * WORKERS ))
-		echo "Delaying $delay minutes for worker nodes to reboot...  New kernel boot argument: cma=$KARG_CMA"
+		echo "Delaying $delay minutes for worker nodes to reboot...  New kernel boot argument: slub_max_order=0 cma=$KARG_CMA"
 		sleep ${delay}m
 
 		helper/check-health-cluster.sh

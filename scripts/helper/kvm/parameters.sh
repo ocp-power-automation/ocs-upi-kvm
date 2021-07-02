@@ -26,15 +26,7 @@ export CLUSTER_CIDR=${CLUSTER_CIDR:="192.168.88.0/24"}
 export CLUSTER_GATEWAY=${CLUSTER_CIDR/0\/24/1}
 export BASTION_IP=${CLUSTER_CIDR/0\/24/2}
 
-# Default kernel arguments applied to all nodes: master & workers.  For example, slub_max_order=0
-
-# RHCOS Kernel Arguments
-
-rhcos_kernel_args=( )                                                   # Applies to master and workers.  By default, none
-
-export CMA_PERCENT=${CMA_PERCENT:=0}                                    # Applies to worker nodes only.  Kernel contiguous memory area 
-
-export BOOT_DELAY_PER_WORKER=${BOOT_DELAY_PER_WORKER:=5}                # How many minutes to wait for kernel arg changes to take effect
+export CMA_PERCENT=0
 
 
 ############################## Validate Input Parameters ###############################
