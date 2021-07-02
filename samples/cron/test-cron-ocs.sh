@@ -178,6 +178,17 @@ do
 		exit
 	fi
 
+        case "$i" in
+		1|2|4a)
+			# These tier tests include add storage capacity tests which are implemented via an extra worker node
+			export WORKERS=4
+			;;
+		*)
+			unset WORKERS
+			;;
+	esac
+
+
 	# Recreate cluster each time.  A failed test may compromise cluster health
 
 	echo "Invoking ./create-ocp.sh" | tee -a $LOGDIR/create-ocp-$i-$LOGDATE.log
