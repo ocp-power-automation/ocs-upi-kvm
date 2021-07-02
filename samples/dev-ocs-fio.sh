@@ -8,7 +8,7 @@
 
 # These environment variables are required for all platforms
 
-export PLATFORM=powervs                                         # Only powervs and powervm (implements PowerVC)
+export PLATFORM=${PLATFORM:=powervs}                            # Only powervs and powervm (the latter implements PowerVC)
 
 #export RHID_USERNAME=<your registered username>		# Change this line or preset in shell
 #export RHID_PASSWORD=<your password>				# Edit or preset
