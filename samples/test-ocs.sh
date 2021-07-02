@@ -159,6 +159,16 @@ set -o pipefail
 
 for i in 1 2 4a 4b 4c 3
 do
+	case "$i" in
+		1|2|4a)
+			# These tier tests include add storage capacity tests which are implemented via an extra worker node
+			export WORKERS=4
+			;;
+		*)
+			unset WORKERS
+			;;
+	esac
+
 	./create-ocp.sh 2>&1 | tee $WORKSPACE/create-ocp-$i.log
 	if [ "$?" != 0 ]; then
 	       
