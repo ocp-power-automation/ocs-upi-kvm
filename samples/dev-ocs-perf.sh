@@ -306,6 +306,7 @@ echo "Deploy elasticsearch on $es_worker_hostname at $es_worker_ip" | tee -a $WO
 
 oc adm new-project elastic --node-selector="kubernetes.io/hostname=$es_worker_hostname"
 oc project elastic
+oc create -f $WORKSPACE/ocs-upi-kvm/files/elastic/limit-range.yaml -n elastic
 oc new-app "discovery.type=single-node" quay.io/piyushgupta1551/elasticsearch:7.11
 oc expose service/elasticsearch
 oc project default
