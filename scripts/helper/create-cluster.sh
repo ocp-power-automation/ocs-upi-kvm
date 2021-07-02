@@ -91,11 +91,6 @@ source helper/parameters.sh
 export GOROOT=$WORKSPACE/usr/local/go
 export PATH=$WORKSPACE/bin:$PATH
 
-# Pickup platform specific kernel boot parameters that are common across master and worker nodes
-
-RHCOS_KERNEL_ARGS="${rhcos_kernel_args[@]}"
-export RHCOS_KERNEL_ARGS=${RHCOS_KERNEL_ARGS/ /,}
-
 # This is decremented after cluster creation to remove the bootstrap node
 
 export BOOTSTRAP_CNT=1
@@ -120,26 +115,9 @@ if [ "$ARG1" == "--retry" ]; then
 			# Delete bootstrap to save system resources after successful cluster creation
 			export BOOTSTRAP_CNT=0
 			terraform_apply
-
-			if [ -n "$RHCOS_KERNEL_ARGS" ]; then
-				(( delay = BOOT_DELAY_PER_WORKER * WORKERS ))
-				echo "Delaying $delay minutes for nodes to reboot...  New kernel boot arguments: ${RHCOS_KERNEL_ARGS[@]}"
-				sleep ${delay}m
-			fi
 		fi
 		popd
 		exit $rc
-	fi
-fi
-
-if [ "$PLATFORM" == powervs ]; then
-	if [ -z "$PVS_API_KEY" ] || [ -z "$PVS_SERVICE_INSTANCE_ID" ]; then
-		echo "Environment variables PVS_API_KEY and PVS_SERVICE_INSTANCE_ID must be set for PowerVS"
-		exit 1
-	fi
-	if [ -z "$PVS_ZONE" ] || [ -z "$PVS_REGION" ]; then
-		echo "Environment variables PVS_ZONE and PVS_REGION must be set for PowerVS"
-		exit 1
 	fi
 fi
 
@@ -419,12 +397,6 @@ if [ "$rc" == 0 ]; then
 	terraform_apply
 	if [ "$?" != 0 ]; then
 		echo "Terraform_apply failed deleting bootstrap node"
-	fi
-
-	if [ -n "$RHCOS_KERNEL_ARGS" ]; then
-		(( delay = BOOT_DELAY_PER_WORKER * WORKERS ))
-		echo "Delaying $delay minutes for nodes to reboot...  New kernel boot arguments: ${RHCOS_KERNEL_ARGS[@]}"
-		sleep ${delay}m
 	fi
 fi
 

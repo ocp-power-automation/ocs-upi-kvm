@@ -43,6 +43,15 @@ elif [ "$PVS_REGION" == mon ] && [ "$PVS_ZONE" == mon01 ]; then
 	PVS_SERVICE_INSTANCE_ID=73585ea1-0d40-4c0f-b97c-e3d6923aa153
 fi
 
+if [ -z "$PVS_API_KEY" ] || [ -z "$PVS_SERVICE_INSTANCE_ID" ]; then
+	echo "Environment variables PVS_API_KEY and PVS_SERVICE_INSTANCE_ID must be set for PowerVS"
+	exit 1
+fi
+if [ -z "$PVS_ZONE" ] || [ -z "$PVS_REGION" ]; then
+	echo "Environment variables PVS_ZONE and PVS_REGION must be set for PowerVS"
+	exit 1
+fi
+
 # The boot images below are common across OCS development zones, except where noted
 
 export BASTION_IMAGE=${BASTION_IMAGE:="rhel-83-03192021"}
@@ -102,8 +111,6 @@ export OCS_CI_ON_BASTION=${OCS_CI_ON_BASTION:="false"}			# ocs-ci runs locally b
 export BOOT_DELAY_PER_WORKER=${BOOT_DELAY_PER_WORKER:=7}
 
 # RHCOS Kernel Arguments
-
-rhcos_kernel_args=( "\"slub_max_order=0\"" )				# Applies to master and workers
 
 export CMA_PERCENT=${CMA_PERCENT:=0}                                    # Applies to worker nodes only.  Kernel contiguous memory area
 
