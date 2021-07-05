@@ -11,7 +11,7 @@ scg_id                      = "$PVC_SCG_ID"
 bastion        = {instance_type = "$BASTION_COMPUTE_TEMPLATE", image_id = "$BASTION_IMAGE", "count" = 1}
 bootstrap      = {instance_type = "$BOOTSTRAP_COMPUTE_TEMPLATE", image_id = "$RHCOS_IMAGE", "count" = $BOOTSTRAP_CNT}
 master         = {instance_type = "$MASTER_COMPUTE_TEMPLATE", image_id = "$RHCOS_IMAGE", "count" = 3}
-worker         = {instance_type = "$WORKER_COMPUTE_TEMPLATE", image_id = "$RHCOS_IMAGE", "count" = $WORKERS, data_volume_count = 1, data_volume_size = "$WORKER_VOLUME_SIZE"}
+worker         = {instance_type = "$WORKER_COMPUTE_TEMPLATE", image_id = "$RHCOS_IMAGE", "count" = $WORKERS, data_volume_count = 1, data_volume_size = $WORKER_VOLUME_SIZE}
 
 rhel_subscription_username      = "$RHID_USERNAME"
 rhel_subscription_password      = "$RHID_PASSWORD"
