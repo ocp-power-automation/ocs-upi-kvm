@@ -110,19 +110,30 @@ function update_supplemental_ocsci_config () {
 	fi
 
 	if [ "$PLATFORM" != kvm ]; then
-		if [ "$PLATFORM" == powervs ]; then
-			yq -y -i '.ENV_DATA.number_of_storage_disks = 8' $WORKSPACE/ocs-ci-conf.yaml
-		else
-			yq -y -i '.ENV_DATA.number_of_storage_disks = 4' $WORKSPACE/ocs-ci-conf.yaml
-		fi
 
-		# ocs-ci powervs support uses ssh to restart nodes.  Since ocs-ci runs locally
-		# and the cluster is in the cloud, the bastion ip is needed as a jump server
-		# to connect with master and worker nodes.
+		# Power support in ocs-ci utilizes ssh to restart nodes.  This is done indirectly through
+		# the bastion node since the local server where this project runs does not have ssh
+		# connectivity to OCP nodes.  The bastion acts as an ssh jump server.
 
 		if [ -e $WORKSPACE/.bastion_ip ]; then
 			source $WORKSPACE/.bastion_ip
 		fi
+
+		case "$PLATFORM" in
+		powervs)
+			# Only 8 has been observed across many zones and powervs config is prescribed, so hardcode it
+			yq -y -i '.ENV_DATA.number_of_storage_disks = 8' $WORKSPACE/ocs-ci-conf.yaml
+			;;
+		powervm)
+			if [ -n "$BASTION_IP" ]; then
+				vcnt=$(ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null root@$BASTION_IP ssh core@worker-0 lsblk -a | grep "$WORKER_VOLUME_SIZE" | wc -l)
+			else
+				vcnt=$(ssh core@worker-0 lsblk -a 2>/dev/null | grep "$WORKER_VOLUME_SIZE" | wc -l)
+			fi
+			export vcnt
+			yq -y -i '.ENV_DATA.number_of_storage_disks |= ( env.vcnt | tonumber )' $WORKSPACE/ocs-ci-conf.yaml
+			;;
+		esac
 
 		# Set bastion ip in the ocs-ci-conf.yaml
 
@@ -130,7 +141,6 @@ function update_supplemental_ocsci_config () {
 			yq -y -i '.ENV_DATA.bastion_ip |= env.BASTION_IP' $WORKSPACE/ocs-ci-conf.yaml
 		fi
 	fi
-
 }
 
 function terraform_apply () {
