@@ -74,7 +74,7 @@ case $OCP_VERSION in
 	export OCP_PROJECT_COMMIT=a87bf5b274cf9c7cec70c85dc90609939065a948
 	;;
 4.8)
-	export RHCOS_IMAGE=${RHCOS_IMAGE:="rhcos-48-05132021"}
+	export RHCOS_IMAGE=${RHCOS_IMAGE:="rhcos-48-07052021"}
 	;;
 esac
 
