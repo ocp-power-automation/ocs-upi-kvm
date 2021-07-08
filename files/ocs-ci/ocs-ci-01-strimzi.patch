@@ -1,17 +1,17 @@
 diff --git a/ocs_ci/ocs/amq.py b/ocs_ci/ocs/amq.py
-index 49ceb61e..55aca214 100644
+index bdb88deb..26d8ef64 100644
 --- a/ocs_ci/ocs/amq.py
 +++ b/ocs_ci/ocs/amq.py
-@@ -23,7 +23,7 @@ from ocs_ci.helpers.helpers import storagecluster_independent_check, validate_pv
+@@ -25,7 +25,7 @@ from ocs_ci.helpers.helpers import storagecluster_independent_check, validate_pv
  from ocs_ci.ocs.resources.pvc import get_all_pvc_objs, delete_pvcs
- 
+
  log = logging.getLogger(__name__)
 -URL = "https://get.helm.sh/helm-v2.16.1-linux-amd64.tar.gz"
 +URL = "https://get.helm.sh/helm-v2.16.1-linux-ppc64le.tar.gz"
  AMQ_BENCHMARK_NAMESPACE = "tiller"
- 
- 
-@@ -45,7 +45,7 @@ class AMQ(object):
+
+
+@@ -47,7 +47,7 @@ class AMQ(object):
          """
          self.args = kwargs
          self.repo = self.args.get("repo", constants.KAFKA_OPERATOR)
@@ -20,7 +20,7 @@ index 49ceb61e..55aca214 100644
          self.ocp = OCP()
          self.ns_obj = OCP(kind="namespace")
          self.pod_obj = OCP(kind="pod")
-@@ -596,9 +596,9 @@ class AMQ(object):
+@@ -610,9 +610,9 @@ class AMQ(object):
          # Install helm cli (version v2.16.0 as we need tiller component)
          # And create tiller pods
          wget_cmd = f"wget -c --read-timeout=5 --tries=0 {URL}"
@@ -32,7 +32,7 @@ index 49ceb61e..55aca214 100644
              f" --service-account {tiller_namespace}"
          )
          exec_cmd(cmd=wget_cmd, cwd=self.dir)
-@@ -620,7 +620,7 @@ class AMQ(object):
+@@ -634,7 +634,7 @@ class AMQ(object):
          values = templating.load_yaml(constants.AMQ_BENCHMARK_VALUE_YAML)
          values["numWorkers"] = num_of_clients
          benchmark_cmd = (
@@ -41,21 +41,21 @@ index 49ceb61e..55aca214 100644
              f" --name {benchmark_pod_name} --tiller-namespace {tiller_namespace}"
          )
          exec_cmd(cmd=benchmark_cmd, cwd=self.dir)
-@@ -963,7 +963,7 @@ class AMQ(object):
-             if self.benchmark:
-                 # Delete the helm app
-                 try:
--                    purge_cmd = f"linux-amd64/helm delete benchmark --purge --tiller-namespace {tiller_namespace}"
-+                    purge_cmd = f"linux-ppc64le/helm delete benchmark --purge --tiller-namespace {tiller_namespace}"
-                     run(purge_cmd, shell=True, cwd=self.dir, check=True)
-                 except (CommandFailed, CalledProcessError) as cf:
-                     log.error("Failed to delete help app")
+@@ -980,7 +980,7 @@ class AMQ(object):
+         if self.benchmark:
+             # Delete the helm app
+             try:
+-                purge_cmd = f"linux-amd64/helm delete benchmark --purge --tiller-namespace {tiller_namespace}"
++                purge_cmd = f"linux-ppc64le/helm delete benchmark --purge --tiller-namespace {tiller_namespace}"
+                 run(purge_cmd, shell=True, cwd=self.dir, check=True)
+             except (CommandFailed, CalledProcessError) as cf:
+                 log.error("Failed to delete help app")
 diff --git a/ocs_ci/ocs/constants.py b/ocs_ci/ocs/constants.py
-index ea6adaac..082ce0a9 100644
+index 4a1af104..5078feea 100644
 --- a/ocs_ci/ocs/constants.py
 +++ b/ocs_ci/ocs/constants.py
-@@ -177,7 +177,7 @@ OCS_MONKEY_REPOSITORY = "https://github.com/red-hat-storage/ocs-monkey.git"
- 
+@@ -179,7 +179,7 @@ OCS_MONKEY_REPOSITORY = "https://github.com/red-hat-storage/ocs-monkey.git"
+
  # AMQ
  AMQ_NAMESPACE = "myproject"
 -KAFKA_OPERATOR = "https://github.com/strimzi/strimzi-kafka-operator"

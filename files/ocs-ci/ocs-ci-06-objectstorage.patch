@@ -1,14 +1,14 @@
 diff --git a/tests/manage/mcg/test_bucket_deletion.py b/tests/manage/mcg/test_bucket_deletion.py
-index 7edf9074..ddad1aa7 100644
+index d0f97c4c..fcdf95c2 100644
 --- a/tests/manage/mcg/test_bucket_deletion.py
 +++ b/tests/manage/mcg/test_bucket_deletion.py
-@@ -172,8 +172,16 @@ class TestBucketDeletion(MCGTest):
+@@ -173,8 +173,16 @@ class TestBucketDeletion(MCGTest):
                  *["OC", {"interface": "OC", "backingstore_dict": {"gcp": [(1, None)]}}],
                  marks=[tier1],
              ),
 +            pytest.param(
 +                *["OC", {"interface": "OC", "backingstore_dict": {"ibmcos": [(1, None)]}}],
-+                marks=[tier1],
++                 marks=[tier1],
 +            ),
 +            pytest.param(
 +                *["CLI", {"interface": "OC", "backingstore_dict": {"ibmcos": [(1, None)]}}],
@@ -18,8 +18,8 @@ index 7edf9074..ddad1aa7 100644
 -        ids=["S3", "CLI", "OC", "OC-AWS", "OC-AZURE", "OC-GCP"],
 +        ids=["S3", "CLI", "OC", "OC-AWS", "OC-AZURE", "OC-GCP", "OC-IBMCOS", "CLI-IBMCOS"],
      )
+     @flaky
      def test_bucket_delete_with_objects(
-         self, mcg_obj, awscli_pod, bucket_factory, interface, bucketclass_dict
 diff --git a/tests/manage/mcg/test_multicloud.py b/tests/manage/mcg/test_multicloud.py
 index ffc8f970..9c4bdddf 100644
 --- a/tests/manage/mcg/test_multicloud.py
@@ -61,10 +61,10 @@ index ffc8f970..9c4bdddf 100644
      )
      def test_multicloud_backingstore_deletion(
 diff --git a/tests/manage/mcg/test_object_integrity.py b/tests/manage/mcg/test_object_integrity.py
-index d7bf0213..b16e0829 100644
+index 389173b2..7d354936 100644
 --- a/tests/manage/mcg/test_object_integrity.py
 +++ b/tests/manage/mcg/test_object_integrity.py
-@@ -53,6 +53,14 @@ class TestObjectIntegrity(MCGTest):
+@@ -55,6 +55,14 @@ class TestObjectIntegrity(MCGTest):
                  {"interface": "OC", "backingstore_dict": {"gcp": [(1, None)]}},
                  marks=[tier1],
              ),
@@ -79,7 +79,7 @@ index d7bf0213..b16e0829 100644
              pytest.param(
                  {
                      "interface": "OC",
-@@ -77,6 +85,8 @@ class TestObjectIntegrity(MCGTest):
+@@ -79,6 +87,8 @@ class TestObjectIntegrity(MCGTest):
              "AWS-OC-1",
              "AZURE-OC-1",
              "GCP-OC-1",
@@ -89,10 +89,10 @@ index d7bf0213..b16e0829 100644
          ],
      )
 diff --git a/tests/manage/mcg/test_write_to_bucket.py b/tests/manage/mcg/test_write_to_bucket.py
-index 923e7ca0..b7138501 100644
+index dcfad1b2..2ee330e0 100644
 --- a/tests/manage/mcg/test_write_to_bucket.py
 +++ b/tests/manage/mcg/test_write_to_bucket.py
-@@ -80,12 +80,22 @@ class TestBucketIO(MCGTest):
+@@ -81,12 +81,22 @@ class TestBucketIO(MCGTest):
                  *["OC", {"interface": "OC", "backingstore_dict": {"gcp": [(1, None)]}}],
                  marks=[tier1],
              ),
@@ -114,8 +114,8 @@ index 923e7ca0..b7138501 100644
 +            "IBMCOS-CLI-1",
          ],
      )
-     def test_write_file_to_bucket(
-@@ -138,12 +148,22 @@ class TestBucketIO(MCGTest):
+     @flaky
+@@ -140,12 +150,22 @@ class TestBucketIO(MCGTest):
                  {"interface": "OC", "backingstore_dict": {"gcp": [(1, None)]}},
                  marks=[tier1],
              ),
@@ -138,7 +138,7 @@ index 923e7ca0..b7138501 100644
          ],
      )
      def test_mcg_data_deduplication(
-@@ -202,12 +222,22 @@ class TestBucketIO(MCGTest):
+@@ -204,12 +224,22 @@ class TestBucketIO(MCGTest):
                  {"interface": "OC", "backingstore_dict": {"gcp": [(1, None)]}},
                  marks=[tier1],
              ),
@@ -161,3 +161,4 @@ index 923e7ca0..b7138501 100644
          ],
      )
      def test_mcg_data_compression(
+
