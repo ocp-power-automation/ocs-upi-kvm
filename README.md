@@ -54,8 +54,10 @@ The scripts are listed in the order that they are expected to be run.
 - deploy-ocp-logging.sh
 - add-data-disk-workers.sh
 - test-ocs-ci.sh [ --tier <0,1,...> ]
+- monitor-ocs.sh [ --interval delay ] [ --cnt iterations ]
 - teardown-ocs-ci.sh
 - destroy-ocp.sh
+
 
 This project uses the following git submodules:
 
