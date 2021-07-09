@@ -288,6 +288,7 @@ function delete_elasticsearch () {
 	oc delete project/elastic
 	ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null root@$BASTION_IP ip route del $service_cidr
 	set -e
+	sleep 10s
 }
 
 function cleanup_exit () {
