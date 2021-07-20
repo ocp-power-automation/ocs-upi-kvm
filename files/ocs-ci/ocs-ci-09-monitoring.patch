@@ -1,0 +1,9 @@
+diff --git a/conf/examples/monitoring.yaml b/conf/examples/monitoring.yaml
+index 96a83b03..2ea6c34a 100644
+--- a/conf/examples/monitoring.yaml
++++ b/conf/examples/monitoring.yaml
+@@ -4,3 +4,4 @@ ENV_DATA:
+   # use via `--ocsci-conf conf/ocsci/monitoring.yaml`
+   monitoring_enabled: true
+   cluster_namespace: 'openshift-storage'
++  persistent-monitoring: true
