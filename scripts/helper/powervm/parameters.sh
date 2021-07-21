@@ -10,8 +10,26 @@ export PVC_SCG_ID=${PVC_SCG_ID:=df21cec9-c244-4d3d-b927-df1518672e87}
 
 export BASTION_COMPUTE_TEMPLATE=${BASTION_COMPUTE_TEMPLATE:=medium}
 export BOOTSTRAP_COMPUTE_TEMPLATE=${BOOTSTRAP_COMPUTE_TEMPLATE:=large}
-export MASTER_COMPUTE_TEMPLATE=${MASTER_COMPUTE_TEMPLATE:=large}
-export WORKER_COMPUTE_TEMPLATE=${WORKER_COMPUTE_TEMPLATE:=xlarge}
+
+# The primary consideration is memory, since it is not shared with other
+# LPARS unless AME is enabled which is very rare.  The default compute
+# templates enable shared LPAR technology so the CPU can be over allocated.
+# The large template has 32G of memory, xlarge has 64G, and xxlarge 128G
+
+export MASTER_DESIRED_MEM=${MASTER_DESIRED_MEM:="32"}
+if (( MASTER_DESIRED_MEM > 32 )); then
+	export MASTER_COMPUTE_TEMPLATE=${MASTER_COMPUTE_TEMPLATE:=xlarge}
+else
+	export MASTER_COMPUTE_TEMPLATE=${MASTER_COMPUTE_TEMPLATE:=large}
+fi
+
+export WORKER_DESIRED_MEM=${WORKER_DESIRED_MEM:="64"}
+if (( WORKER_DESIRED_MEM > 64 )); then
+	export WORKER_COMPUTE_TEMPLATE=${WORKER_COMPUTE_TEMPLATE:=xxlarge}
+else
+	export WORKER_COMPUTE_TEMPLATE=${WORKER_COMPUTE_TEMPLATE:=xlarge}
+fi
+
 export WORKER_VOLUMES=${WORKER_VOLUMES:=1}
 
 if [ -z "$CLUSTER_ID_PREFIX" ]; then
