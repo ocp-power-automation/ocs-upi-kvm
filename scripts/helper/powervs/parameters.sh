@@ -75,7 +75,11 @@ case $OCP_VERSION in
 	;;
 4.8)
 	export RHCOS_IMAGE=${RHCOS_IMAGE:="rhcos-48-07052021"}
+	export OCP_PROJECT_COMMIT="origin/master"
 	;;
+4.9)
+	export RHCOS_IMAGE=${RHCOS_IMAGE:="rhcos-49-07012021"}
+	;;	
 esac
 
 if [[ "$USE_TIER1_STORAGE" == "true" ]] && [[ ! "$BASTION_IMAGE" =~ tier1 ]] && [[ ! "$RHCOS_IMAGE" =~ tier1 ]]; then
