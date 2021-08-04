@@ -239,7 +239,7 @@ RHID_USERNAME | yes | all | User provided option 1
 RHID_PASSWORD | yes | all | User provided option 1
 RHID_ORG | yes | all | User provided option 2
 RHID_KEY | yes | all | User provided option 2
-OCP_VERSION | no | all | 4.6, 4.4, 4.5, 4.7, 4.8
+OCP_VERSION | no | all | 4.6, 4.4, 4.5, 4.7, 4.8, 4.9
 OCS_VERSION | no | all | 4.6, 4.7
 OCS_REGISTRY_IMAGE | no | all | Depends on OCS_VERSION
 PLATFORM | no | all | kvm, powervs
