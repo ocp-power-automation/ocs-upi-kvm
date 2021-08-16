@@ -13,6 +13,7 @@
   - [Adding And Removing OCS-CI Patches](#adding-and-removing-ocs-ci-patches)
   - [Crontab Automation](#crontab-automation)
   - [Troubleshooting](#troubleshooting)
+  - [Collecting Reports And Logs](#collecting-reports-and-logs)
 
 # Overview
 
@@ -612,3 +613,49 @@ sudo systemctl restart nftables
 sudo systemctl restart firewalld
 sudo systemctl restart libvirtd
 ```
+## Collecting Reports And Logs
+The get-runs script included in the samples directory collects files from a remote server/host to a centralized location for analysis. 
+Copy the get-runs.sh to the same directory where the files from the remote host will reside in the local machine; 
+these files are copied to the GSA indicated location.  
+The GSAID and SSHPASS environment variables need to be set to the authorized GSA ID user and password. If they are not present, the tool will not transfer the files.
+  
+It is essential to remember that it is assumed that you have passwordless connectivity to the host from where the files are extracted.
+  
+The use of  the following arguments defines the behavior  of  the script:
+  
+ -c Uses the same local directory for all found files. 
+    The files are not distributed in subdirectories representing the month and day they were created.
+  
+ -d The argument following must be a date on the form m/d/yyyy or mm/dd/yyyy. 
+    This is the date of the files to extract. Sometimes files from the previous day may appear in this directory.
+  
+ -h Displays this help.
+  
+ -p The following argument is the directory in the remote host that contains the subdirectory with the running version.
+  
+ -s Following this modifier must be the name or the IP address of the remote host/server from where the data will be extracted.
+  
+ -t The argument following is the target directory in the local machine.  If none is given, then the current directory is used.
+  
+ -u The argument following this modifier must be the username to be used.  
+  It is assumed that this user has a key that allows a server/host passwordless connection.  
+  If this is not the case, a password will be prompted multiple times.
+  
+ -v The following argument must contain the  OCS version of interest. Not providing it will default to version 4.9.
+  
+
+Examples:
+  
+$> get-runs.sh -s 9.53.169.225 -u test -d 8/2/2021 -p sao01a -t ~/00_2021/00_Workfolders/02_OCS48_work/sao01a
+  
+In this example, the tool will transfer the files from the server with IP = 9.53.169.225. 
+The user on the remote server is "test" it will extract the reports and logs with a creation date of 8/2/2021, 
+located on subdirectory /sao01a, and transfer them to the local machine directory  ~/00_2021/00_Workfolders/02_OCS48_work/sao01a. 
+Once the files are successfully copied, they are automatically transferred to the GSA space assigned for them. 
+
+  
+Example 2:
+  
+$> get-runs.sh -v 4.9 -s 9.53.169.225 -u test -d 8/2/2021 -p sao01a -t ~/00_2021/00_Workfolders/02_OCS48_work/sao01a
+The results will be identical. 
+Note that the "-v 4.9" specifies the version we want to use.
