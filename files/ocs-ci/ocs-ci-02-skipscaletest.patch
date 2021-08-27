@@ -1,5 +1,5 @@
 diff --git a/tests/e2e/scale/test_scale_osds_fill_75%_reboot_workers.py b/tests/e2e/scale/test_scale_osds_fill_75%_reboot_workers.py
-index 0183d3c9..0c8cceaa 100644
+index 43cb1aa1..47b5f737 100644
 --- a/tests/e2e/scale/test_scale_osds_fill_75%_reboot_workers.py
 +++ b/tests/e2e/scale/test_scale_osds_fill_75%_reboot_workers.py
 @@ -20,6 +20,7 @@ from ocs_ci.utility.utils import ceph_health_check
@@ -8,8 +8,8 @@ index 0183d3c9..0c8cceaa 100644
      skipif_aws_i3,
 +    skipif_ibm_power,
  )
- 
- 
+
+
 @@ -41,6 +42,7 @@ logger = logging.getLogger(__name__)
      ],
  )
