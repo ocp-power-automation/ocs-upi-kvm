@@ -1,18 +1,18 @@
 diff --git a/tests/manage/z_cluster/cluster_expansion/test_add_capacity_entry_exit_criteria.py b/tests/manage/z_cluster/cluster_expansion/test_add_capacity_entry_exit_criteria.py
-index b9fa0c9d..c630ca98 100644
+index 0d38d116..52f0e7a2 100644
 --- a/tests/manage/z_cluster/cluster_expansion/test_add_capacity_entry_exit_criteria.py
 +++ b/tests/manage/z_cluster/cluster_expansion/test_add_capacity_entry_exit_criteria.py
-@@ -2,6 +2,10 @@ import logging
+@@ -1,6 +1,10 @@
+ import logging
  from concurrent.futures import ThreadPoolExecutor
  import pytest
- 
 +from ocs_ci.framework.pytest_customization.marks import (
 +    skipif_ibm_power,
 +)
 +
- 
+
+ from ocs_ci.ocs.cluster import is_flexible_scaling_enabled
  from ocs_ci.ocs.ocp import OCP
- from ocs_ci.ocs import defaults
 @@ -31,6 +35,7 @@ logger = logging.getLogger(__name__)
  )
  @ignore_leftovers
@@ -21,23 +21,23 @@ index b9fa0c9d..c630ca98 100644
  @pytest.mark.skipif(
      config.ENV_DATA["platform"].lower() == constants.VSPHERE_PLATFORM,
      reason=(
+
 diff --git a/tests/manage/z_cluster/cluster_expansion/test_add_capacity_with_node_restart.py b/tests/manage/z_cluster/cluster_expansion/test_add_capacity_with_node_restart.py
-index 8a4264a4..bbd64252 100644
+index a9753d36..51f3c882 100644
 --- a/tests/manage/z_cluster/cluster_expansion/test_add_capacity_with_node_restart.py
 +++ b/tests/manage/z_cluster/cluster_expansion/test_add_capacity_with_node_restart.py
-@@ -1,6 +1,11 @@
+@@ -1,6 +1,10 @@
  import pytest
  import logging
- 
+
 +from ocs_ci.framework.pytest_customization.marks import (
 +    skipif_ibm_power,
 +)
 +
-+
  from ocs_ci.framework.testlib import ignore_leftovers, ManageTest, tier4a
  from ocs_ci.framework import config
  from ocs_ci.ocs import constants
-@@ -23,6 +28,7 @@ from ocs_ci.ocs.cluster import check_ceph_health_after_add_capacity
+@@ -26,6 +30,7 @@ from ocs_ci.ocs.cluster import (
  )
  @ignore_leftovers
  @tier4a
@@ -46,23 +46,24 @@ index 8a4264a4..bbd64252 100644
      """
      Test add capacity when one of the worker nodes got restart
 diff --git a/tests/manage/z_cluster/cluster_expansion/test_delete_pod.py b/tests/manage/z_cluster/cluster_expansion/test_delete_pod.py
-index fe88a944..365a2225 100644
+index 36b5a124..2ee02469 100644
 --- a/tests/manage/z_cluster/cluster_expansion/test_delete_pod.py
 +++ b/tests/manage/z_cluster/cluster_expansion/test_delete_pod.py
-@@ -3,6 +3,11 @@ import pytest
+@@ -2,6 +2,12 @@ import pytest
+
  import logging
  from concurrent.futures import ThreadPoolExecutor
- 
 +from ocs_ci.framework.pytest_customization.marks import (
 +    skipif_ibm_power,
 +)
 +
 +
++
+
  from ocs_ci.framework.testlib import ignore_leftovers, tier4a
  from ocs_ci.framework import config
- from ocs_ci.ocs import constants
-@@ -19,6 +24,7 @@ from ocs_ci.ocs import node
- 
+@@ -20,6 +26,7 @@ from ocs_ci.ocs import node
+
  @ignore_leftovers
  @tier4a
 +@skipif_ibm_power
