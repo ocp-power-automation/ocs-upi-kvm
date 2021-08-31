@@ -67,15 +67,15 @@ case $OCP_VERSION in
 	;;
 4.6)
 	export RHCOS_IMAGE=${RHCOS_IMAGE:="rhcos-46-09182020"}
-	export OCP_PROJECT_COMMIT=d0a2c1ff486cc0a2db5ea85aeff7627a912f28e5
+	export OCP_PROJECT_COMMIT="origin/release-4.6"
 	;;
 4.7)
 	export RHCOS_IMAGE=${RHCOS_IMAGE:="rhcos-47-02172021"}
-	export OCP_PROJECT_COMMIT=a87bf5b274cf9c7cec70c85dc90609939065a948
+	export OCP_PROJECT_COMMIT="origin/release-4.7"
 	;;
 4.8)
 	export RHCOS_IMAGE=${RHCOS_IMAGE:="rhcos-48-07052021"}
-	export OCP_PROJECT_COMMIT="origin/master"
+	export OCP_PROJECT_COMMIT="origin/release-4.8"
 	;;
 4.9)
 	export RHCOS_IMAGE=${RHCOS_IMAGE:="rhcos-49-07012021"}
