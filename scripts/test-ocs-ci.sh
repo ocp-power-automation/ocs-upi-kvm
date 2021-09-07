@@ -96,7 +96,7 @@ if [[ -n "${tests[@]}" ]]; then
 	for i in "${tests[@]}"
 	do
 		echo "========================================================================================="
-		echo "============================= run-ci -m \"tier$i and manage\" ============================="
+		echo "================================ run-ci -m \"tier$i\" ================================"
 		echo "========================================================================================="
 
 		pytest --junitxml=$LOGDIR/test_results.xml
@@ -104,7 +104,7 @@ if [[ -n "${tests[@]}" ]]; then
 		html_fname=tier${i}_ocp${SANITIZED_OCP_VERSION}_ocs${SANITIZED_OCS_VERSION}_${PLATFORM}_${run_id}_report.html
 
 		set -x
-		time run-ci -m "tier$i and manage" --cluster-name ocstest \
+		time run-ci -m "tier$i" --cluster-name ocstest \
 			--ocp-version $OCP_VERSION --ocs-version=$OCS_VERSION \
 			--ocsci-conf conf/ocsci/production_powervs_upi.yaml \
 			--ocsci-conf conf/ocsci/lso_enable_rotational_disks.yaml \
