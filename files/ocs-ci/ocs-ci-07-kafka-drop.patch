@@ -1,0 +1,13 @@
+diff --git a/ocs_ci/templates/workloads/amq/kafkadrop.yaml b/ocs_ci/templates/workloads/amq/kafkadrop.yaml
+index 9b651fbc..3ad06398 100644
+--- a/ocs_ci/templates/workloads/amq/kafkadrop.yaml
++++ b/ocs_ci/templates/workloads/amq/kafkadrop.yaml
+@@ -13,7 +13,7 @@ spec:
+     spec:
+       containers:
+         - name: kafdrop
+-          image: obsidiandynamics/kafdrop:latest
++          image: quay.io/aaruniaggarwal/kafdrop:latest
+           ports:
+             - containerPort: 9000
+           env:
