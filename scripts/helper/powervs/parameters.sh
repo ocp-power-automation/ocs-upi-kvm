@@ -70,15 +70,15 @@ case $OCP_VERSION in
 	export OCP_PROJECT_COMMIT="origin/release-4.6"
 	;;
 4.7)
-	export RHCOS_IMAGE=${RHCOS_IMAGE:="rhcos-47-02172021"}
+	export RHCOS_IMAGE=${RHCOS_IMAGE:="rhcos-47-08062021"}
 	export OCP_PROJECT_COMMIT="origin/release-4.7"
 	;;
 4.8)
-	export RHCOS_IMAGE=${RHCOS_IMAGE:="rhcos-48-07052021"}
+	export RHCOS_IMAGE=${RHCOS_IMAGE:="rhcos-48-07222021"}
 	export OCP_PROJECT_COMMIT="origin/release-4.8"
 	;;
 4.9)
-	export RHCOS_IMAGE=${RHCOS_IMAGE:="rhcos-49-07012021"}
+	export RHCOS_IMAGE=${RHCOS_IMAGE:="rhcos-49-09072021"}
 	;;	
 esac
 
