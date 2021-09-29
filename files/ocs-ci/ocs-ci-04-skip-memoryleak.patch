@@ -1,20 +1,21 @@
 diff --git a/tests/e2e/scale/test_pv_scale_and_respin_ceph_pods.py b/tests/e2e/scale/test_pv_scale_and_respin_ceph_pods.py
-index 267d68ce..ba868fe1 100644
+index 374c95f2..f49ac7eb 100644
 --- a/tests/e2e/scale/test_pv_scale_and_respin_ceph_pods.py
 +++ b/tests/e2e/scale/test_pv_scale_and_respin_ceph_pods.py
-@@ -14,7 +14,10 @@ from ocs_ci.ocs import constants
+@@ -14,7 +14,11 @@ from ocs_ci.ocs import constants
  from ocs_ci.ocs.resources import pod
  from ocs_ci.utility import utils
  from ocs_ci.framework.testlib import scale, E2ETest, ignore_leftovers
 -from ocs_ci.framework.pytest_customization.marks import skipif_external_mode
 +from ocs_ci.framework.pytest_customization.marks import (
-+    skipif_external_mode,
-+    skipif_ibm_power,
++        skipif_external_mode,
++        skipif_ibm_power,
 +)
- 
++
+
  log = logging.getLogger(__name__)
- 
-@@ -125,6 +128,7 @@ class BasePvcCreateRespinCephPods(E2ETest):
+
+@@ -126,6 +130,7 @@ class BasePvcCreateRespinCephPods(E2ETest):
  @scale
  @ignore_leftovers
  @skipif_external_mode
