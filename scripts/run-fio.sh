@@ -234,14 +234,21 @@ function delete_pods () {
 oc project default >/dev/null 2>&1
 
 # Determine how much ceph memory is available in the pool
-
+ocs_operator=`oc get csv -n openshift-storage | grep ocs-operator | awk {'print $1'}`
+ocs_version=`oc get csv $ocs_operator -n openshift-storage -o jsonpath={.spec.version} | cut -c1-3`
 cephblockpool=$(oc -n openshift-storage rsh $ceph_tools ceph df | grep ocs-storagecluster-cephblockpool)
-max_avail_GiB=$(echo $cephblockpool | awk '{print $9}')
-max_avail_unit=$(echo $cephblockpool | awk '{print $10}')
+if [ $ocs_version == 4.9 ]; then
+        max_avail_GiB=$(echo $cephblockpool | awk '{print $10}')
+        max_avail_unit=$(echo $cephblockpool | awk '{print $11}')
+else
+        max_avail_GiB=$(echo $cephblockpool | awk '{print $9}')
+        max_avail_unit=$(echo $cephblockpool | awk '{print $10}')
+fi
+
 if [ "$max_avail_unit" == TiB ]; then
         max_avail_GiB=$(echo $max_avail_GiB*1000 | bc)
         max_avail_GiB=${max_avail_GiB/\.*/}
-elif [ "$max_avail_unit" != GiB ]; then
+elif [[ "$max_avail_unit" != *"GiB"* ]]; then
         echo "Not enough available storage in ocs-storagecluster-cephblockpool - $max_avail_GiB $max_avail_unit"
         exit 1
 fi
