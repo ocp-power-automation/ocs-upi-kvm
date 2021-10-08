@@ -1,5 +1,5 @@
 diff --git a/ocs_ci/ocs/amq.py b/ocs_ci/ocs/amq.py
-index bdb88deb..97374463 100644
+index bdb88deb..0a58e326 100644
 --- a/ocs_ci/ocs/amq.py
 +++ b/ocs_ci/ocs/amq.py
 @@ -25,7 +25,7 @@ from ocs_ci.helpers.helpers import storagecluster_independent_check, validate_pv
@@ -11,7 +11,7 @@ index bdb88deb..97374463 100644
  AMQ_BENCHMARK_NAMESPACE = "tiller"
 
 
-@@ -74,6 +74,18 @@ class AMQ(object):
+@@ -74,6 +74,20 @@ class AMQ(object):
              git_clone_cmd = f"git clone {self.repo} "
              run(git_clone_cmd, shell=True, cwd=self.dir, check=True)
              self.amq_dir = "strimzi-kafka-operator/packaging/install/cluster-operator/"
@@ -28,10 +28,11 @@ index bdb88deb..97374463 100644
 +            run("sed -i 's|quay.io/strimzi/kaniko-executor:latest|quay.io/aaruniaggarwal/kaniko-executor:latest|g' 060-Deployment-strimzi-cluster-operator.yaml" , shell=True, check=True, cwd=self.sed_dir)
 +            run("sed -i 's|quay.io/strimzi/maven-builder:latest|registry.access.redhat.com/ubi8/openjdk-11:1.3-18|g' 060-Deployment-strimzi-cluster-operator.yaml" , shell=True, check=True, cwd=self.sed_dir)
 +
++
              self.amq_kafka_pers_yaml = (
                  "strimzi-kafka-operator/packaging/examples/kafka/kafka-persistent.yaml"
              )
-@@ -610,9 +622,9 @@ class AMQ(object):
+@@ -610,9 +624,9 @@ class AMQ(object):
          # Install helm cli (version v2.16.0 as we need tiller component)
          # And create tiller pods
          wget_cmd = f"wget -c --read-timeout=5 --tries=0 {URL}"
@@ -43,7 +44,7 @@ index bdb88deb..97374463 100644
              f" --service-account {tiller_namespace}"
          )
          exec_cmd(cmd=wget_cmd, cwd=self.dir)
-@@ -634,7 +646,7 @@ class AMQ(object):
+@@ -634,7 +648,7 @@ class AMQ(object):
          values = templating.load_yaml(constants.AMQ_BENCHMARK_VALUE_YAML)
          values["numWorkers"] = num_of_clients
          benchmark_cmd = (
@@ -52,7 +53,7 @@ index bdb88deb..97374463 100644
              f" --name {benchmark_pod_name} --tiller-namespace {tiller_namespace}"
          )
          exec_cmd(cmd=benchmark_cmd, cwd=self.dir)
-@@ -980,7 +992,7 @@ class AMQ(object):
+@@ -980,7 +994,7 @@ class AMQ(object):
          if self.benchmark:
              # Delete the helm app
              try:
@@ -67,7 +68,7 @@ index fafa213c..9ae81dda 100644
 +++ b/ocs_ci/templates/workloads/amq/benchmark/values.yaml
 @@ -18,7 +18,7 @@
  #
- 
+
  numWorkers: 8
 -image: openmessaging/openmessaging-benchmark:latest
 +image: quay.io/multi-arch/openmessaging-benchmark:latest
@@ -112,7 +113,7 @@ index b30a8a59..431ada1a 100644
 +            image="registry.redhat.io/jboss-eap-7/eap73-openj9-11-openshift-rhel8:latest",
              pattern="eap-app",
          )
- 
+
 diff --git a/tests/e2e/registry/test_registry_pod_respin.py b/tests/e2e/registry/test_registry_pod_respin.py
 index c50755df..83d63520 100644
 --- a/tests/e2e/registry/test_registry_pod_respin.py
@@ -125,7 +126,7 @@ index c50755df..83d63520 100644
 +            image="registry.redhat.io/jboss-eap-7/eap73-openj9-11-openshift-rhel8:latest",
              pattern="eap-app",
          )
- 
+
 diff --git a/tests/e2e/registry/test_registry_pull_and_push_images_to_registry.py b/tests/e2e/registry/test_registry_pull_and_push_images_to_registry.py
 index aee622ad..2fea3394 100644
 --- a/tests/e2e/registry/test_registry_pull_and_push_images_to_registry.py
@@ -138,7 +139,7 @@ index aee622ad..2fea3394 100644
 +            image="registry.redhat.io/jboss-eap-7/eap73-openj9-11-openshift-rhel8:latest",
              pattern="eap-app",
          )
- 
+
 diff --git a/tests/e2e/registry/test_registry_reboot_node.py b/tests/e2e/registry/test_registry_reboot_node.py
 index b5316ff9..c8d4984e 100644
 --- a/tests/e2e/registry/test_registry_reboot_node.py
@@ -151,7 +152,7 @@ index b5316ff9..c8d4984e 100644
 +            image="registry.redhat.io/jboss-eap-7/eap73-openj9-11-openshift-rhel8:latest",
              pattern="eap-app",
          )
- 
+
 @@ -121,7 +121,7 @@ class TestRegistryRebootNode(E2ETest):
          image_pull_and_push(
              project_name=self.project_name,
@@ -160,7 +161,7 @@ index b5316ff9..c8d4984e 100644
 +            image="registry.redhat.io/jboss-eap-7/eap73-openj9-11-openshift-rhel8:latest",
              pattern="eap-app",
          )
- 
+
 diff --git a/tests/e2e/registry/test_registry_shutdown_and_recovery_node.py b/tests/e2e/registry/test_registry_shutdown_and_recovery_node.py
 index 8e3327cb..ab0a65ee 100644
 --- a/tests/e2e/registry/test_registry_shutdown_and_recovery_node.py
@@ -173,4 +174,4 @@ index 8e3327cb..ab0a65ee 100644
 +            image="registry.redhat.io/jboss-eap-7/eap73-openj9-11-openshift-rhel8:latest",
              pattern="eap-app",
          )
- 
+
