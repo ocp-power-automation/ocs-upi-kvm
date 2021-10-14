@@ -19,6 +19,13 @@ fi
 
 if [ "$OCS_CI_ON_BASTION" == true ]; then
 	setup_remote_ocsci_use			# Copy pull-secret.txt, auth.yaml, and ocs-upi-kvm to bastion
+        ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null root@$BASTION_IP "ls -l ~/go/bin/kustomize"
+        if [ $? != 0 ]
+        then
+                scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $WORKSPACE/ocs-upi-kvm/scripts/helper/kustomize.sh root@$BASTION_IP: >/dev/null 2>&1
+                ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null root@$BASTION_IP chmod 0755 kustomize.sh >/dev/null 2>&1
+                ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null root@$BASTION_IP ./kustomize.sh >/dev/null 2>&1
+        fi
 	invoke_ocs_ci_on_bastion $0 $@
 	exit $ocs_ci_on_bastion_rc
 fi

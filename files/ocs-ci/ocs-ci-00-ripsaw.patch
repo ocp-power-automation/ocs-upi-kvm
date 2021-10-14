@@ -1,20 +1,33 @@
-diff --git a/ocs_ci/ocs/ripsaw.py b/ocs_ci/ocs/ripsaw.py
-index 032e541f..ee3e1ffb 100644
---- a/ocs_ci/ocs/ripsaw.py
-+++ b/ocs_ci/ocs/ripsaw.py
-@@ -74,6 +74,15 @@ class RipSaw(object):
+diff --git a/ocs_ci/ocs/benchmark_operator.py b/ocs_ci/ocs/benchmark_operator.py
+index 78b32365..94bee74e 100644
+--- a/ocs_ci/ocs/benchmark_operator.py
++++ b/ocs_ci/ocs/benchmark_operator.py
+@@ -119,6 +119,19 @@ class BenchmarkOperator(object):
+             log.info(f"Cloning {BMO_NAME} in {self.dir}")
+             git_clone_cmd = f"git clone -b {self.branch} {self.repo} --depth 1"
              run(git_clone_cmd, shell=True, cwd=self.dir, check=True)
-             self.crd = "resources/crds/"
-             self.operator = "resources/operator.yaml"
 +
-+            self.projdir = self.dir + "/benchmark-operator/resources"
-+            log.info(f"Patching ripsaw 1 for ppc64le in {self.projdir}")
-+            run("sed -i 's|quay.io/benchmark-operator/benchmark-operator:master|quay.io/multi-arch/benchmark-operator:latest|g' operator.yaml" , shell=True, check=True, cwd=self.projdir)
-+            log.info(f"Patching ripsaw 2 for ppc64le in {self.projdir}")
-+            run("sed -i 's|k8s.gcr.io/redis:v1|quay.io/multiarch-k8s-e2e/redis:1.1|g' operator.yaml", shell=True, check=True, cwd=self.projdir)
-+            log.info(f"Patching ripsaw 3 for ppc64le in {self.projdir}")
-+            run("sed -i 's|quay.io/cloud-bulldozer/backpack:latest|quay.io/multi-arch/cloud-bulldozer:backpack|g' crds/ripsaw_v1alpha1_ripsaw_crd.yaml", shell=True, check=True, cwd=self.projdir)
++            self.projdir = self.dir + "/benchmark-operator/config"
++            log.info(f"Patching kube-burner for ppc64le in {self.projdir}")
++            run("sed -i 's|quay.io/cloud-bulldozer/kube-burner:latest|quay.io/multi-arch/cloud-bulldozer:kube-burner|g' crd/bases/ripsaw.cloudbulldozer.io_benchmarks.yaml" , shell=True, check=True, cwd=self.projdir)
++            log.info(f"Patching backpack for ppc64le in {self.projdir}")
++            run("sed -i 's|quay.io/cloud-bulldozer/backpack:latest|quay.io/multi-arch/cloud-bulldozer:backpack|g' crd/bases/ripsaw.cloudbulldozer.io_benchmarks.yaml", shell=True, check=True, cwd=self.projdir)
++            log.info(f"Patching redis for ppc64le in {self.projdir}")
++            run("sed -i 's|bitnami/redis:latest|quay.io/multiarch-k8s-e2e/redis:1.1|g' manager/manager.yaml", shell=True, check=True, cwd=self.projdir)
++
++        #    self.projdir1 = self.dir + "/benchmark-operator/roles"
++        #    log.info(f"Patching pgbench for ppc64le in {self.projdir1}")
++        #    run("sed -i 's|quay.io/cloud-bulldozer/pgbench:latest|quay.io/multi-arch/cloud-bulldozer:pgbench|g' pgbench/defaults/main.yml", shell=True, check=True, cwd=self.projdir1)
 +
          except (CommandFailed, CalledProcessError) as cf:
-             log.error("Error during cloning of ripsaw repository")
+             log.error(f"Error during cloning of {BMO_NAME} repository")
              raise cf
+@@ -149,7 +162,7 @@ class BenchmarkOperator(object):
+         """
+         log.info("Deploy the benchmark-operator project")
+         try:
+-            run("make deploy", shell=True, check=True, cwd=self.dir)
++            run("make deploy IMG=quay.io/aaruniaggarwal/benchmark-operator:latest", shell=True, check=True, cwd=self.dir)
+         except Exception as ex:
+             log.error(f"Failed to deploy benchmark operator : {ex}")
+
