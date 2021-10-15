@@ -15,7 +15,7 @@ export PLATFORM=${PLATFORM:="kvm"}
 export OCP_VERSION=${OCP_VERSION:="4.9"}
 
 export OCS_VERSION=${OCS_VERSION:="4.9"}
-export OCS_REGISTRY_IMAGE=${OCS_REGISTRY_IMAGE:="quay.io/rhceph-dev/ocs-registry:latest-$OCS_VERSION"}
+export OCS_REGISTRY_IMAGE=${OCS_REGISTRY_IMAGE:="quay.io/rhceph-dev/ocs-registry:latest-stable-$OCS_VERSION"}
 export OPTIONAL_OPERATORS_IMAGE=${OPTIONAL_OPERATORS_IMAGE:="quay.io/openshift-release-dev/ocp-release-nightly:iib-int-index-art-operators-$OCP_VERSION"}
 
 export WORKERS=${WORKERS:=3}
