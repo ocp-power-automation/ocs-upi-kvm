@@ -57,14 +57,25 @@ update_supplemental_ocsci_config
 
 echo "run-ci -m deployment --deploy --ocs-version $OCS_VERSION ..."
 
-run-ci -m deployment --deploy \
-	--ocs-version $OCS_VERSION --cluster-name ocstest \
-	--ocsci-conf conf/ocsci/production_powervs_upi.yaml \
-	--ocsci-conf conf/ocsci/lso_enable_rotational_disks.yaml \
-	--ocsci-conf conf/ocsci/manual_subscription_plan_approval.yaml \
-	--ocsci-conf conf/examples/monitoring.yaml \
-	--ocsci-conf $WORKSPACE/ocs-ci-conf.yaml \
-        --cluster-path $WORKSPACE --collect-logs tests/
+#temporarily disable manual subscription plan only for 4.9
+if [ $OCS_VERSION == "4.9" ]; then
+        run-ci -m deployment --deploy \
+                --ocs-version $OCS_VERSION --cluster-name ocstest \
+                --ocsci-conf conf/ocsci/production_powervs_upi.yaml \
+                --ocsci-conf conf/ocsci/lso_enable_rotational_disks.yaml \
+                --ocsci-conf conf/examples/monitoring.yaml \
+                --ocsci-conf $WORKSPACE/ocs-ci-conf.yaml \
+                --cluster-path $WORKSPACE --collect-logs tests/
+else
+        run-ci -m deployment --deploy \
+                --ocs-version $OCS_VERSION --cluster-name ocstest \
+                --ocsci-conf conf/ocsci/production_powervs_upi.yaml \
+                --ocsci-conf conf/ocsci/lso_enable_rotational_disks.yaml \
+                --ocsci-conf conf/ocsci/manual_subscription_plan_approval.yaml \
+                --ocsci-conf conf/examples/monitoring.yaml \
+                --ocsci-conf $WORKSPACE/ocs-ci-conf.yaml \
+                --cluster-path $WORKSPACE --collect-logs tests/
+fi
 
 deactivate
 
