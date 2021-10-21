@@ -32,15 +32,26 @@ logfile="upgrade-ocs-$UPGRADE_OCS_VERSION-$(date +"%F+%T").log"
 
 echo "Invoking run-ci command for upgrade..."
 
-run-ci -m "pre_upgrade or ocs_upgrade or post_upgrade" --ocs-version $OCS_VERSION \
-        --upgrade-ocs-version $UPGRADE_OCS_VERSION --upgrade-ocs-registry-image $UPGRADE_OCS_REGISTRY \
-        --ocsci-conf conf/ocsci/production_powervs_upi.yaml \
-        --ocsci-conf conf/ocsci/lso_enable_rotational_disks.yaml \
-        --ocsci-conf conf/ocsci/manual_subscription_plan_approval.yaml \
-        --ocsci-conf conf/ocsci/upgrade.yaml \
-        --ocsci-conf $WORKSPACE/ocs-ci-conf.yaml \
-        --cluster-name ocstest --cluster-path $WORKSPACE \
-        --collect-logs tests/ 2>&1 | tee $WORKSPACE/$logfile
+if [ $OCS_VERSION == "4.9" ]; then
+        run-ci -m "pre_upgrade or ocs_upgrade or post_upgrade" --ocs-version $OCS_VERSION \
+                --upgrade-ocs-version $UPGRADE_OCS_VERSION --upgrade-ocs-registry-image $UPGRADE_OCS_REGISTRY \
+                --ocsci-conf conf/ocsci/production_powervs_upi.yaml \
+                --ocsci-conf conf/ocsci/lso_enable_rotational_disks.yaml \
+                --ocsci-conf conf/ocsci/upgrade.yaml \
+                --ocsci-conf $WORKSPACE/ocs-ci-conf.yaml \
+                --cluster-name ocstest --cluster-path $WORKSPACE \
+                --collect-logs tests/ 2>&1 | tee $WORKSPACE/$logfile
+else	
+	run-ci -m "pre_upgrade or ocs_upgrade or post_upgrade" --ocs-version $OCS_VERSION \
+        	--upgrade-ocs-version $UPGRADE_OCS_VERSION --upgrade-ocs-registry-image $UPGRADE_OCS_REGISTRY \
+        	--ocsci-conf conf/ocsci/production_powervs_upi.yaml \
+        	--ocsci-conf conf/ocsci/lso_enable_rotational_disks.yaml \
+        	--ocsci-conf conf/ocsci/manual_subscription_plan_approval.yaml \
+        	--ocsci-conf conf/ocsci/upgrade.yaml \
+        	--ocsci-conf $WORKSPACE/ocs-ci-conf.yaml \
+        	--cluster-name ocstest --cluster-path $WORKSPACE \
+        	--collect-logs tests/ 2>&1 | tee $WORKSPACE/$logfile
+fi
 
 echo -e "\n After Upgrading..." >> $WORKSPACE/$logfile
 
