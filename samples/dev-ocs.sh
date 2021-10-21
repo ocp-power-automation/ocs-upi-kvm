@@ -194,14 +194,25 @@ pushd ../src/ocs-ci
 
 source $WORKSPACE/venv/bin/activate             # enter 'deactivate' in venv shell to exit
 
-run-ci -m "tier1" --cluster-name ocstest --cluster-path $WORKSPACE \
-	--ocp-version $OCP_VERSION --ocs-version=$OCS_VERSION \
-        --ocsci-conf conf/ocsci/production_powervs_upi.yaml \
-	--ocsci-conf conf/ocsci/lso_enable_rotational_disks.yaml \
-        --ocsci-conf conf/ocsci/manual_subscription_plan_approval.yaml \
-        --ocsci-conf $WORKSPACE/ocs-ci-conf.yaml \
-        --collect-logs \
-        tests/manage/z_cluster/cluster_expansion/test_add_capacity.py 2>&1 | tee $WORKSPACE/test-add-capacity.log
+#temporarily disable manual subscription plan only for 4.9
+if [ $OCS_VERSION == "4.9" ]; then
+        run-ci -m "tier1" --cluster-name ocstest --cluster-path $WORKSPACE \
+                --ocp-version $OCP_VERSION --ocs-version=$OCS_VERSION \
+                --ocsci-conf conf/ocsci/production_powervs_upi.yaml \
+                --ocsci-conf conf/ocsci/lso_enable_rotational_disks.yaml \
+                --ocsci-conf $WORKSPACE/ocs-ci-conf.yaml \
+                --collect-logs \
+                tests/manage/z_cluster/cluster_expansion/test_add_capacity.py 2>&1 | tee $WORKSPACE/test-add-capacity.log	
+else
+	run-ci -m "tier1" --cluster-name ocstest --cluster-path $WORKSPACE \
+		--ocp-version $OCP_VERSION --ocs-version=$OCS_VERSION \
+        	--ocsci-conf conf/ocsci/production_powervs_upi.yaml \
+		--ocsci-conf conf/ocsci/lso_enable_rotational_disks.yaml \
+        	--ocsci-conf conf/ocsci/manual_subscription_plan_approval.yaml \
+        	--ocsci-conf $WORKSPACE/ocs-ci-conf.yaml \
+        	--collect-logs \
+        	tests/manage/z_cluster/cluster_expansion/test_add_capacity.py 2>&1 | tee $WORKSPACE/test-add-capacity.log
+fi
 
 oc get cephcluster --namespace openshift-storage 2>&1 | tee -a $WORKSPACE/test-add-capacity.log
 oc get pods --namespace openshift-storage 2>&1 | tee -a $WORKSPACE/test-add-capacity.log
