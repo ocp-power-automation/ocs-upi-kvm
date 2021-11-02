@@ -33,6 +33,9 @@ elif [ "$PVS_SERVICE_INSTANCE_ID" == 481377eb-e843-46df-9afa-a815da381ffa ]; the
 elif [ "$PVS_SERVICE_INSTANCE_ID" == 73585ea1-0d40-4c0f-b97c-e3d6923aa153 ]; then
 	PVS_REGION=mon
 	PVS_ZONE=mon01
+elif [ "$PVS_SERVICE_INSTANCE_ID" == 1f6f0f7d-ced0-409c-95f0-170f9cb775c0 ]; then
+        PVS_REGION=syd
+        PVS_ZONE=syd04	
 elif [ "$PVS_REGION" == lon ] && [ "$PVS_ZONE" == lon06 ]; then
 	PVS_SERVICE_INSTANCE_ID=fac4755e-8aff-45f5-8d5c-1d3b58b7a229
 elif [ "$PVS_REGION" == tok ] && [ "$PVS_ZONE" == tok04 ]; then
@@ -41,6 +44,8 @@ elif [ "$PVS_REGION" == sao ] && [ "$PVS_ZONE" == sao01 ]; then
 	PVS_SERVICE_INSTANCE_ID=481377eb-e843-46df-9afa-a815da381ffa
 elif [ "$PVS_REGION" == mon ] && [ "$PVS_ZONE" == mon01 ]; then
 	PVS_SERVICE_INSTANCE_ID=73585ea1-0d40-4c0f-b97c-e3d6923aa153
+elif [ "$PVS_REGION" == syd ] && [ "$PVS_ZONE" == syd04 ]; then
+        PVS_SERVICE_INSTANCE_ID=1f6f0f7d-ced0-409c-95f0-170f9cb775c0	
 fi
 
 if [ -z "$PVS_API_KEY" ] || [ -z "$PVS_SERVICE_INSTANCE_ID" ]; then
