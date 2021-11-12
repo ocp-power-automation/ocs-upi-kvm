@@ -21,10 +21,10 @@ export PVS_SUBNET_NAME=ocp-net
 
 ##############  MAIN ################
 
-SERVICE_INSTANT_ID=( fac4755e-8aff-45f5-8d5c-1d3b58b7a229       #lon
+SERVICE_INSTANT_ID=( 1f6f0f7d-ced0-409c-95f0-170f9cb775c0       #syd
+        fac4755e-8aff-45f5-8d5c-1d3b58b7a229       		#lon
 	60e43366-08de-4287-8c42-b7942406efc9                    #tok
 	73585ea1-0d40-4c0f-b97c-e3d6923aa153                    #mon
-	1f6f0f7d-ced0-409c-95f0-170f9cb775c0                    #syd
 )
 
 get_latest_ocs=false
@@ -131,67 +131,62 @@ for i in 1 2 4a 4b 4c 3; do
 		unset WORKERS
 		;;
 	esac
+	echo "Invoking tier $i test"
 	# Try create cluster in lon,tok,mon,syd
 	for j in ${SERVICE_INSTANT_ID[@]}; do
 		success=0
 		export PVS_SERVICE_INSTANCE_ID=$j
 		source $WORKSPACE/ocs-upi-kvm/scripts/helper/powervs/parameters.sh
-		echo "Invoking ./create-ocp.sh in $PVS_REGION" | tee -a $LOGDIR/create-ocp-$PVS_SERVICE_INSTANCE_ID-$LOGDATE.log
-		./create-ocp.sh 2>&1 | tee -a $LOGDIR/create-ocp-$PVS_SERVICE_INSTANCE_ID-$LOGDATE.log
+		echo "Invoking ./create-ocp.sh in $PVS_REGION" | tee -a $LOGDIR/create-ocp-$i-$PVS_REGION-$LOGDATE.log
+		./create-ocp.sh 2>&1 | tee -a $LOGDIR/create-ocp-$i-$PVS_REGION-$LOGDATE.log
 		if [ "$?" != 0 ]; then
-			echo "Retrying ./create-ocp.sh in $PVS_REGION" | tee -a $LOGDIR/create-ocp-$PVS_SERVICE_INSTANCE_ID-$LOGDATE.log
+			echo "Retrying ./create-ocp.sh in $PVS_REGION" | tee -a $LOGDIR/create-ocp-$i-$PVS_REGION-$LOGDATE.log
 			sleep 5m
-			./create-ocp.sh --retry 2>&1 | tee -a $LOGDIR/create-ocp-$PVS_SERVICE_INSTANCE_ID-$LOGDATE.log
+			./create-ocp.sh --retry 2>&1 | tee -a $LOGDIR/create-ocp-$i-$PVS_REGION-$LOGDATE.log
 
 			if [ "$?" != 0 ]; then
-				./destroy-ocp.sh | tee $LOGDIR/destroy-ocp-$PVS_SERVICE_INSTANCE_ID-$LOGDATE.log
+				./destroy-ocp.sh | tee $LOGDIR/destroy-ocp-$i-$PVS_REGION-$LOGDATE.log
 				if [ "$?" != 0 ]; then
-					echo "ERROR: cluster destroy failed.  Use cloud GUI to remove virtual instances from $PVS_REGION" | tee -a $LOGDIR/destroy-ocp-$PVS_SERVICE_INSTANCE_ID-$LOGDATE.log
+					echo "ERROR: cluster destroy failed.  Use cloud GUI to remove virtual instances from $PVS_REGION" | tee -a $LOGDIR/destroy-ocp-$i-$PVS_REGION-$LOGDATE.log
 				fi
 				continue
 			else
 				echo "Cluster creation successful in $PVS_REGION"
 				success=1
-				break
 			fi
 		else
 			echo "Cluster creation successful in $PVS_REGION"
 			success=1
+		fi
+		
+		if [ $success == 1 ]; then
+			source $WORKSPACE/env-ocp.sh
+			oc get nodes -o wide 2>&1 | tee -a $LOGDIR/create-ocp-$i-$PVS_REGION-$LOGDATE.log
+			./setup-ocs-ci.sh 2>&1 | tee $LOGDIR/setup-ocs-ci-$i-$PVS_REGION-$LOGDATE.log
+
+			./deploy-ocs-ci.sh 2>&1 | tee $LOGDIR/deploy-ocs-ci-$i-$PVS_REGION-$LOGDATE.log
+			CEPH_STATE=$(oc get cephcluster --namespace openshift-storage | tee -a $LOGDIR/deploy-ocs-ci-$i-$PVS_REGION-$LOGDATE.log)
+			if [[ ! "$CEPH_STATE" =~ HEALTH_OK ]]; then
+				echo "ERROR: Failed CEPH Health Check" | tee -a $LOGDIR/deploy-ocs-ci-$i-$PVS_REGION-$LOGDATE.log
+				./destroy-ocp.sh --tier $i | tee $LOGDIR/destroy-ocp-$i-$PVS_REGION-$LOGDATE.log
+				if [ "$?" != 0 ]; then
+					echo "ERROR: cluster destroy failed.  Use cloud GUI to remove virtual instances"
+				fi
+				continue
+			fi
+
+			nohup ./test-ocs-ci.sh --tier $i 2>&1 >$LOGDIR/test-ocs-ci-$i-$PVS_REGION-$LOGDATE.log
+
+			echo
+			oc get cephcluster --namespace openshift-storage 2>&1 | tee -a $LOGDIR/test-ocs-ci-$i-$PVS_REGION-$LOGDATE.log
+			echo
+			oc get pods --namespace openshift-storage 2>&1 | tee -a $LOGDIR/test-ocs-ci-$i-$PVS_REGION-$LOGDATE.log
+
+			./destroy-ocp.sh --tier $i | tee $LOGDIR/destroy-ocp-$i-$PVS_REGION-$LOGDATE.log
+			if [ "$?" != 0 ]; then
+				echo "ERROR: cluster destroy failed.  Use cloud GUI to remove virtual instances"
+			fi
 			break
 		fi
 	done
-
-	if [ $success == 1 ]; then
-		source $WORKSPACE/env-ocp.sh
-		oc get nodes -o wide 2>&1 | tee -a $LOGDIR/create-ocp-$PVS_SERVICE_INSTANCE_ID-$LOGDATE.log
-	else
-		echo "Cluster creation failed in all the regions"
-		exit 1
-	fi
-
-	./setup-ocs-ci.sh 2>&1 | tee $LOGDIR/setup-ocs-ci-$i.log
-
-	./deploy-ocs-ci.sh 2>&1 | tee $LOGDIR/deploy-ocs-ci-$i.log
-	CEPH_STATE=$(oc get cephcluster --namespace openshift-storage | tee -a $LOGDIR/deploy-ocs-ci-$i.log)
-	if [[ ! "$CEPH_STATE" =~ HEALTH_OK ]]; then
-		echo "ERROR: Failed CEPH Health Check" | tee -a $LOGDIR/deploy-ocs-ci-$i.log
-		./destroy-ocp.sh --tier $i | tee $LOGDIR/destroy-ocp-$i.log
-		if [ "$?" != 0 ]; then
-			echo "ERROR: cluster destroy failed.  Use cloud GUI to remove virtual instances"
-		fi
-		continue
-	fi
-
-	nohup ./test-ocs-ci.sh --tier $i 2>&1 >$LOGDIR/test-ocs-ci-$i.log
-
-	echo
-	oc get cephcluster --namespace openshift-storage 2>&1 | tee -a $LOGDIR/test-ocs-ci-$i.log
-	echo
-	oc get pods --namespace openshift-storage 2>&1 | tee -a $LOGDIR/test-ocs-ci-$i.log
-
-	./destroy-ocp.sh --tier $i | tee $LOGDIR/destroy-ocp-$i.log
-	if [ "$?" != 0 ]; then
-		echo "ERROR: cluster destroy failed.  Use cloud GUI to remove virtual instances"
-	fi
-
 done
