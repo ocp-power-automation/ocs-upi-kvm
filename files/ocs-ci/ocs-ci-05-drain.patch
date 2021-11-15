@@ -1,5 +1,5 @@
 diff --git a/ocs_ci/ocs/node.py b/ocs_ci/ocs/node.py
-index f839c87f..aff5bed5 100644
+index 906aef59..770d48d5 100644
 --- a/ocs_ci/ocs/node.py
 +++ b/ocs_ci/ocs/node.py
 @@ -204,7 +204,7 @@ def drain_nodes(node_names):
@@ -11,4 +11,3 @@ index f839c87f..aff5bed5 100644
              timeout=1800,
          )
      except TimeoutExpired:
-
