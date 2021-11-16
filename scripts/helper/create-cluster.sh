@@ -28,34 +28,36 @@ case "$OCP_VERSION" in
 		RHCOS_SUFFIX="-$RHCOS_RELEASE"
 		;;
 	4.6)
-		OCP_RELEASE="4.6.43"				# Latest release of OCP 4.6 at this time
+		OCP_RELEASE="4.6.48"				# Latest release of OCP 4.6 at this time
 		RHCOS_VERSION="4.6"
 		if [ -z "$RHCOS_RELEASE" ]; then
-			RHCOS_RELEASE="4.6.40"			# Latest release of RHCOS 4.6 at this time
+			RHCOS_RELEASE="4.6.47"			# Latest release of RHCOS 4.6 at this time
 		fi
 		RHCOS_SUFFIX="-$RHCOS_RELEASE"
 		;;
 	4.7)
-		OCP_RELEASE="4.7.24"
+		OCP_RELEASE="4.7.36"
 		RHCOS_VERSION="4.7"
 		if [ -z "$RHCOS_RELEASE" ]; then
-			RHCOS_RELEASE="4.7.13"                   # Latest release of RHCOS 4.7 at this time
+			RHCOS_RELEASE="4.7.33"                   # Latest release of RHCOS 4.7 at this time
 		fi
 		RHCOS_SUFFIX="-$RHCOS_RELEASE"
 		;;
 	4.8)
-		OCP_RELEASE="4.8.5"
+		OCP_RELEASE="4.8.18"
 		RHCOS_VERSION="4.8"
 		if [ -z "$RHCOS_RELEASE" ]; then
-			RHCOS_RELEASE="4.8.2"                   # Latest release of RHCOS 4.8 at this time
+			RHCOS_RELEASE="4.8.14"                   # Latest release of RHCOS 4.8 at this time
 		fi
 		RHCOS_SUFFIX="-$RHCOS_RELEASE"
 		;;
 	4.9)
-		OCP_RELEASE="4.9.0"
-		RHCOS_VERSION="4.8"
-		unset RHCOS_RELEASE
-		RHCOS_SUFFIX="-$RHCOS_VERSION"
+		OCP_RELEASE="4.9.5"
+		RHCOS_VERSION="4.9"
+		if [ -z "$RHCOS_RELEASE" ]; then
+			RHCOS_RELEASE="4.9.0"                   # Latest release of RHCOS 4.9 at this time
+		fi
+		RHCOS_SUFFIX="-$RHCOS_RELEASE"
 		;;		
 	*)
 		echo "Invalid OCP_VERSION=$OCP_VERSION.  Supported versions are 4.4 - 4.9"
