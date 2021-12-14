@@ -16,8 +16,8 @@ export PLATFORM=${PLATFORM:="kvm"}                              # Also supported
 
 # These environment variables are optional for all platforms
 
-export OCP_VERSION=${OCP_VERSION:=4.9}                          # 4.5-4.9 are supported
-export OCS_VERSION=${OCS_VERSION:=4.9}
+export OCP_VERSION=${OCP_VERSION:=4.10}                          # 4.5-4.10 are supported
+export OCS_VERSION=${OCS_VERSION:=4.10}
 
 # These are optional for KVM OCP cluster create.  Default values are shown
 
@@ -195,7 +195,7 @@ pushd ../src/ocs-ci
 source $WORKSPACE/venv/bin/activate             # enter 'deactivate' in venv shell to exit
 
 #temporarily disable manual subscription plan only for 4.9
-if [ $OCS_VERSION == "4.9" ]; then
+if [[ $OCS_VERSION == "4.9" || $OCS_VERSION == "4.10" ]]; then
         run-ci -m "tier1" --cluster-name ocstest --cluster-path $WORKSPACE \
                 --ocp-version $OCP_VERSION --ocs-version=$OCS_VERSION \
                 --ocsci-conf conf/ocsci/production_powervs_upi.yaml \
