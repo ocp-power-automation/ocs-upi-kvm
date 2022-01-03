@@ -59,7 +59,7 @@ fi
 
 # The boot images below are common across OCS development zones, except where noted
 
-export BASTION_IMAGE=${BASTION_IMAGE:="rhel-83-03192021"}
+export BASTION_IMAGE=${BASTION_IMAGE:="rhel-85-12132021"}
 
 case $OCP_VERSION in
 4.4|4.5)
@@ -83,7 +83,7 @@ case $OCP_VERSION in
 	export OCP_PROJECT_COMMIT="origin/release-4.8"
 	;;
 4.9)
-	export RHCOS_IMAGE=${RHCOS_IMAGE:="rhcos-49-09072021"}
+	export RHCOS_IMAGE=${RHCOS_IMAGE:="rhcos-49-09272021"}
 	export OCP_PROJECT_COMMIT="origin/release-4.9"
 	;;	
 esac
