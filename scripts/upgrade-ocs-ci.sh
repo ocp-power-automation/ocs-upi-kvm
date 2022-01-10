@@ -32,7 +32,7 @@ logfile="upgrade-ocs-$UPGRADE_OCS_VERSION-$(date +"%F+%T").log"
 
 echo "Invoking run-ci command for upgrade..."
 
-if [ $OCS_VERSION == "4.9" ]; then
+if [[ $OCS_VERSION == "4.9" || $OCS_VERSION == "4.10" ]]; then
         run-ci -m "pre_upgrade or ocs_upgrade or post_upgrade" --ocs-version $OCS_VERSION \
                 --upgrade-ocs-version $UPGRADE_OCS_VERSION --upgrade-ocs-registry-image $UPGRADE_OCS_REGISTRY \
                 --ocsci-conf conf/ocsci/production_powervs_upi.yaml \
