@@ -6,7 +6,7 @@ service_instance_id         = "$PVS_SERVICE_INSTANCE_ID"
 bastion                     = { memory = "16", processors = "1", count = 1 }
 bootstrap                   = { memory = "16", processors = "0.5", count = $BOOTSTRAP_CNT }
 master                      = { memory = "$MASTER_DESIRED_MEM", processors = "$MASTER_DESIRED_CPU", count = 3 }
-worker                      = { memory = "$WORKER_DESIRED_MEM", processors = "$WORKER_DESIRED_CPU", count = $WORKERS }
+worker                      = { memory = "$WORKER_DESIRED_MEM", processors = "$WORKER_DESIRED_CPU", count = $WORKERS, data_volume_count = $WORKER_VOLUMES, data_volume_size = $WORKER_VOLUME_SIZE }
 
 rhel_image_name             = "$BASTION_IMAGE"
 rhcos_image_name            = "$RHCOS_IMAGE"
@@ -33,10 +33,6 @@ chrony_config               = "$CHRONY_CONFIG"
 chrony_config_servers       = [$CHRONY_CONFIG_SERVERS]
 
 setup_squid_proxy           = true
-
-# Master and Worker nodes
-
-worker_volume_size          = "$WORKER_VOLUME_SIZE"
 
 # Bastion node
 
