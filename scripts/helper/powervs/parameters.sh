@@ -62,7 +62,7 @@ fi
 
 # The boot images below are common across OCS development zones, except where noted
 
-export BASTION_IMAGE=${BASTION_IMAGE:="rhel-84-07122021"}
+export BASTION_IMAGE=${BASTION_IMAGE:="rhel-85-12132021"}
 
 case $OCP_VERSION in
 4.4|4.5)
@@ -110,7 +110,7 @@ export MASTER_DESIRED_CPU=${MASTER_DESIRED_CPU:="1.25"}
 export MASTER_DESIRED_MEM=${MASTER_DESIRED_MEM:="32"}
 export WORKER_DESIRED_CPU=${WORKER_DESIRED_CPU:="1.25"}
 export WORKER_DESIRED_MEM=${WORKER_DESIRED_MEM:="64"}
-
+export WORKER_VOLUMES=${WORKER_VOLUMES:="1"}
 export WORKER_VOLUME_SIZE=${WORKER_VOLUME_SIZE:="500"}
 
 export DNS_FORWARDERS=${DNS_FORWARDERS:="1.1.1.1; 9.9.9.9"}
