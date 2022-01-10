@@ -36,6 +36,9 @@ elif [ "$PVS_SERVICE_INSTANCE_ID" == 73585ea1-0d40-4c0f-b97c-e3d6923aa153 ]; the
 elif [ "$PVS_SERVICE_INSTANCE_ID" == 1f6f0f7d-ced0-409c-95f0-170f9cb775c0 ]; then
         PVS_REGION=syd
         PVS_ZONE=syd04	
+elif [ "$PVS_SERVICE_INSTANCE_ID" == 084f61d5-2b42-4ae6-ac21-dfa1b0e943eb ]; then
+        PVS_REGION=syd
+        PVS_ZONE=syd05	
 elif [ "$PVS_REGION" == lon ] && [ "$PVS_ZONE" == lon06 ]; then
 	PVS_SERVICE_INSTANCE_ID=fac4755e-8aff-45f5-8d5c-1d3b58b7a229
 elif [ "$PVS_REGION" == tok ] && [ "$PVS_ZONE" == tok04 ]; then
@@ -59,7 +62,7 @@ fi
 
 # The boot images below are common across OCS development zones, except where noted
 
-export BASTION_IMAGE=${BASTION_IMAGE:="rhel-83-03192021"}
+export BASTION_IMAGE=${BASTION_IMAGE:="rhel-84-07122021"}
 
 case $OCP_VERSION in
 4.4|4.5)
@@ -85,7 +88,11 @@ case $OCP_VERSION in
 4.9)
 	export RHCOS_IMAGE=${RHCOS_IMAGE:="rhcos-49-09072021"}
 	export OCP_PROJECT_COMMIT="origin/release-4.9"
-	;;	
+	;;
+4.10)
+        export RHCOS_IMAGE=${RHCOS_IMAGE:="rhcos-410-10052021"}
+        export OCP_PROJECT_COMMIT="origin/master"
+        ;;	
 esac
 
 if [[ "$USE_TIER1_STORAGE" == "true" ]] && [[ ! "$BASTION_IMAGE" =~ tier1 ]] && [[ ! "$RHCOS_IMAGE" =~ tier1 ]]; then

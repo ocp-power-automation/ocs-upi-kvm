@@ -58,7 +58,7 @@ update_supplemental_ocsci_config
 echo "run-ci -m deployment --deploy --ocs-version $OCS_VERSION ..."
 
 #temporarily disable manual subscription plan only for 4.9
-if [ $OCS_VERSION == "4.9" ]; then
+if [[ $OCS_VERSION == "4.9" || $OCS_VERSION == "4.10" ]]; then
         run-ci -m deployment --deploy \
                 --ocs-version $OCS_VERSION --cluster-name ocstest \
                 --ocsci-conf conf/ocsci/production_powervs_upi.yaml \

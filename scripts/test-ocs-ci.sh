@@ -126,7 +126,7 @@ else
 	html_fname=${ocsci_cmd}_ocp${SANITIZED_OCP_VERSION}_ocs${SANITIZED_OCS_VERSION}_${PLATFORM}_${run_id}_report.html
 
 	set -x
-	if [ $OCS_VERSION == "4.9" ]; then
+	if [[ $OCS_VERSION == "4.9" || $OCS_VERSION == "4.10" ]]; then
                 time run-ci -m "$ocsci_cmd" --cluster-name ocstest \
                         --ocp-version $OCP_VERSION --ocs-version=$OCS_VERSION \
                         --ocsci-conf conf/ocsci/production_powervs_upi.yaml \
