@@ -101,10 +101,10 @@ index e57bcb30..32f10d34 100644
          env:
            - name: BOOTSTRAP_SERVERS
              value: my-cluster-kafka-bootstrap:9092
-diff --git a/tests/e2e/registry/test_registry_by_increasing_num_of_image_registry_pods.py b/tests/e2e/registry/test_registry_by_increasing_num_of_image_registry_pods.py
+diff --git a/tests/e2e/workloads/ocp/registry/test_registry_by_increasing_num_of_image_registry_pods.py b/tests/e2e/workloads/ocp/registry/test_registry_by_increasing_num_of_image_registry_pods.py
 index b30a8a59..431ada1a 100644
---- a/tests/e2e/registry/test_registry_by_increasing_num_of_image_registry_pods.py
-+++ b/tests/e2e/registry/test_registry_by_increasing_num_of_image_registry_pods.py
+--- a/tests/e2e/workloads/ocp/registry/test_registry_by_increasing_num_of_image_registry_pods.py
++++ b/tests/e2e/workloads/ocp/registry/test_registry_by_increasing_num_of_image_registry_pods.py
 @@ -77,7 +77,7 @@ class TestRegistryByIncreasingNumPods(E2ETest):
          image_pull_and_push(
              project_name=self.project_name,
@@ -113,11 +113,11 @@ index b30a8a59..431ada1a 100644
 +            image="registry.redhat.io/jboss-eap-7/eap73-openj9-11-openshift-rhel8:latest",
              pattern="eap-app",
          )
-
-diff --git a/tests/e2e/registry/test_registry_pod_respin.py b/tests/e2e/registry/test_registry_pod_respin.py
+ 
+diff --git a/tests/e2e/workloads/ocp/registry/test_registry_pod_respin.py b/tests/e2e/workloads/ocp/registry/test_registry_pod_respin.py
 index c50755df..83d63520 100644
---- a/tests/e2e/registry/test_registry_pod_respin.py
-+++ b/tests/e2e/registry/test_registry_pod_respin.py
+--- a/tests/e2e/workloads/ocp/registry/test_registry_pod_respin.py
++++ b/tests/e2e/workloads/ocp/registry/test_registry_pod_respin.py
 @@ -75,7 +75,7 @@ class TestRegistryPodRespin(E2ETest):
          image_pull_and_push(
              project_name=self.project_name,
@@ -126,11 +126,11 @@ index c50755df..83d63520 100644
 +            image="registry.redhat.io/jboss-eap-7/eap73-openj9-11-openshift-rhel8:latest",
              pattern="eap-app",
          )
-
-diff --git a/tests/e2e/registry/test_registry_pull_and_push_images_to_registry.py b/tests/e2e/registry/test_registry_pull_and_push_images_to_registry.py
+ 
+diff --git a/tests/e2e/workloads/ocp/registry/test_registry_pull_and_push_images_to_registry.py b/tests/e2e/workloads/ocp/registry/test_registry_pull_and_push_images_to_registry.py
 index aee622ad..2fea3394 100644
---- a/tests/e2e/registry/test_registry_pull_and_push_images_to_registry.py
-+++ b/tests/e2e/registry/test_registry_pull_and_push_images_to_registry.py
+--- a/tests/e2e/workloads/ocp/registry/test_registry_pull_and_push_images_to_registry.py
++++ b/tests/e2e/workloads/ocp/registry/test_registry_pull_and_push_images_to_registry.py
 @@ -52,7 +52,7 @@ class TestRegistryPullAndPushImagestoRegistry(E2ETest):
          image_pull_and_push(
              project_name=self.project_name,
@@ -139,11 +139,11 @@ index aee622ad..2fea3394 100644
 +            image="registry.redhat.io/jboss-eap-7/eap73-openj9-11-openshift-rhel8:latest",
              pattern="eap-app",
          )
-
-diff --git a/tests/e2e/registry/test_registry_reboot_node.py b/tests/e2e/registry/test_registry_reboot_node.py
+ 
+diff --git a/tests/e2e/workloads/ocp/registry/test_registry_reboot_node.py b/tests/e2e/workloads/ocp/registry/test_registry_reboot_node.py
 index b5316ff9..c8d4984e 100644
---- a/tests/e2e/registry/test_registry_reboot_node.py
-+++ b/tests/e2e/registry/test_registry_reboot_node.py
+--- a/tests/e2e/workloads/ocp/registry/test_registry_reboot_node.py
++++ b/tests/e2e/workloads/ocp/registry/test_registry_reboot_node.py
 @@ -67,7 +67,7 @@ class TestRegistryRebootNode(E2ETest):
          image_pull_and_push(
              project_name=self.project_name,
@@ -152,7 +152,7 @@ index b5316ff9..c8d4984e 100644
 +            image="registry.redhat.io/jboss-eap-7/eap73-openj9-11-openshift-rhel8:latest",
              pattern="eap-app",
          )
-
+ 
 @@ -121,7 +121,7 @@ class TestRegistryRebootNode(E2ETest):
          image_pull_and_push(
              project_name=self.project_name,
@@ -161,11 +161,11 @@ index b5316ff9..c8d4984e 100644
 +            image="registry.redhat.io/jboss-eap-7/eap73-openj9-11-openshift-rhel8:latest",
              pattern="eap-app",
          )
-
-diff --git a/tests/e2e/registry/test_registry_shutdown_and_recovery_node.py b/tests/e2e/registry/test_registry_shutdown_and_recovery_node.py
+ 
+diff --git a/tests/e2e/workloads/ocp/registry/test_registry_shutdown_and_recovery_node.py b/tests/e2e/workloads/ocp/registry/test_registry_shutdown_and_recovery_node.py
 index 8e3327cb..ab0a65ee 100644
---- a/tests/e2e/registry/test_registry_shutdown_and_recovery_node.py
-+++ b/tests/e2e/registry/test_registry_shutdown_and_recovery_node.py
+--- a/tests/e2e/workloads/ocp/registry/test_registry_shutdown_and_recovery_node.py
++++ b/tests/e2e/workloads/ocp/registry/test_registry_shutdown_and_recovery_node.py
 @@ -61,7 +61,7 @@ class TestRegistryShutdownAndRecoveryNode(E2ETest):
          image_pull_and_push(
              project_name=self.project_name,
@@ -174,4 +174,5 @@ index 8e3327cb..ab0a65ee 100644
 +            image="registry.redhat.io/jboss-eap-7/eap73-openj9-11-openshift-rhel8:latest",
              pattern="eap-app",
          )
+ 
 
