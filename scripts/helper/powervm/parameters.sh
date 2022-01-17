@@ -49,22 +49,26 @@ case $OCP_VERSION in
 4.6)
         export RHCOS_IMAGE=${RHCOS_IMAGE:=4f244c4d-4979-451c-922f-05d80b426155}   # rhcos-46-4.6.8-15122020-openstack.ppc64le
         export OCP_PROJECT_COMMIT=origin/release-4.6
-        export INSTALL_PLAYBOOK_TAG=e89bef76cec089a481d6de2b7fa07944ae0481a5      # Align with powervs.  Was 1 commit down level
+        export INSTALL_PLAYBOOK_TAG=d9f70069d13925c7adbbcc7f5ec152367231f1cb       #Align with powervs.  Was 1 commit down level
         ;;
 4.7)
         export RHCOS_IMAGE=${RHCOS_IMAGE:=6d9faadb-b0b3-4313-a384-fb6ab9da79ed}   # rhcos-47-4.7.7-21042021-openstack.ppc64le
         export OCP_PROJECT_COMMIT=origin/release-4.7
-        export INSTALL_PLAYBOOK_TAG=86b12e097f430dca95a151cb1073c1b1f07be024      # Align with powervs.  Was 7 commits down level
+        export INSTALL_PLAYBOOK_TAG=fac991e23cfe835a41969713b7d3efdcf2ce73e9      # Align with powervs.  Was 7 commits down level
         ;;
 4.8)
         export RHCOS_IMAGE=${RHCOS_IMAGE:=09e18a43-8440-40f2-abe6-b8824fb679cd}   # rhcos-48.84.202105130819-0-openstack.ppc64le
-        export OCP_PROJECT_COMMIT=origin/release-4.8
-        export INSTALL_PLAYBOOK_TAG=10fec74c9e987b39f7af1127abe304a9e41f8e65      # Align with powervs.
+        export OCP_PROJECT_COMMIT=origin/master
+        export INSTALL_PLAYBOOK_TAG=86e8f06fa3e008fbdd6188659cb45a3cbe716e26      # Align with powervs.
         ;;
 4.9)
-        export RHCOS_IMAGE=${RHCOS_IMAGE:=c4d9fdb6-c2f6-424c-a1ff-37012e9560f9}
+        export RHCOS_IMAGE=${RHCOS_IMAGE:=c4d9fdb6-c2f6-424c-a1ff-37012e9560f9}   # rhcos-49.84.202108031804-0-openstack.ppc64le
+        export OCP_PROJECT_COMMIT=origin/master
+        export INSTALL_PLAYBOOK_TAG=86e8f06fa3e008fbdd6188659cb45a3cbe716e26
         ;;
-
+4.10)
+	export RHCOS_IMAGE=${RHCOS_IMAGE:=4363ba0f-f4f3-403a-83bf-aa1dcf8a1861}   
+	;;
 esac
 
 export WORKER_VOLUME_SIZE=${WORKER_VOLUME_SIZE:="500"}
