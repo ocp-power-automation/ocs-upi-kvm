@@ -23,7 +23,7 @@ index bdb88deb..0a58e326 100644
 +            run("sed -i 's|quay.io/strimzi/kafka:latest-kafka-3.0.0|quay.io/aaruniaggarwal/strimzi-kafka:latest-kafka-3.0.0|g' 060-Deployment-strimzi-cluster-operator.yaml" , shell=True, check=True, cwd=self.sed_dir)
 +
 +            run("sed -i 's|quay.io/strimzi/operator:latest|quay.io/aaruniaggarwal/strimzi-operator:latest|g' 060-Deployment-strimzi-cluster-operator.yaml" , shell=True, check=True, cwd=self.sed_dir)
-+            run("sed -i 's|quay.io/strimzi/kafka-bridge:0.21.2|quay.io/aaruniaggarwal/kafka-bridge:latest|g' 060-Deployment-strimzi-cluster-operator.yaml" , shell=True, check=True, cwd=self.sed_dir)
++            run("sed -i 's|quay.io/strimzi/kafka-bridge:0.21.3|quay.io/aaruniaggarwal/kafka-bridge:latest|g' 060-Deployment-strimzi-cluster-operator.yaml" , shell=True, check=True, cwd=self.sed_dir)
 +            run("sed -i 's|quay.io/strimzi/jmxtrans:latest|quay.io/aaruniaggarwal/strimzi-jmxtrans:latest|g' 060-Deployment-strimzi-cluster-operator.yaml" , shell=True, check=True, cwd=self.sed_dir)
 +            run("sed -i 's|quay.io/strimzi/kaniko-executor:latest|quay.io/aaruniaggarwal/kaniko-executor:latest|g' 060-Deployment-strimzi-cluster-operator.yaml" , shell=True, check=True, cwd=self.sed_dir)
 +            run("sed -i 's|quay.io/strimzi/maven-builder:latest|registry.access.redhat.com/ubi8/openjdk-11:1.3-18|g' 060-Deployment-strimzi-cluster-operator.yaml" , shell=True, check=True, cwd=self.sed_dir)
