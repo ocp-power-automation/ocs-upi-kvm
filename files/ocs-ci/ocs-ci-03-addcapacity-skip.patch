@@ -71,11 +71,11 @@ index 36b5a124..2ee02469 100644
      """
      Test add capacity when one of the resources gets deleted
 diff --git a/tests/manage/z_cluster/cluster_expansion/test_node_expansion.py b/tests/manage/z_cluster/cluster_expansion/test_node_expansion.py
-index 76a9c2f5..5eb57b20 100644
+index e5a429bc..7da4dc66 100644
 --- a/tests/manage/z_cluster/cluster_expansion/test_node_expansion.py
 +++ b/tests/manage/z_cluster/cluster_expansion/test_node_expansion.py
 @@ -6,6 +6,7 @@ from ocs_ci.framework.pytest_customization.marks import (
-     skipif_openshift_dedicated,
+     skipif_managed_service,
      skipif_flexy_deployment,
      skipif_ibm_flash,
 +    skipif_ibm_power,
@@ -117,31 +117,31 @@ index 6816f903..1c4765f7 100644
      """
      Check toleration for Ceph CSI driver DS on non ocs node
 diff --git a/tests/manage/z_cluster/cluster_expansion/test_crashcollector_pod_existence_on_ceph_pods_running_nodes.py b/tests/manage/z_cluster/cluster_expansion/test_crashcollector_pod_existence_on_ceph_pods_running_nodes.py
-index 4470b407..d5c924f6 100644
+index a2d46244..704dc933 100644
 --- a/tests/manage/z_cluster/cluster_expansion/test_crashcollector_pod_existence_on_ceph_pods_running_nodes.py
 +++ b/tests/manage/z_cluster/cluster_expansion/test_crashcollector_pod_existence_on_ceph_pods_running_nodes.py
 @@ -1,7 +1,10 @@
  import logging
  import pytest
- 
--from ocs_ci.framework.pytest_customization.marks import skipif_openshift_dedicated
+
+-from ocs_ci.framework.pytest_customization.marks import skipif_managed_service
 +from ocs_ci.framework.pytest_customization.marks import (
-+        skipif_openshift_dedicated,
-+        skipif_ibm_power,
++    skipif_managed_service,
++    skipif_ibm_power,
 +)
  from ocs_ci.ocs.node import drain_nodes, schedule_nodes
  from ocs_ci.helpers.helpers import get_failure_domin
  from ocs_ci.framework import config
 @@ -34,6 +37,7 @@ logger = logging.getLogger(__name__)
  @skipif_external_mode
- @skipif_openshift_dedicated
+ @skipif_managed_service
  @pytest.mark.polarion_id("OCS-2594")
 +@skipif_ibm_power
  class TestAddNodeCrashCollector(ManageTest):
      """
      Add node with OCS label and verify crashcollector created on new node
 diff --git a/tests/manage/z_cluster/nodes/test_node_replacement_proactive.py b/tests/manage/z_cluster/nodes/test_node_replacement_proactive.py
-index 2eb92711..e55cae29 100644
+index dce745ff..3bbbef4e 100644
 --- a/tests/manage/z_cluster/nodes/test_node_replacement_proactive.py
 +++ b/tests/manage/z_cluster/nodes/test_node_replacement_proactive.py
 @@ -21,6 +21,7 @@ from ocs_ci.framework.pytest_customization.marks import (
