@@ -1,8 +1,8 @@
 diff --git a/ocs_ci/deployment/deployment.py b/ocs_ci/deployment/deployment.py
-index 8014973e..f58b71c8 100644
+index fa737f2d..8d21704d 100644
 --- a/ocs_ci/deployment/deployment.py
 +++ b/ocs_ci/deployment/deployment.py
-@@ -1168,6 +1168,11 @@ def setup_persistent_monitoring():
+@@ -1241,6 +1241,11 @@ def setup_persistent_monitoring():
      """
      Change monitoring backend to OCS
      """
@@ -12,6 +12,5 @@ index 8014973e..f58b71c8 100644
 +    )(interface_type=constants.CEPHBLOCKPOOL)
 +
      sc = helpers.default_storage_class(interface_type=constants.CEPHBLOCKPOOL)
- 
-     # Get the list of monitoring pods
 
+     # Get the list of monitoring pods
