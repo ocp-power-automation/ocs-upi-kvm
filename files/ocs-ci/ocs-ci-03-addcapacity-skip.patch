@@ -71,13 +71,13 @@ index 36b5a124..2ee02469 100644
      """
      Test add capacity when one of the resources gets deleted
 diff --git a/tests/manage/z_cluster/cluster_expansion/test_node_expansion.py b/tests/manage/z_cluster/cluster_expansion/test_node_expansion.py
-index e5a429bc..7da4dc66 100644
+index cf472ee8..cd3fa63c 100644
 --- a/tests/manage/z_cluster/cluster_expansion/test_node_expansion.py
 +++ b/tests/manage/z_cluster/cluster_expansion/test_node_expansion.py
 @@ -6,6 +6,7 @@ from ocs_ci.framework.pytest_customization.marks import (
-     skipif_managed_service,
      skipif_flexy_deployment,
      skipif_ibm_flash,
+     skipif_ms_consumer,
 +    skipif_ibm_power,
  )
 
