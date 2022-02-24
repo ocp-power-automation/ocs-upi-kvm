@@ -78,7 +78,7 @@ then
     echo | tee -a $log
     mkdir $WORKSPACE/debug-ceph-pods-logs/must-gather
     ocs_operator=`oc get csv | grep ocs-operator | awk {'print $1'}`
-    OCS_VERSION=`oc get csv $ocs_operator -o jsonpath={.spec.version} | cut -c1-3`
+    OCS_VERSION=`oc get csv $ocs_operator -o jsonpath={.spec.version} | cut -d "." -f 1-2`
     oc adm must-gather --image=quay.io/rhceph-dev/ocs-must-gather:latest-$OCS_VERSION --dest-dir=$WORKSPACE/debug-ceph-pods-logs/must-gather | tee -a $log
 fi
 
