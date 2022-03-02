@@ -7,9 +7,9 @@
 
 # These environment variables are required for OCS Upgrade
 
-#export OCS_REGISTRY_IMAGE="quay.io/rhceph-dev/ocs-registry:latest-stable-4.7"       # If you want to upgrade OCS from 4.7.x to 4.7.x+1 then use image tag as latest-stable-4.7.0 or 4.7.1 etc.
-#export UPGRADE_OCS_VERSION=4.8                                                      # This will upgrade OCS from 4.7 to 4.8
-#export UPGRADE_OCS_REGISTRY="quay.io/rhceph-dev/ocs-registry:latest-stable-4.8.0"   # OCS  Registry image you want to use for upgrading
+#export OCS_REGISTRY_IMAGE="quay.io/rhceph-dev/ocs-registry:latest-stable-4.8.8"       # If you want to upgrade OCS from 4.8.x to 4.8.x+1 then use image tag as latest-stable-4.8.0 or 4.8.1 etc.
+#export UPGRADE_OCS_VERSION=4.9.3                                                      # This will upgrade OCS from 4.8.8 to 4.9.3
+#export UPGRADE_OCS_REGISTRY="quay.io/rhceph-dev/ocs-registry:latest-stable-4.9.3"   # OCS  Registry image you want to use for upgrading
 
 
 # These environment variables are required for all platforms
@@ -23,7 +23,7 @@ export PLATFORM=${PLATFORM:="powervs"}                          # Also supported
 # These environment variables are optional for all platforms
 
 export OCP_VERSION=${OCP_VERSION:=4.8}                          # 4.5-4.8 are supported
-export OCS_VERSION=${OCS_VERSION:=4.7}
+export OCS_VERSION=${OCS_VERSION:=4.8}
 
 # These are optional for KVM OCP cluster create.  Default values are shown
 
@@ -221,6 +221,22 @@ if [[ ! "$CEPH_STATE" =~ HEALTH_OK ]]; then
         exit 1
 fi
 
+if [ ! "$UPGRADE_OCS_VERSION" ]; then
+	echo "ERROR: Environment variable UPGRADE_OCS_VERSION must be set"
+	exit 1
+fi
+
+export OCS_VERSION=`echo $UPGRADE_OCS_VERSION | cut -d "." -f 1-2`        #Required as after upgrade ocs version will change
+
+echo -e "\n ocs version is : $OCS_VERSION \n"
+
+export OCS_CSV_CHANNEL=stable-$OCS_VERSION
+
+echo -e "\n ocs csv channel is $OCS_CSV_CHANNEL \n"
+
+yq -y -i '.DEPLOYMENT.ocs_csv_channel |= env.OCS_CSV_CHANNEL' $WORKSPACE/ocs-ci-conf.yaml       #Adding ocs-csv-channel in config file as it is needed for tier tests
+
+yq -y -i '.ENV_DATA.ocs_version |= env.OCS_VERSION' $WORKSPACE/ocs-ci-conf.yaml                 #Updating ocs_version in supplemental config file
 
 echo -e "\n Running tier1 test suite..."
 
