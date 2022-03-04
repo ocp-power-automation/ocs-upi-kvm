@@ -141,21 +141,37 @@ index a2d46244..704dc933 100644
      """
      Add node with OCS label and verify crashcollector created on new node
 diff --git a/tests/manage/z_cluster/nodes/test_node_replacement_proactive.py b/tests/manage/z_cluster/nodes/test_node_replacement_proactive.py
-index dce745ff..3bbbef4e 100644
+index c713af24..5acc5bed 100644
 --- a/tests/manage/z_cluster/nodes/test_node_replacement_proactive.py
 +++ b/tests/manage/z_cluster/nodes/test_node_replacement_proactive.py
-@@ -21,6 +21,7 @@ from ocs_ci.framework.pytest_customization.marks import (
-     skipif_bmpsi,
+@@ -20,6 +20,7 @@ from ocs_ci.framework.pytest_customization.marks import (
      bugzilla,
      skipif_external_mode,
+     skipif_ms_consumer,
 +    skipif_ibm_power,
  )
 
  from ocs_ci.helpers.sanity_helpers import Sanity
-@@ -274,6 +275,7 @@ class TestNodeReplacement(ManageTest):
- @bugzilla("1840539")
+@@ -157,6 +158,7 @@ def delete_and_create_osd_node(osd_node_name):
+ @skipif_managed_service
+ @skipif_bmpsi
+ @skipif_external_mode
++@skipif_ibm_power
+ class TestNodeReplacementWithIO(ManageTest):
+     """
+     Knip-894 Node replacement proactive with IO
+@@ -230,6 +232,7 @@ class TestNodeReplacementWithIO(ManageTest):
+ @skipif_bmpsi
+ @skipif_external_mode
+ @skipif_ms_consumer
++@skipif_ibm_power
+ class TestNodeReplacement(ManageTest):
+     """
+     Knip-894 Node replacement proactive
+@@ -272,6 +275,7 @@ class TestNodeReplacement(ManageTest):
  @pytest.mark.polarion_id("OCS-2535")
  @skipif_external_mode
+ @skipif_ms_consumer
 +@skipif_ibm_power
  class TestNodeReplacementTwice(ManageTest):
      """
