@@ -32,12 +32,12 @@ dns_forwarders              = "$DNS_FORWARDERS"
 chrony_config               = "$CHRONY_CONFIG"
 chrony_config_servers       = [$CHRONY_CONFIG_SERVERS]
 
-setup_squid_proxy           = true
+setup_squid_proxy           = false
 
 # Bastion node
 
 storage_type                = "notnfs"
 
-setup_snat                  = false
+setup_snat                  = true
 
 ansible_extra_options       = "-v -e '{\"powervm_rmc\": false}'"
