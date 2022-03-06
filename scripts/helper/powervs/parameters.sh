@@ -74,23 +74,23 @@ case $OCP_VERSION in
 	export OCP_PROJECT_COMMIT="origin/release-4.5"
 	;;
 4.6)
-	export RHCOS_IMAGE=${RHCOS_IMAGE:="rhcos-46-09182020"}
+	export RHCOS_IMAGE=${RHCOS_IMAGE:="rhcos-46-12152021"}
 	export OCP_PROJECT_COMMIT="origin/release-4.6"
 	;;
 4.7)
-	export RHCOS_IMAGE=${RHCOS_IMAGE:="rhcos-47-08062021"}
+	export RHCOS_IMAGE=${RHCOS_IMAGE:="rhcos-47-12152021"}
 	export OCP_PROJECT_COMMIT="origin/release-4.7"
 	;;
 4.8)
-	export RHCOS_IMAGE=${RHCOS_IMAGE:="rhcos-48-07222021"}
+	export RHCOS_IMAGE=${RHCOS_IMAGE:="rhcos-48-12152021"}
 	export OCP_PROJECT_COMMIT="origin/release-4.8"
 	;;
 4.9)
-	export RHCOS_IMAGE=${RHCOS_IMAGE:="rhcos-49-09072021"}
+	export RHCOS_IMAGE=${RHCOS_IMAGE:="rhcos-49-12152021"}
 	export OCP_PROJECT_COMMIT="origin/release-4.9"
 	;;
 4.10)
-        export RHCOS_IMAGE=${RHCOS_IMAGE:="rhcos-410-10052021"}
+        export RHCOS_IMAGE=${RHCOS_IMAGE:="rhcos-410-02042022"}
         export OCP_PROJECT_COMMIT="origin/master"
         ;;	
 esac
