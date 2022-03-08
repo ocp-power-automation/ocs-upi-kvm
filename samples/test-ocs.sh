@@ -65,6 +65,10 @@ export OCS_VERSION=${OCS_VERSION:=4.10}                          # 4.7 also
 #export OCS_CI_ON_BASTION=false                                 # When true, ocs-ci runs on bastion node, which may help
                                                                 # with intermittent network issues and testcase timeouts
 
+# Following environment variable is required for using Vault in ocs-ci. Default value is shown.
+
+#export VAULT_SUPPORT=false
+
 ##############  MAIN ################
 
 get_latest_ocs=false

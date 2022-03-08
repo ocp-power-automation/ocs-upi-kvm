@@ -26,6 +26,12 @@ if [ "$OCS_CI_ON_BASTION" == true ]; then
                 ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null root@$BASTION_IP chmod 0755 kustomize.sh >/dev/null 2>&1
                 ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null root@$BASTION_IP ./kustomize.sh >/dev/null 2>&1
         fi
+        ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null root@$BASTION_IP "ls -l ~/vault"
+        if [[ $? != 0 && "$VAULT_SUPPORT" == true ]]; then
+                scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $WORKSPACE/ocs-upi-kvm/scripts/helper/vault-setup.sh root@$BASTION_IP: >/dev/null 2>&1
+                ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null root@$BASTION_IP chmod 0755 vault-setup.sh >/dev/null 2>&1
+                ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null root@$BASTION_IP ./vault-setup.sh >/dev/null 2>&1
+        fi
 	invoke_ocs_ci_on_bastion $0 $@
 	exit $ocs_ci_on_bastion_rc
 fi

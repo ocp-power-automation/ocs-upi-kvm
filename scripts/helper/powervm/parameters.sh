@@ -191,6 +191,8 @@ function setup_remote_ocsci_use () {
                 ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null root@$BASTION_IP $BASTION_CMD >/dev/null 2>&1
                 BASTION_CMD="cp -r openstack-upi/auth ~"
                 ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null root@$BASTION_IP $BASTION_CMD >/dev/null 2>&1
+                BASTION_CMD="cp openstack-upi/metadata.json ~"
+                ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null root@$BASTION_IP $BASTION_CMD >/dev/null 2>&1
 
                 echo "Copy ocs-upi-kvm to bastion node $BASTION_IP"
 
