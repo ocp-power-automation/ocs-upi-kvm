@@ -3,9 +3,9 @@
 set -e
 
 # Install go 
-wget https://golang.org/dl/go1.16.8.linux-ppc64le.tar.gz
-rm -rf /usr/local/go && tar -C /usr/local -xvzf go1.16.8.linux-ppc64le.tar.gz
-rm -rf go1.16.8.linux-ppc64le.tar.gz
+wget https://golang.org/dl/go1.17.7.linux-ppc64le.tar.gz
+rm -rf /usr/local/go && tar -C /usr/local -xvzf go1.17.7.linux-ppc64le.tar.gz
+rm -rf go1.17.7.linux-ppc64le.tar.gz
 export PATH=/usr/local/go/bin:$PATH
 
 # Verify go version

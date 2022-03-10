@@ -43,12 +43,14 @@ helper/create-cluster.sh $arg1
 rm -f $WORKSPACE/.ocs_ci_on_bastion
 rm -f $WORKSPACE/bin/oc
 rm -rf $WORKSPACE/auth
+rm -rf $WORKSPACE/metadata.json
 
 setup_remote_oc_use
 
 echo "Copying oc cmd from bastion to local host..."
 scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null root@$BASTION_IP:/usr/local/bin/oc $WORKSPACE/bin 2>/dev/null
 scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -r root@$BASTION_IP:openstack-upi/auth $WORKSPACE 2>/dev/null
+scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -r root@$BASTION_IP:openstack-upi/metadata.json $WORKSPACE 2>/dev/null
 
 echo "export PATH=$WORKSPACE/bin/:$PATH" | tee $WORKSPACE/env-ocp.sh
 echo "export KUBECONFIG=$WORKSPACE/auth/kubeconfig" | tee -a $WORKSPACE/env-ocp.sh

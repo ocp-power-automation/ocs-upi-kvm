@@ -20,6 +20,8 @@ export OPTIONAL_OPERATORS_IMAGE=${OPTIONAL_OPERATORS_IMAGE:="quay.io/openshift-r
 
 export WORKERS=${WORKERS:=3}
 
+export VAULT_SUPPORT=${VAULT_SUPPORT:="false"}
+
 # Two DNS servers are configured by default.  If the cluster is behind a firewall, the second DNS server
 # may be overridden to specify a DNS server behind the firewall by setting DNS_BACKUP_SERVER
 
