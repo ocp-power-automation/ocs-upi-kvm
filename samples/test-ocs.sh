@@ -16,8 +16,8 @@ export PLATFORM=${PLATFORM:="kvm"}                              # Also supported
 
 # These environment variables are optional for all platforms
 
-export OCP_VERSION=${OCP_VERSION:=4.10}                          # 4.5-4.10 are supported
-export OCS_VERSION=${OCS_VERSION:=4.10}                          # 4.7 also
+export OCP_VERSION=${OCP_VERSION:=4.11}                          # 4.5-4.11 are supported
+export OCS_VERSION=${OCS_VERSION:=4.11}                          # 4.7 also
 
 
 # These are optional for KVM OCP cluster create.  Default values are shown
