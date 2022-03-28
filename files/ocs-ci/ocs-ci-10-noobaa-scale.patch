@@ -14,3 +14,4 @@ index a417fac9..23298f71 100644
                  status = job_get_output[i]["status"]["phase"]
                  log.info(f"obc {job_get_output[i]['metadata']['name']} status {status}")
                  if not status or status != constants.STATUS_BOUND:
+

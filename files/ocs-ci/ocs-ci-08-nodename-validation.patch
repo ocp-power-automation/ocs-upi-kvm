@@ -1,8 +1,8 @@
 diff --git a/ocs_ci/ocs/resources/storage_cluster.py b/ocs_ci/ocs/resources/storage_cluster.py
-index ed84adc6..a017c9de 100644
+index ac7e2041..a79c1c1e 100644
 --- a/ocs_ci/ocs/resources/storage_cluster.py
 +++ b/ocs_ci/ocs/resources/storage_cluster.py
-@@ -304,7 +304,7 @@ def ocs_install_verification(
+@@ -309,7 +309,7 @@ def ocs_install_verification(
              deviceset_pvcs = [osd.get_node() for osd in get_osd_pods()]
              # removes duplicate hostname
              deviceset_pvcs = list(set(deviceset_pvcs))
