@@ -375,7 +375,7 @@ pushd src/$OCP_PROJECT
 set +e
 
 case "$OCP_VERSION" in
-4.4|4.5|4.6|4.7|4.8|4.9)
+4.4|4.5|4.6|4.7|4.8|4.9|4.10)
 	if [ -z "$OCP_PROJECT_COMMIT" ]; then
 		echo "Internal error: OCP_PROJECT_COMMIT is not set"
 		exit 1
