@@ -44,7 +44,7 @@ case "$OCP_VERSION" in
 		RHCOS_SUFFIX="-$RHCOS_RELEASE"
 		;;
 	4.8)
-		OCP_RELEASE="4.8.33"
+		OCP_RELEASE="4.8.34"
 		RHCOS_VERSION="4.8"
 		if [ -z "$RHCOS_RELEASE" ]; then
 			RHCOS_RELEASE="4.8.14"                   # Latest release of RHCOS 4.8 at this time
@@ -52,7 +52,7 @@ case "$OCP_VERSION" in
 		RHCOS_SUFFIX="-$RHCOS_RELEASE"
 		;;
 	4.9)
-		OCP_RELEASE="4.9.23"
+		OCP_RELEASE="4.9.25"
 		RHCOS_VERSION="4.9"
 		if [ -z "$RHCOS_RELEASE" ]; then
 			RHCOS_RELEASE="4.9.0"                   # Latest release of RHCOS 4.9 at this time
@@ -60,7 +60,7 @@ case "$OCP_VERSION" in
 		RHCOS_SUFFIX="-$RHCOS_RELEASE"
 		;;
 	4.10)
-		OCP_RELEASE="4.10.3"
+		OCP_RELEASE="4.10.5"
 		RHCOS_VERSION="4.10"
                 if [ -z "$RHCOS_RELEASE" ]; then
                         RHCOS_RELEASE="4.10.3"                   # Latest release of RHCOS 4.10 at this time
