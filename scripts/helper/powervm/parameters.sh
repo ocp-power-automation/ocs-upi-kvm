@@ -39,7 +39,7 @@ fi
 
 # The boot images below are common across OCS development zones, except where noted
 
-export BASTION_IMAGE=${BASTION_IMAGE:=6d9e7fc7-ae10-463c-b3bf-14ee6ff3647a}       # rhel8.4
+export BASTION_IMAGE=${BASTION_IMAGE:=be9a616b-d066-47cb-877e-3d18abdca13b}       # rhel8.5
 
 case $OCP_VERSION in
 4.4|4.5)
@@ -49,26 +49,31 @@ case $OCP_VERSION in
 4.6)
         export RHCOS_IMAGE=${RHCOS_IMAGE:=4f244c4d-4979-451c-922f-05d80b426155}   # rhcos-46-4.6.8-15122020-openstack.ppc64le
         export OCP_PROJECT_COMMIT=origin/release-4.6
-        export INSTALL_PLAYBOOK_TAG=d9f70069d13925c7adbbcc7f5ec152367231f1cb       #Align with powervs.  Was 1 commit down level
+        export INSTALL_PLAYBOOK_TAG=8ad6913c0fb26fcf176fe817804d2b7654adf15d       #Align with powervs.  Was 1 commit down level
         ;;
 4.7)
         export RHCOS_IMAGE=${RHCOS_IMAGE:=6d9faadb-b0b3-4313-a384-fb6ab9da79ed}   # rhcos-47-4.7.7-21042021-openstack.ppc64le
         export OCP_PROJECT_COMMIT=origin/release-4.7
-        export INSTALL_PLAYBOOK_TAG=fac991e23cfe835a41969713b7d3efdcf2ce73e9      # Align with powervs.  Was 7 commits down level
+        export INSTALL_PLAYBOOK_TAG=2c57addbd1eec847b33f0522b91fe0b664e398d6      # Align with powervs.  Was 7 commits down level
         ;;
 4.8)
         export RHCOS_IMAGE=${RHCOS_IMAGE:=09e18a43-8440-40f2-abe6-b8824fb679cd}   # rhcos-48.84.202105130819-0-openstack.ppc64le
         export OCP_PROJECT_COMMIT=origin/master
-        export INSTALL_PLAYBOOK_TAG=86e8f06fa3e008fbdd6188659cb45a3cbe716e26      # Align with powervs.
+        export INSTALL_PLAYBOOK_TAG=284b597b3e88c635e3069b82926aa16812238492      # Align with powervs.
         ;;
 4.9)
-        export RHCOS_IMAGE=${RHCOS_IMAGE:=c4d9fdb6-c2f6-424c-a1ff-37012e9560f9}   # rhcos-49.84.202108031804-0-openstack.ppc64le
+        export RHCOS_IMAGE=${RHCOS_IMAGE:=7aac5765-1a19-4a8a-9dba-ce087b514f3b}   # cicd-rhcos-49.84.20211215-0-openstack.ppc64le
         export OCP_PROJECT_COMMIT=origin/master
-        export INSTALL_PLAYBOOK_TAG=86e8f06fa3e008fbdd6188659cb45a3cbe716e26
+        export INSTALL_PLAYBOOK_TAG=284b597b3e88c635e3069b82926aa16812238492      # Align with powervs.
         ;;
 4.10)
-	export RHCOS_IMAGE=${RHCOS_IMAGE:=4363ba0f-f4f3-403a-83bf-aa1dcf8a1861}   
-	;;
+        export RHCOS_IMAGE=${RHCOS_IMAGE:=c5e972cc-dd31-4733-a6a1-55904d1c63f4}   # cicd-rhcos-410.84.202202040003-0-openstack.ppc64le
+        export OCP_PROJECT_COMMIT=origin/master
+        export INSTALL_PLAYBOOK_TAG=284b597b3e88c635e3069b82926aa16812238492     # Align with powervs.
+        ;;
+4.11)
+        export RHCOS_IMAGE=${RHCOS_IMAGE:=9950392b-ff79-46b6-8017-8591ebe1dfeb}   # cicd-rhcos-411.85.202203090210-0-openstack.ppc64le
+        ;;	
 esac
 
 export WORKER_VOLUME_SIZE=${WORKER_VOLUME_SIZE:="500"}
