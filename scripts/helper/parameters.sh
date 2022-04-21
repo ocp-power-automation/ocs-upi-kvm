@@ -105,6 +105,9 @@ function update_supplemental_ocsci_config () {
         yq -y -i '.DEPLOYMENT.optional_operators_image |= env.OPTIONAL_OPERATORS_IMAGE' $WORKSPACE/ocs-ci-conf.yaml
         yq -y -i '.ENV_DATA.ocs_version |= env.OCS_VERSION' $WORKSPACE/ocs-ci-conf.yaml
 
+        export ocs_csv_channel=stable-$OCS_VERSION
+        yq -y -i '.DEPLOYMENT.ocs_csv_channel |= env.ocs_csv_channel' $WORKSPACE/ocs-ci-conf.yaml
+
 	export ocp_must_gather=quay.io/rhceph-dev/ocs-must-gather:latest-$OCS_VERSION
 	yq -y -i '.REPORTING.ocp_must_gather_image |= env.ocp_must_gather' $WORKSPACE/ocs-ci-conf.yaml
 

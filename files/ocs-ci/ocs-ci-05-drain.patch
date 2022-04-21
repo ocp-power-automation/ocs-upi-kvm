@@ -1,13 +1,13 @@
 diff --git a/ocs_ci/ocs/node.py b/ocs_ci/ocs/node.py
-index 3c33063e..9913ec81 100644
+index f8676cd8..a5fe035b 100644
 --- a/ocs_ci/ocs/node.py
 +++ b/ocs_ci/ocs/node.py
-@@ -205,7 +205,7 @@ def drain_nodes(node_names):
-     try:
+@@ -213,7 +213,7 @@ def drain_nodes(node_names):
+         )
          ocp.exec_oc_cmd(
              f"adm drain {node_names_str} --force=true --ignore-daemonsets "
--            f"--delete-local-data",
-+            f"--delete-local-data --timeout=1810s",
+-            f"{drain_deletion_flag}",
++            f"{drain_deletion_flag} --timeout=1810s",
              timeout=1800,
          )
      except TimeoutExpired:
