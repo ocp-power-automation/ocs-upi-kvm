@@ -99,7 +99,7 @@ if [[ -n "${tests[@]}" ]]; then
 		echo "================================ run-ci -m \"tier$i\" ================================"
 		echo "========================================================================================="
 
-		pytest --junitxml=$LOGDIR/test_results.xml
+		# pytest --junitxml=$LOGDIR/test_results.xml
 
 		html_fname=tier${i}_ocp${SANITIZED_OCP_VERSION}_ocs${SANITIZED_OCS_VERSION}_${PLATFORM}_${run_id}_report.html
 
@@ -121,7 +121,7 @@ else
 	echo "============================= run-ci -m \"$ocsci_cmd\" ============================="
 	echo "========================================================================================="
 
-	pytest --junitxml=$LOGDIR/test_results.xml
+	# pytest --junitxml=$LOGDIR/test_results.xml
 
 	html_fname=${ocsci_cmd}_ocp${SANITIZED_OCP_VERSION}_ocs${SANITIZED_OCS_VERSION}_${PLATFORM}_${run_id}_report.html
 
