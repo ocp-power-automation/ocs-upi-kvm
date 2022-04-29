@@ -8,7 +8,7 @@ export PLATFORM=powervs # Supports powervs only
 export OCP_VERSION=${OCP_VERSION:=4.11} # 4.5-4.11 are supported
 export OCS_VERSION=${OCS_VERSION:=4.11}
 #export PVS_API_KEY=<your key>
-
+#export FIPS_ENABLEMENT=false
 # These are optional for PowerVS OCP cluster create.  Default values are shown
 
 export CLUSTER_ID_PREFIX=${HOSTNAME:0:5}-${OCP_VERSION/./}

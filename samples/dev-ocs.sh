@@ -47,7 +47,7 @@ export OCS_VERSION=${OCS_VERSION:=4.11}
 #export WORKER_VOLUMES=1
 #export WORKER_VOLUME_SIZE=500
 #export USE_TIER1_STORAGE=false
-
+#export FIPS_ENABLEMENT=false
 # These are required for PowerVC OCP cluster create
 
 #export PVC_URL=<https://<HOSTNAME>:5000/v3>

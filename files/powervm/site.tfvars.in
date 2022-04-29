@@ -17,7 +17,7 @@ rhel_subscription_username      = "$RHID_USERNAME"
 rhel_subscription_password      = "$RHID_PASSWORD"
 rhel_subscription_org           = "$RHID_ORG"
 rhel_subscription_activationkey = "$RHID_KEY"
-
+fips_compliant              = "$FIPS_ENABLEMENT"
 openshift_install_tarball   = "https://mirror.openshift.com/pub/openshift-v4/ppc64le/clients/$OCP_INSTALLER_SUBPATH/openshift-install-linux.tar.gz"
 openshift_client_tarball    = "https://mirror.openshift.com/pub/openshift-v4/ppc64le/clients/$OCP_INSTALLER_SUBPATH/openshift-client-linux.tar.gz"
 
