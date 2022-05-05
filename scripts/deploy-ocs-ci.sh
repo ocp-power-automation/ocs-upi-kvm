@@ -90,7 +90,7 @@ elif [ "$VAULT_SUPPORT" == true ] && [ "$FIPS_ENABLEMENT" == false ]; then
                 --ocsci-conf conf/ocsci/vault_external_standalone_mode_v2.yaml \
                 --ocsci-conf $WORKSPACE/ocs-ci-conf.yaml \
                 --cluster-path $WORKSPACE --collect-logs tests/
-elif [ "$VAULT_SUPPORT" == false ] && [ "$FIPS_ENABLEMENT" == false ]; then
+else
         run-ci -m deployment --deploy \
                 --ocs-version $OCS_VERSION --cluster-name ocstest \
                 --ocsci-conf conf/ocsci/production_powervs_upi.yaml \
