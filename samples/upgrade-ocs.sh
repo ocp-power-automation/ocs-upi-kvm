@@ -24,7 +24,7 @@ export PLATFORM=${PLATFORM:="powervs"}                          # Also supported
 
 export OCP_VERSION=${OCP_VERSION:=4.8}                          # 4.5-4.8 are supported
 export OCS_VERSION=${OCS_VERSION:=4.8}
-
+#export FIPS_ENABLEMENT=false
 # These are optional for KVM OCP cluster create.  Default values are shown
 
 #export IMAGES_PATH=/var/lib/libvirt/images                     # File system space is important.  Else try /home/libvirt/images

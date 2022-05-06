@@ -21,7 +21,7 @@ export OCS_VERSION=${OCS_VERSION:=4.11}                          # 4.7 also
 
 
 # These are optional for KVM OCP cluster create.  Default values are shown
-
+#export FIPS_ENABLEMENT=false
 #export IMAGES_PATH=/var/lib/libvirt/images                     # File system space is important.  Else try /home/libvirt/images
 #export BASTION_IMAGE=rhel-8.2-update-2-ppc64le-kvm.qcow2
 #if [ -z "$DATA_DISK_LIST" ]; then                              # if not set, then file backed disks are used

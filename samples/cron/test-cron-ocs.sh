@@ -47,7 +47,7 @@ export PVS_SUBNET_NAME=ocs-cron-test
 #export PROCESSOR_TYPE=shared
 #export BASTION_IMAGE=rhel-83-02182021
 #export USE_TIER1_STORAGE=false
-
+#export FIPS_ENABLEMENT=false
 
 # These are required for PowerVC OCP cluster create
 

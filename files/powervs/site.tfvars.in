@@ -27,7 +27,7 @@ release_image_override      = "$OPENSHIFT_INSTALL_RELEASE_IMAGE_OVERRIDE"
 cluster_domain              = "$CLUSTER_DOMAIN"
 cluster_id_prefix           = "$CLUSTER_ID_PREFIX"
 cluster_id                  = ""
-
+fips_compliant              = "$FIPS_ENABLEMENT"
 dns_forwarders              = "$DNS_FORWARDERS"
 chrony_config               = "$CHRONY_CONFIG"
 chrony_config_servers       = [$CHRONY_CONFIG_SERVERS]

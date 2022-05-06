@@ -17,7 +17,7 @@ fi
 
 export USE_TIER1_STORAGE=${USE_TIER1_STORAGE:="false"}
 export CMA_PERCENT=${CMA_PERCENT:=0}					# Kernel contiguous memory area for DMA
-
+export FIPS_ENABLEMENT=${FIPS_ENABLEMENT:="false"}
 # Check service instance first, since it is not set above to a default value.  It
 # over rides zone and region if the service instance is set and recognized
 

@@ -31,7 +31,7 @@ export PLATFORM=${PLATFORM:=powervs}                            # Only powervs a
 
 
 # These environment variables are optional for all platforms
-
+#export FIPS_ENABLEMENT=false
 export OCP_VERSION=${OCP_VERSION:=4.11}                          # 4.5-4.11 are supported
 export OCS_VERSION=${OCS_VERSION:=4.11}
 

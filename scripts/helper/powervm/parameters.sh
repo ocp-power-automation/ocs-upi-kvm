@@ -15,7 +15,7 @@ export BOOTSTRAP_COMPUTE_TEMPLATE=${BOOTSTRAP_COMPUTE_TEMPLATE:=large}
 # LPARS unless AME is enabled which is very rare.  The default compute
 # templates enable shared LPAR technology so the CPU can be over allocated.
 # The large template has 32G of memory, xlarge has 64G, and xxlarge 128G
-
+export FIPS_ENABLEMENT=${FIPS_ENABLEMENT:="false"}
 export MASTER_DESIRED_MEM=${MASTER_DESIRED_MEM:="32"}
 if (( MASTER_DESIRED_MEM > 32 )); then
         export MASTER_COMPUTE_TEMPLATE=${MASTER_COMPUTE_TEMPLATE:=xlarge}
