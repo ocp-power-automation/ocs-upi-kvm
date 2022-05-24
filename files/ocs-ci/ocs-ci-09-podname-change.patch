@@ -1,8 +1,8 @@
 diff --git a/ocs_ci/ocs/resources/pod.py b/ocs_ci/ocs/resources/pod.py
-index 4d94e5ef..2673e361 100644
+index a6c6bec0..49bd8cbd 100644
 --- a/ocs_ci/ocs/resources/pod.py
 +++ b/ocs_ci/ocs/resources/pod.py
-@@ -31,6 +31,7 @@ from ocs_ci.ocs.exceptions import (
+@@ -32,6 +32,7 @@ from ocs_ci.ocs.exceptions import (
  from ocs_ci.ocs.utils import setup_ceph_toolbox, get_pod_name_by_pattern
  from ocs_ci.ocs.resources.ocs import OCS
  from ocs_ci.ocs.resources.job import get_job_obj, get_jobs_with_prefix
@@ -10,11 +10,11 @@ index 4d94e5ef..2673e361 100644
  from ocs_ci.utility import templating
  from ocs_ci.utility.utils import (
      run_cmd,
-@@ -1432,8 +1433,13 @@ def wait_for_storage_pods(timeout=200):
-
+@@ -1448,8 +1449,13 @@ def wait_for_storage_pods(timeout=200):
+ 
      for pod_obj in all_pod_obj:
          state = constants.STATUS_RUNNING
--        if any(i in pod_obj.name for i in ["-1-deploy", "ocs-deviceset"]):
+-        if any(i in pod_obj.name for i in ["-1-deploy", "osd-prepare"]):
 -            state = constants.STATUS_COMPLETED
 +        ocs_version = version.get_semantic_ocs_version_from_config()
 +        if (ocs_version >= version.VERSION_4_10) and (config.ENV_DATA["platform"].lower() == constants.IBM_POWER_PLATFORM):
@@ -24,6 +24,5 @@ index 4d94e5ef..2673e361 100644
 +            if any(i in pod_obj.name for i in ["-1-deploy", "ocs-deviceset"]):
 +                state = constants.STATUS_COMPLETED
          helpers.wait_for_resource_state(resource=pod_obj, state=state, timeout=timeout)
-
-
-
+ 
+ 

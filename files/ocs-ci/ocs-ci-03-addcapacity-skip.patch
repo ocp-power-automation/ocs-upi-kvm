@@ -23,44 +23,44 @@ index 0d38d116..52f0e7a2 100644
      reason=(
 
 diff --git a/tests/manage/z_cluster/cluster_expansion/test_add_capacity_with_node_restart.py b/tests/manage/z_cluster/cluster_expansion/test_add_capacity_with_node_restart.py
-index 86502d2d..27aaea16 100644
+index a243aa2c..b237635d 100644
 --- a/tests/manage/z_cluster/cluster_expansion/test_add_capacity_with_node_restart.py
 +++ b/tests/manage/z_cluster/cluster_expansion/test_add_capacity_with_node_restart.py
 @@ -1,6 +1,10 @@
  import pytest
  import logging
-
+ 
 +from ocs_ci.framework.pytest_customization.marks import (
 +    skipif_ibm_power,
 +)
 +
- from ocs_ci.framework.testlib import ignore_leftovers, ManageTest, tier4b
- from ocs_ci.framework import config
- from ocs_ci.ocs import constants
-@@ -28,6 +32,7 @@ logger = logging.getLogger(__name__)
- )
+ from ocs_ci.framework.testlib import (
+     ignore_leftovers,
+     ManageTest,
+@@ -34,6 +38,7 @@ logger = logging.getLogger(__name__)
  @ignore_leftovers
  @tier4b
+ @skipif_managed_service
 +@skipif_ibm_power
  class TestAddCapacityNodeRestart(ManageTest):
      """
      Test add capacity when one of the worker nodes got restart
 diff --git a/tests/manage/z_cluster/cluster_expansion/test_delete_pod.py b/tests/manage/z_cluster/cluster_expansion/test_delete_pod.py
-index f48908e3..ed82da2e 100644
+index 79804b6c..74431918 100644
 --- a/tests/manage/z_cluster/cluster_expansion/test_delete_pod.py
 +++ b/tests/manage/z_cluster/cluster_expansion/test_delete_pod.py
 @@ -2,6 +2,9 @@ import pytest
-
+ 
  import logging
  from concurrent.futures import ThreadPoolExecutor
 +from ocs_ci.framework.pytest_customization.marks import (
 +    skipif_ibm_power,
 +)
-
- from ocs_ci.framework.testlib import ignore_leftovers, tier4c
+ 
+ from ocs_ci.framework.testlib import ignore_leftovers, tier4c, skipif_managed_service
  from ocs_ci.framework import config
-@@ -22,6 +25,7 @@ logger = logging.getLogger(__name__)
-
+@@ -23,6 +26,7 @@ logger = logging.getLogger(__name__)
+ @skipif_managed_service
  @ignore_leftovers
  @tier4c
 +@skipif_ibm_power
