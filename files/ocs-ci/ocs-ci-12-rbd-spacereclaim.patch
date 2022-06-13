@@ -1,5 +1,5 @@
 diff --git a/tests/manage/pv_services/space_reclaim/test_rbd_space_reclaim.py b/tests/manage/pv_services/space_reclaim/test_rbd_space_reclaim.py
-index 2de0a838..c4b56120 100644
+index 5d39d38f..9f6d99c6 100644
 --- a/tests/manage/pv_services/space_reclaim/test_rbd_space_reclaim.py
 +++ b/tests/manage/pv_services/space_reclaim/test_rbd_space_reclaim.py
 @@ -1,5 +1,6 @@
@@ -9,7 +9,7 @@ index 2de0a838..c4b56120 100644
 
  from ocs_ci.ocs import constants
  from ocs_ci.framework.testlib import (
-@@ -105,6 +106,7 @@ class TestRbdSpaceReclaim(ManageTest):
+@@ -107,6 +108,7 @@ class TestRbdSpaceReclaim(ManageTest):
                  raise
              log.info(f"Verified: File {file_path} deleted.")
 
