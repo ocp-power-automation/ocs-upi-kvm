@@ -210,7 +210,7 @@ function wait_for_fio_pods_to_complete () {
 			(( i = i + 1 ))
 		done
 		if (( pod_done < npods )); then
-			echo -e "Sleeping 5 minutes... total pods=$npods pods comleted=$pod_done\n"
+			echo -e "Sleeping 5 minutes... total pods=$npods pods completed=$pod_done\n"
 			sleep 5m
 		fi
 	done
@@ -235,9 +235,9 @@ oc project default >/dev/null 2>&1
 
 # Determine how much ceph memory is available in the pool
 ocs_operator=`oc get csv -n openshift-storage | grep ocs-operator | awk {'print $1'}`
-ocs_version=`oc get csv $ocs_operator -n openshift-storage -o jsonpath={.spec.version} | cut -c1-3`
+ocs_version=`oc get csv $ocs_operator -n openshift-storage -o jsonpath={.spec.version} | cut -d "." -f 1-2`
 cephblockpool=$(oc -n openshift-storage rsh $ceph_tools ceph df | grep ocs-storagecluster-cephblockpool)
-if [ $ocs_version == 4.9 ]; then
+if [[ $ocs_version == "4.9" || $ocs_version == "4.10" || $ocs_version == "4.11" ]]; then
         max_avail_GiB=$(echo $cephblockpool | awk '{print $10}')
         max_avail_unit=$(echo $cephblockpool | awk '{print $11}')
 else
