@@ -1,5 +1,5 @@
 diff --git a/ocs_ci/ocs/node.py b/ocs_ci/ocs/node.py
-index eb03446f..fdf6eb0c 100644
+index 0f1f6195..1247d94a 100644
 --- a/ocs_ci/ocs/node.py
 +++ b/ocs_ci/ocs/node.py
 @@ -214,7 +214,7 @@ def drain_nodes(node_names):
