@@ -1,5 +1,5 @@
 diff --git a/ocs_ci/ocs/resources/pod.py b/ocs_ci/ocs/resources/pod.py
-index afe6637b..2ed547e0 100644
+index dd9b1c67..e50fcfca 100644
 --- a/ocs_ci/ocs/resources/pod.py
 +++ b/ocs_ci/ocs/resources/pod.py
 @@ -32,6 +32,7 @@ from ocs_ci.ocs.exceptions import (
@@ -10,7 +10,7 @@ index afe6637b..2ed547e0 100644
  from ocs_ci.utility import templating
  from ocs_ci.utility.utils import (
      run_cmd,
-@@ -1448,8 +1449,13 @@ def wait_for_storage_pods(timeout=200):
+@@ -1668,8 +1669,13 @@ def wait_for_storage_pods(timeout=200):
 
      for pod_obj in all_pod_obj:
          state = constants.STATUS_RUNNING
@@ -24,5 +24,5 @@ index afe6637b..2ed547e0 100644
 +            if any(i in pod_obj.name for i in ["-1-deploy", "ocs-deviceset"]):
 +                state = constants.STATUS_COMPLETED
          helpers.wait_for_resource_state(resource=pod_obj, state=state, timeout=timeout)
- 
+
  
