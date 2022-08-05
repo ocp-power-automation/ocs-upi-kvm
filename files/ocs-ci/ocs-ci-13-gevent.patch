@@ -1,0 +1,13 @@
+diff --git a/setup.py b/setup.py
+index 1149be27..2f7a5ebe 100644
+--- a/setup.py
++++ b/setup.py
+@@ -18,7 +18,7 @@ setup(
+         "apache-libcloud==3.1.0",
+         "cryptography==36.0.2",
+         "docopt==0.6.2",
+-        "gevent==20.9.0",
++        "gevent==21.12.0",
+         "reportportal-client==3.2.3",
+         "requests==2.23.0",
+         "paramiko==2.11.0",
