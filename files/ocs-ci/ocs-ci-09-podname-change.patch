@@ -1,5 +1,5 @@
 diff --git a/ocs_ci/ocs/resources/pod.py b/ocs_ci/ocs/resources/pod.py
-index dd9b1c67..e50fcfca 100644
+index 0d22c936..8fc08b34 100644
 --- a/ocs_ci/ocs/resources/pod.py
 +++ b/ocs_ci/ocs/resources/pod.py
 @@ -32,6 +32,7 @@ from ocs_ci.ocs.exceptions import (
@@ -25,4 +25,4 @@ index dd9b1c67..e50fcfca 100644
 +                state = constants.STATUS_COMPLETED
          helpers.wait_for_resource_state(resource=pod_obj, state=state, timeout=timeout)
 
- 
+
