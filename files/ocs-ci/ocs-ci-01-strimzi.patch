@@ -72,29 +72,3 @@ index fafa213c..9ae81dda 100644
  imagePullPolicy: Always
  workload: workloads/1-topic-16-partitions-1kb.yaml
  driver: driver-pulsar/pulsar.yaml
-diff --git a/ocs_ci/templates/workloads/amq/hello-world-consumer.yaml b/ocs_ci/templates/workloads/amq/hello-world-consumer.yaml
-index 16f73f36..0215d307 100644
---- a/ocs_ci/templates/workloads/amq/hello-world-consumer.yaml
-+++ b/ocs_ci/templates/workloads/amq/hello-world-consumer.yaml
-@@ -16,7 +16,7 @@ spec:
-     spec:
-       containers:
-       - name: hello-world-consumer
--        image: strimzi/hello-world-consumer:latest
-+        image: quay.io/multi-arch/strimzi-examples:java-kafka-consumer
-         env:
-           - name: BOOTSTRAP_SERVERS
-             value: my-cluster-kafka-bootstrap:9092
-diff --git a/ocs_ci/templates/workloads/amq/hello-world-producer.yaml b/ocs_ci/templates/workloads/amq/hello-world-producer.yaml
-index e57bcb30..32f10d34 100644
---- a/ocs_ci/templates/workloads/amq/hello-world-producer.yaml
-+++ b/ocs_ci/templates/workloads/amq/hello-world-producer.yaml
-@@ -16,7 +16,7 @@ spec:
-     spec:
-       containers:
-       - name: hello-world-producer
--        image: strimzi/hello-world-producer:latest
-+        image: quay.io/multi-arch/strimzi-examples:java-kafka-producer
-         env:
-           - name: BOOTSTRAP_SERVERS
-             value: my-cluster-kafka-bootstrap:9092
