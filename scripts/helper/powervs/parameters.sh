@@ -95,6 +95,10 @@ case $OCP_VERSION in
 	;;
 4.11)
         export RHCOS_IMAGE=${RHCOS_IMAGE:="rhcos-411-03092022"}
+        export OCP_PROJECT_COMMIT="origin/release-4.11"
+        ;;
+4.12)
+        export RHCOS_IMAGE=${RHCOS_IMAGE:="rhcos-412-07222022"}
         export OCP_PROJECT_COMMIT="origin/master"
         ;;	
 esac
