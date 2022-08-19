@@ -336,6 +336,7 @@ if [ ! -e $PLUGIN_PATH/community-terraform-providers/ignition/$VERSION/$LPLATFOR
 	rm -rf terraform-provider-ignition
 	git clone https://github.com/community-terraform-providers/terraform-provider-ignition --branch v$VERSION
 	pushd terraform-provider-ignition
+	sed -e '/gofmtcheck.sh/s/^/#/g' -i GNUmakefile
 	make build
 	popd
 
