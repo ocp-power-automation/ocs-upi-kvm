@@ -191,9 +191,9 @@ function setup_remote_oc_use () {
 
 	# BASTION_IP is used by caller
 
-	BASTION_IP=$($terraform_cmd output | grep ^bastion_public_ip | awk '{print $3}')
+	BASTION_IP=$($terraform_cmd output -raw bastion_public_ip)
 
-	etc_hosts_entries=$($terraform_cmd output | awk '/^etc_hosts_entries/{getline;print;}')
+	etc_hosts_entries=$($terraform_cmd output -raw etc_hosts_entries  | tr -d '\n')
 
 	# oc command is always enabled locally
 
