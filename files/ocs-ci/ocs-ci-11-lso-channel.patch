@@ -1,10 +1,12 @@
 diff --git a/ocs_ci/utility/localstorage.py b/ocs_ci/utility/localstorage.py
-index 2f756917..c68fa303 100644
+index ea50b40a..94d331fd 100644
 --- a/ocs_ci/utility/localstorage.py
 +++ b/ocs_ci/utility/localstorage.py
-@@ -225,4 +225,4 @@ def get_lso_channel():
-         return ocp_version
+@@ -226,6 +226,6 @@ def get_lso_channel():
      else:
-         # Use latest channel
--        return sorted_versions[-1]
-+        return "stable"
+         if len(sorted_versions) >= 1:
+             # Use latest channel
+-            return sorted_versions[-1]
++            return "stable"
+         else:
+             return channels[-1]["name"]
