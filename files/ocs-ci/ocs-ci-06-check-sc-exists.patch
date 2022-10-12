@@ -1,16 +1,15 @@
 diff --git a/ocs_ci/deployment/deployment.py b/ocs_ci/deployment/deployment.py
-index 8bc5d0bf..675e3e90 100644
+index 6b66f9fe..5c8a35d0 100644
 --- a/ocs_ci/deployment/deployment.py
 +++ b/ocs_ci/deployment/deployment.py
-@@ -1621,6 +1621,12 @@ def setup_persistent_monitoring():
+@@ -1629,6 +1629,11 @@ def setup_persistent_monitoring():
      """
      Change monitoring backend to OCS
      """
-+    # Validate the storage class exists
++     # Validate the storage class exists
 +    retry((CommandFailed), tries=16, delay=15)(
 +        helpers.default_storage_class
 +    )(interface_type=constants.CEPHBLOCKPOOL)
-+
 +
      sc = helpers.default_storage_class(interface_type=constants.CEPHBLOCKPOOL)
  

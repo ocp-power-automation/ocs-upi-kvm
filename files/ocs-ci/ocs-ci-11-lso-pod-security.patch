@@ -1,16 +1,16 @@
 diff --git a/ocs_ci/deployment/helpers/lso_helpers.py b/ocs_ci/deployment/helpers/lso_helpers.py
-index 5c446fab..c72cad56 100644
+index eb63dba6..f2d70d22 100644
 --- a/ocs_ci/deployment/helpers/lso_helpers.py
 +++ b/ocs_ci/deployment/helpers/lso_helpers.py
-@@ -13,6 +13,7 @@ from ocs_ci.ocs import constants, ocp, defaults
- from ocs_ci.ocs.exceptions import CommandFailed, UnsupportedPlatformError
+@@ -14,6 +14,7 @@ from ocs_ci.ocs.exceptions import CommandFailed, UnsupportedPlatformError
  from ocs_ci.ocs.node import get_nodes, get_compute_node_names
+ from ocs_ci.ocs.utils import label_pod_security_admission
  from ocs_ci.utility import templating, version
 +from ocs_ci.ocs.utils import label_pod_security_admission
  from ocs_ci.utility.deployment import get_ocp_ga_version
  from ocs_ci.utility.localstorage import get_lso_channel
  from ocs_ci.utility.retry import retry
-@@ -99,6 +100,7 @@ def setup_local_storage(storageclass):
+@@ -103,6 +104,7 @@ def setup_local_storage(storageclass):
      if platform == constants.RHV_PLATFORM:
          add_disk_for_rhv_platform()
  
