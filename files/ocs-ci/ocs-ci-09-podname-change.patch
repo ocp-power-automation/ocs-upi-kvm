@@ -1,5 +1,5 @@
 diff --git a/ocs_ci/ocs/resources/pod.py b/ocs_ci/ocs/resources/pod.py
-index 108ed8be..94fa2dbd 100644
+index 108ed8be..32770f94 100644
 --- a/ocs_ci/ocs/resources/pod.py
 +++ b/ocs_ci/ocs/resources/pod.py
 @@ -32,6 +32,7 @@ from ocs_ci.ocs.exceptions import (
@@ -10,20 +10,19 @@ index 108ed8be..94fa2dbd 100644
  from ocs_ci.utility import templating
  from ocs_ci.utility.utils import (
      run_cmd,
-@@ -1767,8 +1768,14 @@ def wait_for_storage_pods(timeout=200):
+@@ -1767,8 +1768,13 @@ def wait_for_storage_pods(timeout=200):
  
      for pod_obj in all_pod_obj:
          state = constants.STATUS_RUNNING
 -        if any(i in pod_obj.name for i in ["-1-deploy", "osd-prepare"]):
 -            state = constants.STATUS_COMPLETED
-+         ocs_version = version.get_semantic_ocs_version_from_config()
++        ocs_version = version.get_semantic_ocs_version_from_config()
 +        if (ocs_version >= version.VERSION_4_10) and (config.ENV_DATA["platform"].lower() == constants.IBM_POWER_PLATFORM):
 +            if any(i in pod_obj.name for i in ["-1-deploy", "osd-prepare"]):
 +                state = constants.STATUS_COMPLETED
 +        else:
 +            if any(i in pod_obj.name for i in ["-1-deploy", "ocs-deviceset"]):
 +                state = constants.STATUS_COMPLETED
-+
          helpers.wait_for_resource_state(resource=pod_obj, state=state, timeout=timeout)
  
  
