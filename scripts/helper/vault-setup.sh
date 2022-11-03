@@ -7,7 +7,7 @@
 
 set -e
 
-VAULT_VERSION=v1.9.3
+VERSION="${VAULT_VERSION:-v1.9.3}"
 
 yum install -y openssl sudo make git gcc wget
 
@@ -22,7 +22,7 @@ export PATH=$PATH:$GOPATH/bin
 cd /go/src/github.com/hashicorp
 git clone https://github.com/hashicorp/vault
 cd vault
-git checkout ${VAULT_VERSION}
+git checkout ${VERSION}
 make bootstrap && make
 
 cp /go/bin/vault /root/
