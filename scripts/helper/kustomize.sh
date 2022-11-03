@@ -2,9 +2,10 @@
 
 set -e
 
+VERSION="${GO_VERSION:-1.19.2}"
 # Install go 
-wget https://golang.org/dl/go1.17.7.linux-ppc64le.tar.gz
-rm -rf /usr/local/go && tar -C /usr/local -xvzf go1.17.7.linux-ppc64le.tar.gz
+wget https://golang.org/dl/go"${VERSION}".linux-ppc64le.tar.gz
+rm -rf /usr/local/go && tar -C /usr/local -xvzf go"${VERSION}".linux-ppc64le.tar.gz
 rm -rf go1.17.7.linux-ppc64le.tar.gz
 export PATH=/usr/local/go/bin:$PATH
 
