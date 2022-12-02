@@ -7,7 +7,7 @@
 
 set -e
 
-VERSION="${VAULT_VERSION:-v1.12.1}"
+VERSION="${VAULT_VERSION:-$(curl --silent "https://api.github.com/repos/hashicorp/vault/releases/latest" |  grep '"tag_name":' | sed -E 's/.*"([^"]+)".*/\1/')}"
 
 yum install -y openssl sudo make git gcc wget
 

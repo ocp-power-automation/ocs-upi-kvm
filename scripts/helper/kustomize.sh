@@ -2,7 +2,7 @@
 
 set -e
 
-VERSION="${GO_VERSION:-1.19.2}"
+VERSION="${GO_VERSION:-$(curl -s 'https://go.dev/VERSION?m=text'| sed 's/go//g')}"
 # Install go 
 wget https://golang.org/dl/go"${VERSION}".linux-ppc64le.tar.gz
 rm -rf /usr/local/go && tar -C /usr/local -xvzf go"${VERSION}".linux-ppc64le.tar.gz
