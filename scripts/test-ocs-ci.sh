@@ -6,6 +6,8 @@
 
 arg1=$1
 
+COUNT="${RERUN_TIER_TEST:-1}"
+
 if [[ "$arg1" =~ "help" ]] || [ "$arg1" == "-?" ] ; then
 	echo "Usage: test-ocs-ci.sh [{ --tier 0,1,2,3,4,4a,4b,4c | --workloads | --scale | ... }]"
         echo "No arguments is the same as --tier 0,1"
@@ -96,29 +98,32 @@ if [[ -n "${tests[@]}" ]]; then
 	for i in "${tests[@]}"
 	do
 		echo "========================================================================================="
-		echo "================================ run-ci -m \"tier$i\" ================================"
+		echo "================================ run-ci -m \"tier$i\" ==================================="
 		echo "========================================================================================="
 
-		# pytest --junitxml=$LOGDIR/test_results.xml
-
-		html_fname=tier${i}_ocp${SANITIZED_OCP_VERSION}_ocs${SANITIZED_OCS_VERSION}_${PLATFORM}_${run_id}_report.html
-
-		set -x
-		time run-ci -m "tier$i" --cluster-name ocstest \
-			--ocp-version $OCP_VERSION --ocs-version=$OCS_VERSION \
-			--ocsci-conf conf/ocsci/production_powervs_upi.yaml \
-			--ocsci-conf conf/ocsci/lso_enable_rotational_disks.yaml \
-			--ocsci-conf $WORKSPACE/ocs-ci-conf.yaml \
-		        --cluster-path $WORKSPACE --collect-logs \
-			--self-contained-html --junit-xml $LOGDIR/test_results.xml \
-		        --html $LOGDIR/$html_fname tests/
-		rc=$?
 		set +x
-		echo -e "\n=> Test result: run-ci tier$i rc=$rc html=$html_fname"
+		for j in $(seq "${COUNT}"); do
+			echo  "Running tier${i}, iteration ${j}"
+			html_fname=tier${i}_ocp${SANITIZED_OCP_VERSION}_ocs${SANITIZED_OCS_VERSION}_${PLATFORM}_${run_id}_report_${j}.html
+			set -x
+			time run-ci -m "tier$i" --cluster-name ocstest --last-failed \
+				--ocp-version $OCP_VERSION --ocs-version=$OCS_VERSION \
+				--ocsci-conf conf/ocsci/production_powervs_upi.yaml \
+				--ocsci-conf conf/ocsci/lso_enable_rotational_disks.yaml \
+				--ocsci-conf $WORKSPACE/ocs-ci-conf.yaml \
+				--cluster-path $WORKSPACE --collect-logs \
+				--self-contained-html --junit-xml $LOGDIR/test_results_tier${i}_$j.xml \
+				--html $LOGDIR/$html_fname tests/
+			rc=$?
+			set +x
+			echo "Sleeping for things to settle down ";sleep 600
+		done
+		pytest_html_merger -i /root/logs-ocs-ci/4.12/ -o "$LOGDIR/results.html"
+		echo -e "\n=> Test result: run-ci tier$i rc=$rc html=$LOGDIR/results.html"
 	done
 else
 	echo "========================================================================================="
-	echo "============================= run-ci -m \"$ocsci_cmd\" ============================="
+	echo "============================= run-ci -m \"$ocsci_cmd\" =================================="
 	echo "========================================================================================="
 
 	# pytest --junitxml=$LOGDIR/test_results.xml

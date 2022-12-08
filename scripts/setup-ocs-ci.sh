@@ -89,6 +89,7 @@ pip3 install gevent==20.9.0 --no-build-isolation
 pip3 install -r requirements.txt 
 pip3 install yq
 pip3 install boto3
+pip3 install pytest-html-merger
 
 deactivate					# exit venv shell
 
