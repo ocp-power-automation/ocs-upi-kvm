@@ -1,16 +1,8 @@
 diff --git a/ocs_ci/ocs/resources/pod.py b/ocs_ci/ocs/resources/pod.py
-index 108ed8be..32770f94 100644
+index ad628faa..fc3ab267 100644
 --- a/ocs_ci/ocs/resources/pod.py
 +++ b/ocs_ci/ocs/resources/pod.py
-@@ -32,6 +32,7 @@ from ocs_ci.ocs.exceptions import (
- from ocs_ci.ocs.utils import setup_ceph_toolbox, get_pod_name_by_pattern
- from ocs_ci.ocs.resources.ocs import OCS
- from ocs_ci.ocs.resources.job import get_job_obj, get_jobs_with_prefix
-+from ocs_ci.utility import version
- from ocs_ci.utility import templating
- from ocs_ci.utility.utils import (
-     run_cmd,
-@@ -1767,8 +1768,13 @@ def wait_for_storage_pods(timeout=200):
+@@ -1785,8 +1785,13 @@ def wait_for_storage_pods(timeout=200):
  
      for pod_obj in all_pod_obj:
          state = constants.STATUS_RUNNING
