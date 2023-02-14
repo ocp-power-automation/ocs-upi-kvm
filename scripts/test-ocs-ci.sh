@@ -118,7 +118,7 @@ if [[ -n "${tests[@]}" ]]; then
 			set +x
 			echo "Sleeping for things to settle down ";sleep 600
 		done
-		pytest_html_merger -i /root/logs-ocs-ci/4.12/ -o "$LOGDIR/results.html"
+		pytest_html_merger -i "/root/$LOGDIR_BASE/$OCS_VERSION/" -o "$LOGDIR/results.html"
 		echo -e "\n=> Test result: run-ci tier$i rc=$rc html=$LOGDIR/results.html"
 	done
 else

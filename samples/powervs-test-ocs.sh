@@ -5,8 +5,8 @@
 export PLATFORM=powervs # Supports powervs only
 #export RHID_USERNAME=<your rh subscription id>
 #export RHID_PASSWORD=<your rh subscription password>
-export OCP_VERSION=${OCP_VERSION:=4.12} # 4.5-4.12 are supported
-export OCS_VERSION=${OCS_VERSION:=4.12}
+export OCP_VERSION=${OCP_VERSION:=4.13} # 4.5-4.13 are supported
+export OCS_VERSION=${OCS_VERSION:=4.13}
 #export PVS_API_KEY=<your key>
 #export FIPS_ENABLEMENT=false
 # These are optional for PowerVS OCP cluster create.  Default values are shown
