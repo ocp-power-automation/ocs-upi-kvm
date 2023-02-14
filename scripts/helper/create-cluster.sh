@@ -80,7 +80,7 @@ case "$OCP_VERSION" in
 		RHCOS_VERSION="4.11"
 		unset RHCOS_RELEASE
 		RHCOS_SUFFIX="-$RHCOS_VERSION"
-		;;		
+		;;
 	*)
 		echo "Invalid OCP_VERSION=$OCP_VERSION.  Supported versions are 4.4 - 4.12"
 		exit 1

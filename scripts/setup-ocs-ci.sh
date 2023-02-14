@@ -36,9 +36,9 @@ if [ "$OCS_CI_ON_BASTION" == true ]; then
 	exit $ocs_ci_on_bastion_rc
 fi
 
-sudo yum -y install libffi-devel lapack atlas-devel openssl-devel gcc gcc-c++ gcc-gfortran make patch
-sudo yum -y install python38-devel python38-setuptools python3-virtualenv python3-docutils rust-toolset
-sudo yum -y install curl libcurl-devel unzip libxml2-devel
+sudo dnf -y install libffi-devel lapack atlas-devel openssl-devel gcc gcc-c++ gcc-gfortran make patch
+sudo dnf -y install python3-devel python3-setuptools  rust-toolset
+sudo dnf -y install curl libcurl-devel unzip libxml2-devel
 
 pushd ../src/ocs-ci
 
@@ -80,7 +80,7 @@ fi
 
 rm -rf $WORKSPACE/venv
 
-python3.8 -m venv $WORKSPACE/venv
+python3.9 -m venv $WORKSPACE/venv
 
 source $WORKSPACE/venv/bin/activate		# activate named python venv
 
