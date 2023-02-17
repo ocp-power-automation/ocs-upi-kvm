@@ -99,7 +99,12 @@ case $OCP_VERSION in
         ;;
 4.12)
         export RHCOS_IMAGE=${RHCOS_IMAGE:="rhcos-412-07222022"}
-        export OCP_PROJECT_COMMIT="origin/master"
+        export OCP_PROJECT_COMMIT="origin/main"
+        ;;
+4.13)
+        export RHCOS_IMAGE=${RHCOS_IMAGE:="rhcos-413-12132022"}
+        export BASTION_IMAGE=${BASTION_IMAGE:="rhel-9-07062022"}
+        export OCP_PROJECT_COMMIT="origin/main"
         ;;	
 esac
 
