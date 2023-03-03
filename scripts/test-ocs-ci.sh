@@ -106,15 +106,27 @@ if [[ -n "${tests[@]}" ]]; then
 			echo  "Running tier${i}, iteration ${j}"
 			html_fname=tier${i}_ocp${SANITIZED_OCP_VERSION}_ocs${SANITIZED_OCS_VERSION}_${PLATFORM}_${run_id}_report_${j}.html
 			set -x
-			time run-ci -m "tier$i" --cluster-name ocstest --last-failed \
-				--ocp-version $OCP_VERSION --ocs-version=$OCS_VERSION \
-				--ocsci-conf conf/ocsci/production_powervs_upi.yaml \
-				--ocsci-conf conf/ocsci/lso_enable_rotational_disks.yaml \
-				--ocsci-conf $WORKSPACE/ocs-ci-conf.yaml \
-				--cluster-path $WORKSPACE --collect-logs \
-				--self-contained-html --junit-xml $LOGDIR/test_results_tier${i}_$j.xml \
-				--html $LOGDIR/$html_fname tests/
-			rc=$?
+			if [[ "${j}" == "1" ]] ;then
+				time run-ci -m "tier$i" --cluster-name ocstest \
+					--ocp-version $OCP_VERSION --ocs-version=$OCS_VERSION \
+					--ocsci-conf conf/ocsci/production_powervs_upi.yaml \
+					--ocsci-conf conf/ocsci/lso_enable_rotational_disks.yaml \
+					--ocsci-conf $WORKSPACE/ocs-ci-conf.yaml \
+					--cluster-path $WORKSPACE --collect-logs \
+					--self-contained-html --junit-xml $LOGDIR/test_results_tier${i}_$j.xml \
+					--html $LOGDIR/$html_fname tests/
+				rc=$?
+			else
+				time run-ci -m "tier$i" --cluster-name ocstest --last-failed \
+					--ocp-version $OCP_VERSION --ocs-version=$OCS_VERSION \
+					--ocsci-conf conf/ocsci/production_powervs_upi.yaml \
+					--ocsci-conf conf/ocsci/lso_enable_rotational_disks.yaml \
+					--ocsci-conf $WORKSPACE/ocs-ci-conf.yaml \
+					--cluster-path $WORKSPACE --collect-logs \
+					--self-contained-html --junit-xml $LOGDIR/test_results_tier${i}_$j.xml \
+					--html $LOGDIR/$html_fname tests/
+				rc=$?
+     fi
 			set +x
 			echo "Sleeping for things to settle down ";sleep 600
 		done
