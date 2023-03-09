@@ -36,9 +36,14 @@ if [ "$OCS_CI_ON_BASTION" == true ]; then
 	exit $ocs_ci_on_bastion_rc
 fi
 
-sudo dnf -y install libffi-devel lapack atlas-devel openssl-devel gcc gcc-c++ gcc-gfortran make patch
-sudo dnf -y install python3-devel python3-setuptools  rust-toolset
-sudo dnf -y install curl libcurl-devel unzip libxml2-devel
+if [  -n "$(uname -a | grep Ubuntu)" ]; then
+	sudo apt update
+	sudo apt install libffi-dev liblapack3 libatlas-base-dev libssl-dev gcc g++ gfortran make patch python3-venv libcurl4-openssl-dev libssl-dev libxml2-dev libxslt1-dev -y
+else
+	sudo dnf -y install libffi-devel lapack atlas-devel openssl-devel gcc gcc-c++ gcc-gfortran make patch
+  sudo dnf -y install python3-devel python3-setuptools  rust-toolset
+  sudo dnf -y install curl libcurl-devel unzip libxml2-devel
+fi
 
 pushd ../src/ocs-ci
 
@@ -82,7 +87,7 @@ rm -rf $WORKSPACE/venv
 
 python3.9 -m venv $WORKSPACE/venv
 
-source $WORKSPACE/venv/bin/activate		# activate named python venv
+. $WORKSPACE/venv/bin/activate		# activate named python venv
 
 pip3 install --upgrade pip setuptools==63.2.0 wheel Cython==3.0.0a10
 pip3 install gevent==20.9.0 --no-build-isolation

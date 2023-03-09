@@ -7,9 +7,15 @@
 
 set -e
 
+WORKSPACE="${WORKSPACE:-"/root"}"
+
 VERSION="${VAULT_VERSION:-$(curl --silent "https://api.github.com/repos/hashicorp/vault/releases/latest" |  grep '"tag_name":' | sed -E 's/.*"([^"]+)".*/\1/')}"
 
-yum install -y openssl sudo make git gcc wget
+if [  -n "$(uname -a | grep Ubuntu)" ]; then
+	apt install openssl sudo make git gcc wget -y
+else
+	yum install -y openssl sudo make git gcc wget
+fi
 
 # Go is already installed while installing kustomize, hence exporting the path
 export PATH=/usr/local/go/bin:$PATH
@@ -25,5 +31,5 @@ cd vault
 git checkout ${VERSION}
 make bootstrap && make
 
-cp /go/bin/vault /root/
+cp /go/bin/vault ${WORKSPACE}
 
