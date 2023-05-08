@@ -148,7 +148,7 @@ index 807b2e21..aca78ca2 100644
      """
      Test that there are appropriate alerts when NooBaa Bucket Quota is reached.
 diff --git a/tests/manage/mcg/test_mcg_resources_disruptions.py b/tests/manage/mcg/test_mcg_resources_disruptions.py
-index af918e2a..06728cf4 100644
+index 15bce78c..55867008 100644
 --- a/tests/manage/mcg/test_mcg_resources_disruptions.py
 +++ b/tests/manage/mcg/test_mcg_resources_disruptions.py
 @@ -14,6 +14,7 @@ from ocs_ci.framework.testlib import (
@@ -158,7 +158,7 @@ index af918e2a..06728cf4 100644
 +from ocs_ci.framework.pytest_customization.marks import skipif_ibm_power
  from ocs_ci.helpers import helpers
  from ocs_ci.helpers.helpers import wait_for_resource_state
- from ocs_ci.ocs import cluster, constants, defaults, ocp
+ from ocs_ci.ocs import cluster, constants, ocp
 @@ -122,7 +123,13 @@ class TestMCGResourcesDisruptions(MCGTest):
          argnames=["pod_to_drain"],
          argvalues=[
@@ -183,10 +183,10 @@ index af918e2a..06728cf4 100644
      def test_db_scc(self, teardown):
          """
 diff --git a/tests/manage/mcg/test_host_node_failure.py b/tests/manage/mcg/test_host_node_failure.py
-index ce52e327..bc3aebff 100644
+index e015aa07..af39ef5e 100644
 --- a/tests/manage/mcg/test_host_node_failure.py
 +++ b/tests/manage/mcg/test_host_node_failure.py
-@@ -16,6 +16,7 @@ from ocs_ci.helpers.helpers import (
+@@ -17,6 +17,7 @@ from ocs_ci.helpers.helpers import (
  )
  from ocs_ci.ocs import constants, node
  from ocs_ci.ocs.exceptions import TimeoutExpiredError, CommandFailed
@@ -194,7 +194,7 @@ index ce52e327..bc3aebff 100644
  from ocs_ci.ocs.ocp import OCP
  from ocs_ci.ocs.resources.pod import (
      get_pod_node,
-@@ -65,7 +66,10 @@ class TestNoobaaSTSHostNodeFailure(ManageTest):
+@@ -66,7 +67,10 @@ class TestNoobaaSTSHostNodeFailure(ManageTest):
              ),
              pytest.param(
                  *[constants.NOOBAA_DB_STATEFULSET, False],
@@ -206,7 +206,7 @@ index ce52e327..bc3aebff 100644
              ),
              pytest.param(
                  *[constants.NOOBAA_CORE_STATEFULSET, True],
-@@ -73,7 +77,10 @@ class TestNoobaaSTSHostNodeFailure(ManageTest):
+@@ -74,7 +78,10 @@ class TestNoobaaSTSHostNodeFailure(ManageTest):
              ),
              pytest.param(
                  *[constants.NOOBAA_DB_STATEFULSET, True],
