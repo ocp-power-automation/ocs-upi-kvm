@@ -148,7 +148,7 @@ index 807b2e21..aca78ca2 100644
      """
      Test that there are appropriate alerts when NooBaa Bucket Quota is reached.
 diff --git a/tests/manage/mcg/test_mcg_resources_disruptions.py b/tests/manage/mcg/test_mcg_resources_disruptions.py
-index 15bce78c..55867008 100644
+index d62ee3f9..129b9465 100644
 --- a/tests/manage/mcg/test_mcg_resources_disruptions.py
 +++ b/tests/manage/mcg/test_mcg_resources_disruptions.py
 @@ -14,6 +14,7 @@ from ocs_ci.framework.testlib import (
@@ -174,7 +174,7 @@ index 15bce78c..55867008 100644
              pytest.param(
                  *["noobaa_endpoint"], marks=pytest.mark.polarion_id("OCS-2288")
              ),
-@@ -233,6 +240,7 @@ class TestMCGResourcesDisruptions(MCGTest):
+@@ -223,6 +230,7 @@ class TestMCGResourcesDisruptions(MCGTest):
      @pytest.mark.polarion_id("OCS-2513")
      @marks.bugzilla("1903573")
      @skipif_managed_service
