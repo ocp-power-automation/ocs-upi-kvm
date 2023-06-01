@@ -86,25 +86,25 @@ index 30a09938..58f22ec7 100644
      """
      Automates adding worker nodes to the cluster while IOs
 diff --git a/tests/manage/z_cluster/cluster_expansion/test_verify_ceph_csidriver_runs_on_non_ocs_nodes.py b/tests/manage/z_cluster/cluster_expansion/test_verify_ceph_csidriver_runs_on_non_ocs_nodes.py
-index 75278d60..8d8e2cbc 100644
+index ba02fa74..b493415c 100644
 --- a/tests/manage/z_cluster/cluster_expansion/test_verify_ceph_csidriver_runs_on_non_ocs_nodes.py
 +++ b/tests/manage/z_cluster/cluster_expansion/test_verify_ceph_csidriver_runs_on_non_ocs_nodes.py
 @@ -5,6 +5,7 @@ from ocs_ci.ocs import constants
  from ocs_ci.framework.pytest_customization.marks import (
      skipif_flexy_deployment,
      skipif_managed_service,
-+    skipif_ibm_power,
++    qskipif_ibm_power
+     skipif_multus_enabled,
  )
- from ocs_ci.framework.testlib import tier1, ManageTest
- from ocs_ci.ocs.node import get_worker_nodes_not_in_ocs
-@@ -19,6 +20,7 @@ logger = logging.getLogger(__name__)
+ from ocs_ci.framework.testlib import tier1, ManageTest, ignore_leftovers
+@@ -18,6 +19,7 @@ logger = logging.getLogger(__name__)
+ @skipif_flexy_deployment
+ @skipif_managed_service
+ @skipif_multus_enabled
++@skipif_ibm_power
  @tier1
  @pytest.mark.polarion_id("OCS-2490")
  @pytest.mark.bugzilla("1794389")
-+@skipif_ibm_power
- class TestCheckTolerationForCephCsiDriverDs(ManageTest):
-     """
-     Check toleration for Ceph CSI driver DS on non ocs node
 diff --git a/tests/manage/z_cluster/cluster_expansion/test_crashcollector_pod_existence_on_ceph_pods_running_nodes.py b/tests/manage/z_cluster/cluster_expansion/test_crashcollector_pod_existence_on_ceph_pods_running_nodes.py
 index 477c870c..d561a965 100644
 --- a/tests/manage/z_cluster/cluster_expansion/test_crashcollector_pod_existence_on_ceph_pods_running_nodes.py
@@ -126,18 +126,18 @@ index 477c870c..d561a965 100644
      """
      Add node with OCS label and verify crashcollector created on new node
 diff --git a/tests/manage/z_cluster/nodes/test_node_replacement_proactive.py b/tests/manage/z_cluster/nodes/test_node_replacement_proactive.py
-index e5096ce5..059c52be 100644
+index b45c197e..73a746c5 100644
 --- a/tests/manage/z_cluster/nodes/test_node_replacement_proactive.py
 +++ b/tests/manage/z_cluster/nodes/test_node_replacement_proactive.py
 @@ -20,6 +20,7 @@ from ocs_ci.framework.pytest_customization.marks import (
      bugzilla,
      skipif_external_mode,
      skipif_ms_consumer,
-+    skipif_ibm_power,
++    skipif_ibm_power
      brown_squad,
  )
  
-@@ -170,6 +171,7 @@ def delete_and_create_osd_node(osd_node_name):
+@@ -176,6 +177,7 @@ def delete_and_create_osd_node(osd_node_name):
  @skipif_managed_service
  @skipif_bmpsi
  @skipif_external_mode
@@ -145,7 +145,7 @@ index e5096ce5..059c52be 100644
  class TestNodeReplacementWithIO(ManageTest):
      """
      Knip-894 Node replacement proactive with IO
-@@ -243,6 +245,7 @@ class TestNodeReplacementWithIO(ManageTest):
+@@ -249,6 +251,7 @@ class TestNodeReplacementWithIO(ManageTest):
  @skipif_bmpsi
  @skipif_external_mode
  @skipif_ms_consumer
@@ -153,7 +153,7 @@ index e5096ce5..059c52be 100644
  class TestNodeReplacement(ManageTest):
      """
      Knip-894 Node replacement proactive
-@@ -286,6 +289,7 @@ class TestNodeReplacement(ManageTest):
+@@ -292,6 +295,7 @@ class TestNodeReplacement(ManageTest):
  @pytest.mark.polarion_id("OCS-2535")
  @skipif_external_mode
  @skipif_managed_service
