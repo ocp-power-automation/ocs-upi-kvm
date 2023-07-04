@@ -237,7 +237,7 @@ oc project default >/dev/null 2>&1
 ocs_operator=`oc get csv -n openshift-storage | grep ocs-operator | awk {'print $1'}`
 ocs_version=`oc get csv $ocs_operator -n openshift-storage -o jsonpath={.spec.version} | cut -d "." -f 1-2`
 cephblockpool=$(oc -n openshift-storage rsh $ceph_tools ceph df | grep ocs-storagecluster-cephblockpool)
-if [[ $ocs_version == "4.9" || $ocs_version == "4.10" || $ocs_version == "4.11" || $ocs_version == "4.12" || $ocs_version == "4.13"]]; then
+if [[ $ocs_version == "4.9" || $ocs_version == "4.10" || $ocs_version == "4.11" || $ocs_version == "4.12" || $ocs_version == "4.13" || $ocs_version == "4.14"]]; then
         max_avail_GiB=$(echo $cephblockpool | awk '{print $10}')
         max_avail_unit=$(echo $cephblockpool | awk '{print $11}')
 else

@@ -58,17 +58,17 @@ case $OCP_VERSION in
         ;;
 4.8)
         export RHCOS_IMAGE=${RHCOS_IMAGE:=09e18a43-8440-40f2-abe6-b8824fb679cd}   # rhcos-48.84.202105130819-0-openstack.ppc64le
-        export OCP_PROJECT_COMMIT=origin/master
+        export OCP_PROJECT_COMMIT=origin/main
         export INSTALL_PLAYBOOK_TAG=284b597b3e88c635e3069b82926aa16812238492      # Align with powervs.
         ;;
 4.9)
         export RHCOS_IMAGE=${RHCOS_IMAGE:=7aac5765-1a19-4a8a-9dba-ce087b514f3b}   # cicd-rhcos-49.84.20211215-0-openstack.ppc64le
-        export OCP_PROJECT_COMMIT=origin/master
+        export OCP_PROJECT_COMMIT=origin/main
         export INSTALL_PLAYBOOK_TAG=284b597b3e88c635e3069b82926aa16812238492      # Align with powervs.
         ;;
 4.10)
         export RHCOS_IMAGE=${RHCOS_IMAGE:=c5e972cc-dd31-4733-a6a1-55904d1c63f4}   # cicd-rhcos-410.84.202202040003-0-openstack.ppc64le
-        export OCP_PROJECT_COMMIT=origin/master
+        export OCP_PROJECT_COMMIT=origin/main
         export INSTALL_PLAYBOOK_TAG=284b597b3e88c635e3069b82926aa16812238492     # Align with powervs.
         ;;
 4.11)

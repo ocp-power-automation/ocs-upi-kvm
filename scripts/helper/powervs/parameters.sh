@@ -99,13 +99,18 @@ case $OCP_VERSION in
         ;;
 4.12)
         export RHCOS_IMAGE=${RHCOS_IMAGE:="rhcos-412-07222022"}
-        export OCP_PROJECT_COMMIT="origin/main"
+        export OCP_PROJECT_COMMIT="v4.12.0"
         ;;
 4.13)
         export RHCOS_IMAGE=${RHCOS_IMAGE:="rhcos-413-12132022"}
         export BASTION_IMAGE=${BASTION_IMAGE:="rhel-9-07062022"}
         export OCP_PROJECT_COMMIT="origin/main"
-        ;;	
+        ;;
+4.14)
+        export RHCOS_IMAGE=${RHCOS_IMAGE:="rhcos-414-92-202306251220"}
+        export BASTION_IMAGE=${BASTION_IMAGE:="rhel-92-05032023"}
+        export OCP_PROJECT_COMMIT="origin/main"
+        ;;
 esac
 
 if [[ "$USE_TIER1_STORAGE" == "true" ]] && [[ ! "$BASTION_IMAGE" =~ tier1 ]] && [[ ! "$RHCOS_IMAGE" =~ tier1 ]]; then
