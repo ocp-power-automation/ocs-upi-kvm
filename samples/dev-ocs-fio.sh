@@ -16,8 +16,8 @@ export PLATFORM=${PLATFORM:=powervs}                            # Only powervs a
 
 # These environment variables are optional for all platforms
 
-export OCP_VERSION=${OCP_VERSION:=4.13}                          # 4.5-4.13 are supported
-export OCS_VERSION=${OCS_VERSION:=4.13}
+export OCP_VERSION=${OCP_VERSION:=4.14}                          # 4.5-4.14 are supported
+export OCS_VERSION=${OCS_VERSION:=4.14}
 
 # These are optional and apply only to kvm and powervs for now. They are presently ignored on powervm
 
@@ -50,7 +50,7 @@ export WORKER_DESIRED_MEM=96
 #export PVS_ZONE=lon06
 #export SYSTEM_TYPE=s922
 #export PROCESSOR_TYPE=shared
-#export BASTION_IMAGE=rhel-83-02182021
+#export BASTION_IMAGE=rhel-92-05032023
 export WORKER_VOLUME_SIZE=768
 export USE_TIER1_STORAGE=true
 

@@ -16,8 +16,8 @@ export PLATFORM=${PLATFORM:="kvm"}                              # Also supported
 
 # These environment variables are optional for all platforms
 
-export OCP_VERSION=${OCP_VERSION:=4.13}                          # 4.5-4.13 are supported
-export OCS_VERSION=${OCS_VERSION:=4.13}                          # 4.7 also
+export OCP_VERSION=${OCP_VERSION:=4.14}                          # 4.5-4.14 are supported
+export OCS_VERSION=${OCS_VERSION:=4.14}                          # 4.7 also
 
 
 # These are optional for KVM OCP cluster create.  Default values are shown
@@ -43,8 +43,8 @@ export OCS_VERSION=${OCS_VERSION:=4.13}                          # 4.7 also
 #export PVS_ZONE=lon06
 #export SYSTEM_TYPE=s922
 #export PROCESSOR_TYPE=shared
-#export BASTION_IMAGE=rhel-83-02182021
-#export USE_TIER1_STORAGE=false
+#export BASTION_IMAGE=rhel-92-05032023
+#export USE_TIER1_STORAGE=true
 
 # These are required for PowerVC OCP cluster create
 
