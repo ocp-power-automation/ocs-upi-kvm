@@ -57,7 +57,7 @@ case $OCP_VERSION in
         export INSTALL_PLAYBOOK_TAG=2c57addbd1eec847b33f0522b91fe0b664e398d6      # Align with powervs.  Was 7 commits down level
         ;;
 4.8)
-        export RHCOS_IMAGE=${RHCOS_IMAGE:=09e18a43-8440-40f2-abe6-b8824fb679cd}   # rhcos-48.84.202105130819-0-openstack.ppc64le
+        export RHCOS_IMAGE=${RHCOS_IMAGE:=f867719f-a30c-40a8-86cf-6e6f479fa227}   # cicd-rhcos-48.84.20211215-0-openstack.ppc64le
         export OCP_PROJECT_COMMIT=v4.7.1
         export INSTALL_PLAYBOOK_TAG=284b597b3e88c635e3069b82926aa16812238492      # Align with powervs.
         ;;
