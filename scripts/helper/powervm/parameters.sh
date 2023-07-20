@@ -57,23 +57,40 @@ case $OCP_VERSION in
         export INSTALL_PLAYBOOK_TAG=2c57addbd1eec847b33f0522b91fe0b664e398d6      # Align with powervs.  Was 7 commits down level
         ;;
 4.8)
-        export RHCOS_IMAGE=${RHCOS_IMAGE:=09e18a43-8440-40f2-abe6-b8824fb679cd}   # rhcos-48.84.202105130819-0-openstack.ppc64le
-        export OCP_PROJECT_COMMIT=origin/main
+        export RHCOS_IMAGE=${RHCOS_IMAGE:=f867719f-a30c-40a8-86cf-6e6f479fa227}   # cicd-rhcos-48.84.20211215-0-openstack.ppc64le
+        export OCP_PROJECT_COMMIT=v4.7.1
         export INSTALL_PLAYBOOK_TAG=284b597b3e88c635e3069b82926aa16812238492      # Align with powervs.
         ;;
 4.9)
         export RHCOS_IMAGE=${RHCOS_IMAGE:=7aac5765-1a19-4a8a-9dba-ce087b514f3b}   # cicd-rhcos-49.84.20211215-0-openstack.ppc64le
-        export OCP_PROJECT_COMMIT=origin/main
+        export OCP_PROJECT_COMMIT=v4.7.1
         export INSTALL_PLAYBOOK_TAG=284b597b3e88c635e3069b82926aa16812238492      # Align with powervs.
         ;;
 4.10)
         export RHCOS_IMAGE=${RHCOS_IMAGE:=c5e972cc-dd31-4733-a6a1-55904d1c63f4}   # cicd-rhcos-410.84.202202040003-0-openstack.ppc64le
-        export OCP_PROJECT_COMMIT=origin/main
+        export OCP_PROJECT_COMMIT=v4.7.1
         export INSTALL_PLAYBOOK_TAG=284b597b3e88c635e3069b82926aa16812238492     # Align with powervs.
         ;;
 4.11)
-        export RHCOS_IMAGE=${RHCOS_IMAGE:=9950392b-ff79-46b6-8017-8591ebe1dfeb}   # cicd-rhcos-411.85.202203090210-0-openstack.ppc64le
+        export RHCOS_IMAGE=${RHCOS_IMAGE:=355de7c2-98b5-4203-b669-255f0c761030}   # cicd-rhcos-411.86.202208112105-0-openstack.ppc64le
+	export BASTION_IMAGE=${BASTION_IMAGE:=27ebd00f-cbec-4e27-993d-56e4bd441584}  # cicd-rhel8.6-2022-05-18-ppc64le
+	export OCP_PROJECT_COMMIT=v4.11.0
         ;;	
+4.12)
+	export RHCOS_IMAGE=${RHCOS_IMAGE:=598ecab3-7ba2-44bc-9d45-32b4ba619e67}   # cicd-rhcos-411.85.202203090210-0-openstack.ppc64le
+        export BASTION_IMAGE=${BASTION_IMAGE:=27ebd00f-cbec-4e27-993d-56e4bd441584}  # cicd-rhel8.6-2022-05-18-ppc64le
+	export OCP_PROJECT_COMMIT=v4.12.0
+        ;;
+4.13)
+	export RHCOS_IMAGE=${RHCOS_IMAGE:=495f0f87-7759-4d93-91a0-159e104d0d1e}   # cicd-rhcos-411.85.202203090210-0-openstack.ppc64le
+        export BASTION_IMAGE=${BASTION_IMAGE:=ba015d82-80ec-4d39-ac83-25032e9a8b30}  # cicd-rhel9.2-2023-05-03-ppc64le
+        export OCP_PROJECT_COMMIT=origin/main
+        ;;
+4.14)
+	export RHCOS_IMAGE=${RHCOS_IMAGE:=1c382e15-e1e7-4906-a6aa-d4602541fb5a}   # cicd-rhcos-411.85.202203090210-0-openstack.ppc64le
+        export BASTION_IMAGE=${BASTION_IMAGE:=ba015d82-80ec-4d39-ac83-25032e9a8b30}  # cicd-rhel9.2-2023-05-03-ppc64le
+        export OCP_PROJECT_COMMIT=origin/main
+        ;;
 esac
 
 export WORKER_VOLUME_SIZE=${WORKER_VOLUME_SIZE:="500"}
