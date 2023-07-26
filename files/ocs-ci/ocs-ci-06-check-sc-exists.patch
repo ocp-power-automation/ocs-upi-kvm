@@ -1,8 +1,26 @@
 diff --git a/ocs_ci/deployment/deployment.py b/ocs_ci/deployment/deployment.py
-index 6b66f9fe..5c8a35d0 100644
+index acdca24f..60fb4c80 100644
 --- a/ocs_ci/deployment/deployment.py
 +++ b/ocs_ci/deployment/deployment.py
-@@ -1629,6 +1629,11 @@ def setup_persistent_monitoring():
+@@ -95,6 +95,7 @@ from ocs_ci.utility.ssl_certs import configure_custom_ingress_cert
+ from ocs_ci.utility.utils import (
+     ceph_health_check,
+     clone_repo,
++    create_directory_path,
+     enable_huge_pages,
+     exec_cmd,
+     get_latest_ds_olm_tag,
+@@ -1611,6 +1612,9 @@ def create_catalog_source(image=None, ignore_upgrade=False):
+         catalog_source_data["spec"][
+             "image"
+         ] = f"{image}:{image_tag if image_tag else 'latest'}"
++    # apply icsp if present in the catalog image
++    get_and_apply_icsp_from_catalog(f"{image}:{image_tag if image_tag else 'latest'}")
++    
+     catalog_source_manifest = tempfile.NamedTemporaryFile(
+         mode="w+", prefix="catalog_source_manifest", delete=False
+     )
+@@ -1629,6 +1633,11 @@ def setup_persistent_monitoring():
      """
      Change monitoring backend to OCS
      """
@@ -14,3 +32,45 @@ index 6b66f9fe..5c8a35d0 100644
      sc = helpers.default_storage_class(interface_type=constants.CEPHBLOCKPOOL)
  
      # Get the list of monitoring pods
+@@ -1664,6 +1673,41 @@ def setup_persistent_monitoring():
+     )(pods_list)
+ 
+ 
++def get_and_apply_icsp_from_catalog(image, apply=True):
++    """
++    Get ICSP from catalog image (if exists) and apply it on the cluster (if
++    requiested).
++    Args:
++        image (str): catalog image of ocs registry.
++        apply (bool): controls if the ICSP should be applied or not
++            (default: true)
++    Returns:
++        str: path to the icsp.yaml file or empty string, if icsp not available
++            in the catalog image
++    """
++
++    icsp_file_location = "/icsp.yaml"
++    icsp_file_dest_dir = os.path.join(
++        config.ENV_DATA["cluster_path"], f"icsp-{config.RUN['run_id']}"
++    )
++    icsp_file_dest_location = os.path.join(icsp_file_dest_dir, "icsp.yaml")
++    pull_secret_path = os.path.join(constants.DATA_DIR, "pull-secret")
++    create_directory_path(icsp_file_dest_dir)
++    exec_cmd(
++        f"oc image extract --registry-config {pull_secret_path} "
++        f"{image} --confirm "
++        f"--path {icsp_file_location}:{icsp_file_dest_dir}"
++    )
++    if not os.path.exists(icsp_file_dest_location):
++        return ""
++
++    if apply:
++        exec_cmd(f"oc apply -f {icsp_file_dest_location}")
++        wait_for_machineconfigpool_status("all")
++
++    return icsp_file_dest_location
++
++
+ class RBDDRDeployOps(object):
+     """
+     All RBD specific DR deployment operations
