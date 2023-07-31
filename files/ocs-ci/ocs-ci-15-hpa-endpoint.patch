@@ -1,0 +1,13 @@
+diff --git a/tests/manage/monitoring/prometheusmetrics/test_mcg_hpa.py b/tests/manage/monitoring/prometheusmetrics/test_mcg_hpa.py
+index d174be55..14e35bec 100644
+--- a/tests/manage/monitoring/prometheusmetrics/test_mcg_hpa.py
++++ b/tests/manage/monitoring/prometheusmetrics/test_mcg_hpa.py
+@@ -26,7 +26,7 @@ def test_hpa_noobaa_endpoint_metric():
+     ocp_version = get_semantic_version(get_ocp_version(), only_major_minor=True)
+     ocp_obj = ocp.OCP(
+         kind=constants.HPA,
+-        resource_name="noobaa-endpoint",
++        resource_name="noobaa-hpav2",
+         namespace=config.ENV_DATA["cluster_namespace"],
+     )
+     status = ocp_obj.get()["status"]
