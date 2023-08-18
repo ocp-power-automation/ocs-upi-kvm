@@ -4,10 +4,10 @@ set -e
 
 ARCH=`arch`
 [ "$ARCH" == "x86_64" ] && ARCH="amd64"
-VERSION="${GO_VERSION:-$(curl -s 'https://go.dev/VERSION?m=text'| sed 's/go//g')}"
+VERSION="${GO_VERSION:-$(curl -s https://go.dev/dl/?mode=json | jq -r '.[0].version')}"
 # Install go
-wget https://golang.org/dl/go"${VERSION}".linux-"${ARCH}".tar.gz
-rm -rf /usr/local/go && tar -C /usr/local -xvzf go"${VERSION}".linux-"${ARCH}".tar.gz
+wget https://golang.org/dl/"${VERSION}".linux-"${ARCH}".tar.gz
+rm -rf /usr/local/go && tar -C /usr/local -xvzf "${VERSION}".linux-"${ARCH}".tar.gz
 export PATH=/usr/local/go/bin:$PATH
 
 # Verify go version
