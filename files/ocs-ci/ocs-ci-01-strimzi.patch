@@ -1,5 +1,5 @@
 diff --git a/ocs_ci/ocs/amq.py b/ocs_ci/ocs/amq.py
-index 9ed0becc..4baca314 100644
+index bbbed3d1..0913c2c0 100644
 --- a/ocs_ci/ocs/amq.py
 +++ b/ocs_ci/ocs/amq.py
 @@ -26,7 +26,7 @@ from ocs_ci.helpers.helpers import storagecluster_independent_check, validate_pv
@@ -23,13 +23,13 @@ index 9ed0becc..4baca314 100644
 +            run("sed -i 's|quay.io/strimzi/kafka:latest-kafka-3.4.1|quay.io/aaruniaggarwal/strimzi-kafka:latest-kafka-3.4.1|g' 060-Deployment-strimzi-cluster-operator.yaml" , shell=True, check=True, cwd=self.sed_dir)
 +
 +            run("sed -i 's|quay.io/strimzi/operator:latest|quay.io/aaruniaggarwal/strimzi-operator:latest|g' 060-Deployment-strimzi-cluster-operator.yaml" , shell=True, check=True, cwd=self.sed_dir)
-+            run("sed -i 's|quay.io/strimzi/kafka-bridge:0.26.0|quay.io/aaruniaggarwal/kafka-bridge:latest|g' 060-Deployment-strimzi-cluster-operator.yaml" , shell=True, check=True, cwd=self.sed_dir)
++            run("sed -i 's|quay.io/strimzi/kafka-bridge:0.26.1|quay.io/aaruniaggarwal/kafka-bridge:latest|g' 060-Deployment-strimzi-cluster-operator.yaml" , shell=True, check=True, cwd=self.sed_dir)
 +            run("sed -i 's|quay.io/strimzi/kaniko-executor:latest|quay.io/aaruniaggarwal/kaniko-executor:latest|g' 060-Deployment-strimzi-cluster-operator.yaml" , shell=True, check=True, cwd=self.sed_dir)
 +            run("sed -i 's|quay.io/strimzi/maven-builder:latest|quay.io/aaruniaggarwal/maven-builder:latest|g' 060-Deployment-strimzi-cluster-operator.yaml" , shell=True, check=True, cwd=self.sed_dir)
              self.amq_kafka_pers_yaml = (
                  "strimzi-kafka-operator/packaging/examples/kafka/kafka-persistent.yaml"
              )
-@@ -621,9 +632,9 @@ class AMQ(object):
+@@ -623,9 +634,9 @@ class AMQ(object):
          # Install helm cli (version v2.16.0 as we need tiller component)
          # And create tiller pods
          wget_cmd = f"wget -c --read-timeout=5 --tries=0 {URL}"
@@ -41,7 +41,7 @@ index 9ed0becc..4baca314 100644
              f" --service-account {tiller_namespace}"
          )
          exec_cmd(cmd=wget_cmd, cwd=self.dir)
-@@ -645,7 +656,7 @@ class AMQ(object):
+@@ -647,7 +658,7 @@ class AMQ(object):
          values = templating.load_yaml(constants.AMQ_BENCHMARK_VALUE_YAML)
          values["numWorkers"] = num_of_clients
          benchmark_cmd = (
@@ -50,7 +50,7 @@ index 9ed0becc..4baca314 100644
              f" --name {benchmark_pod_name} --tiller-namespace {tiller_namespace}"
          )
          exec_cmd(cmd=benchmark_cmd, cwd=self.dir)
-@@ -991,7 +1002,7 @@ class AMQ(object):
+@@ -993,7 +1004,7 @@ class AMQ(object):
          if self.benchmark:
              # Delete the helm app
              try:
