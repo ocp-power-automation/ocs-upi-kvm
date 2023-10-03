@@ -1,8 +1,8 @@
 diff --git a/ocs_ci/ocs/benchmark_operator.py b/ocs_ci/ocs/benchmark_operator.py
-index 2a1c324e..ec60c78d 100644
+index 91c3df31..40c1f40f 100644
 --- a/ocs_ci/ocs/benchmark_operator.py
 +++ b/ocs_ci/ocs/benchmark_operator.py
-@@ -119,6 +119,19 @@ class BenchmarkOperator(object):
+@@ -120,6 +120,15 @@ class BenchmarkOperator(object):
              log.info(f"Cloning {BMO_NAME} in {self.dir}")
              git_clone_cmd = f"git clone -b {self.branch} {self.repo} --depth 1"
              run(git_clone_cmd, shell=True, cwd=self.dir, check=True)
@@ -15,19 +15,15 @@ index 2a1c324e..ec60c78d 100644
 +            log.info(f"Patching redis for ppc64le in {self.projdir}")
 +            run("sed -i 's|bitnami/redis:latest|quay.io/multiarch-k8s-e2e/redis:1.1|g' manager/manager.yaml", shell=True, check=True, cwd=self.projdir)
 +
-+        #    self.projdir1 = self.dir + "/benchmark-operator/roles"
-+        #    log.info(f"Patching pgbench for ppc64le in {self.projdir1}")
-+        #    run("sed -i 's|quay.io/cloud-bulldozer/pgbench:latest|quay.io/multi-arch/cloud-bulldozer:pgbench|g' pgbench/defaults/main.yml", shell=True, check=True, cwd=self.projdir1)
-+
          except (CommandFailed, CalledProcessError) as cf:
              log.error(f"Error during cloning of {BMO_NAME} repository")
              raise cf
-@@ -150,7 +163,7 @@ class BenchmarkOperator(object):
+@@ -150,7 +159,7 @@ class BenchmarkOperator(object):
+         """
          log.info("Deploy the benchmark-operator project")
          try:
+-            bo_image = "quay.io/ocsci/benchmark-operator:testing"
++            bo_image = "quay.io/aaruniaggarwal/benchmark-operator:latest"
+             if config.DEPLOYMENT.get("disconnected"):
+                 bo_image = mirror_image(bo_image)
              run(
--                "make deploy IMG=quay.io/ocsci/benchmark-operator:testing",
-+                "make deploy IMG=quay.io/aaruniaggarwal/benchmark-operator:latest",
-                 shell=True,
-                 check=True,
-                 cwd=self.dir,
