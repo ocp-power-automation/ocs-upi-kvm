@@ -17,8 +17,8 @@ export PLATFORM=${PLATFORM:="kvm"}                              # Also supported
 # These environment variables are optional, but should be set for cron jobs,
 # so that CLUSTER_ID_PREFIX below is properly initialized for powervs.
 
-export OCP_VERSION=${OCP_VERSION:=4.14}                          # 4.5-4.14 are supported
-export OCS_VERSION=${OCS_VERSION:=4.14}
+export OCP_VERSION=${OCP_VERSION:=4.15}                          # 4.5-4.15 are supported
+export OCS_VERSION=${OCS_VERSION:=4.15}
 
 
 # These are optional for KVM OCP cluster create.  Default values are shown

@@ -111,6 +111,11 @@ case $OCP_VERSION in
         export BASTION_IMAGE=${BASTION_IMAGE:="rhel-92-05032023"}
         export OCP_PROJECT_COMMIT="origin/main"
         ;;
+4.15)
+        export RHCOS_IMAGE=${RHCOS_IMAGE:="rhcos-415-92-202311241643"}
+        export BASTION_IMAGE=${BASTION_IMAGE:="rhel-92-05032023"}
+        export OCP_PROJECT_COMMIT="origin/main"
+        ;;
 esac
 
 if [[ "$USE_TIER1_STORAGE" == "true" ]] && [[ ! "$BASTION_IMAGE" =~ tier1 ]] && [[ ! "$RHCOS_IMAGE" =~ tier1 ]]; then
