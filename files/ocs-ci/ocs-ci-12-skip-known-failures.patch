@@ -1,5 +1,5 @@
 diff --git a/tests/manage/z_cluster/test_ceph_default_values_check.py b/tests/manage/z_cluster/test_ceph_default_values_check.py
-index 70c53235..6961a82b 100644
+index 80e5d4c3..fcedfff2 100644
 --- a/tests/manage/z_cluster/test_ceph_default_values_check.py
 +++ b/tests/manage/z_cluster/test_ceph_default_values_check.py
 @@ -5,6 +5,7 @@ import pytest
@@ -10,7 +10,7 @@ index 70c53235..6961a82b 100644
      brown_squad,
  )
  from ocs_ci.framework.testlib import (
-@@ -102,6 +103,7 @@ class TestCephDefaultValuesCheck(ManageTest):
+@@ -103,6 +104,7 @@ class TestCephDefaultValuesCheck(ManageTest):
          config.DEPLOYMENT.get("ceph_debug"),
          reason="Ceph was configured with customized values by ocs-ci so there is point in validating its config values",
      )
@@ -19,24 +19,25 @@ index 70c53235..6961a82b 100644
          """
          Test case for comparing the cluster's config values of
 diff --git a/tests/manage/z_cluster/test_must_gather.py b/tests/manage/z_cluster/test_must_gather.py
-index 6d5af908..4baa49e6 100644
+index 2685a8b2..f76620d0 100644
 --- a/tests/manage/z_cluster/test_must_gather.py
 +++ b/tests/manage/z_cluster/test_must_gather.py
-@@ -9,6 +9,7 @@ from ocs_ci.framework.testlib import (
-     skipif_external_mode,
-     skipif_ms_consumer,
- )
-+from ocs_ci.framework.pytest_customization.marks import skipif_ibm_power
- from ocs_ci.ocs.must_gather.must_gather import MustGather
- from ocs_ci.ocs.must_gather.const_must_gather import GATHER_COMMANDS_VERSION
+@@ -2,7 +2,7 @@ import logging
+ import pytest
  
-@@ -50,7 +51,13 @@ class TestMustGather(ManageTest):
-                     skipif_ms_consumer,
+ from ocs_ci.framework import config
+-from ocs_ci.framework.pytest_customization.marks import brown_squad
++from ocs_ci.framework.pytest_customization.marks import brown_squad, skipif_ibm_power
+ from ocs_ci.framework.testlib import (
+     ManageTest,
+     tier1,
+@@ -53,7 +53,13 @@ class TestMustGather(ManageTest):
+                     skipif_hci_client,
                  ]
              ),
 -            pytest.param(*["OTHERS"], marks=pytest.mark.polarion_id("OCS-1583")),
 +            pytest.param(
-+                *["OTHERS"], 
++                *["OTHERS"],
 +                marks=[
 +                    pytest.mark.polarion_id("OCS-1583"),
 +                    skipif_ibm_power,
@@ -128,7 +129,7 @@ index 790ced23..8157e100 100644
  class TestRookCephOperatorLogType(ManageTest):
      """
 diff --git a/tests/manage/monitoring/prometheus/test_noobaa.py b/tests/manage/monitoring/prometheus/test_noobaa.py
-index f60fd0b8..bcf75e13 100644
+index 7a013112..04580ab2 100644
 --- a/tests/manage/monitoring/prometheus/test_noobaa.py
 +++ b/tests/manage/monitoring/prometheus/test_noobaa.py
 @@ -1,6 +1,6 @@
@@ -144,7 +145,7 @@ index f60fd0b8..bcf75e13 100644
  @skipif_disconnected_cluster
  @skipif_aws_creds_are_missing
 +@skipif_ibm_power
- def test_noobaa_bucket_quota(measure_noobaa_exceed_bucket_quota):
+ def test_noobaa_bucket_quota(measure_noobaa_exceed_bucket_quota, threading_lock):
      """
      Test that there are appropriate alerts when NooBaa Bucket Quota is reached.
 diff --git a/tests/manage/mcg/test_mcg_resources_disruptions.py b/tests/manage/mcg/test_mcg_resources_disruptions.py
@@ -220,7 +221,7 @@ index a396c5ad..30f94e13 100644
          ],
      )
 diff --git a/tests/manage/z_cluster/nodes/test_nodes_restart.py b/tests/manage/z_cluster/nodes/test_nodes_restart.py
-index fec819cf..3143ee69 100644
+index f76ddacf..78319bb1 100644
 --- a/tests/manage/z_cluster/nodes/test_nodes_restart.py
 +++ b/tests/manage/z_cluster/nodes/test_nodes_restart.py
 @@ -1,7 +1,7 @@
@@ -232,7 +233,7 @@ index fec819cf..3143ee69 100644
  from ocs_ci.framework.testlib import (
      tier4a,
      tier4b,
-@@ -136,6 +136,7 @@ class TestNodesRestart(ManageTest):
+@@ -138,6 +138,7 @@ class TestNodesRestart(ManageTest):
      )
      @skipif_ibm_cloud
      @skipif_vsphere_ipi
