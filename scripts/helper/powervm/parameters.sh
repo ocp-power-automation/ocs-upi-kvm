@@ -77,17 +77,22 @@ case $OCP_VERSION in
 	export OCP_PROJECT_COMMIT=v4.11.0
         ;;	
 4.12)
-	export RHCOS_IMAGE=${RHCOS_IMAGE:=598ecab3-7ba2-44bc-9d45-32b4ba619e67}   # cicd-rhcos-411.85.202203090210-0-openstack.ppc64le
+	export RHCOS_IMAGE=${RHCOS_IMAGE:=598ecab3-7ba2-44bc-9d45-32b4ba619e67}   # cicd-rhcos-412-86-202211031740-0-openstack-ppc64le
         export BASTION_IMAGE=${BASTION_IMAGE:=27ebd00f-cbec-4e27-993d-56e4bd441584}  # cicd-rhel8.6-2022-05-18-ppc64le
 	export OCP_PROJECT_COMMIT=v4.12.0
         ;;
 4.13)
-	export RHCOS_IMAGE=${RHCOS_IMAGE:=495f0f87-7759-4d93-91a0-159e104d0d1e}   # cicd-rhcos-411.85.202203090210-0-openstack.ppc64le
-        export BASTION_IMAGE=${BASTION_IMAGE:=ba015d82-80ec-4d39-ac83-25032e9a8b30}  # cicd-rhel9.2-2023-05-03-ppc64le
+	export RHCOS_IMAGE=${RHCOS_IMAGE:=495f0f87-7759-4d93-91a0-159e104d0d1e}   # cicd-rhcos-413.92.202303161330-0-openstack-ppc64le
+ 	export BASTION_IMAGE=${BASTION_IMAGE:=ba015d82-80ec-4d39-ac83-25032e9a8b30}  # cicd-rhel9.2-2023-05-03-ppc64le
         export OCP_PROJECT_COMMIT=origin/main
         ;;
 4.14)
-	export RHCOS_IMAGE=${RHCOS_IMAGE:=1c382e15-e1e7-4906-a6aa-d4602541fb5a}   # cicd-rhcos-411.85.202203090210-0-openstack.ppc64le
+	export RHCOS_IMAGE=${RHCOS_IMAGE:=3883c3eb-d307-4031-9a0f-16b94e8d5172}   # cicd-rhcos-414.92.202307261347-0.ppc64le
+        export BASTION_IMAGE=${BASTION_IMAGE:=ba015d82-80ec-4d39-ac83-25032e9a8b30}  # cicd-rhel9.2-2023-05-03-ppc64le
+        export OCP_PROJECT_COMMIT=origin/main
+        ;;
+4.15)
+        export RHCOS_IMAGE=${RHCOS_IMAGE:=3bdb88ec-be99-4c80-8baa-32da787d16f1}   # cicd-rhcos-415.92.202309190825-0-openstack-ppc64le
         export BASTION_IMAGE=${BASTION_IMAGE:=ba015d82-80ec-4d39-ac83-25032e9a8b30}  # cicd-rhel9.2-2023-05-03-ppc64le
         export OCP_PROJECT_COMMIT=origin/main
         ;;
