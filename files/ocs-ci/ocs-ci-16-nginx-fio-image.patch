@@ -1,0 +1,52 @@
+diff --git a/ocs_ci/templates/CSI/cephfs/pod.yaml b/ocs_ci/templates/CSI/cephfs/pod.yaml
+index aa878377..81e8c81b 100644
+--- a/ocs_ci/templates/CSI/cephfs/pod.yaml
++++ b/ocs_ci/templates/CSI/cephfs/pod.yaml
+@@ -6,7 +6,7 @@ metadata:
+ spec:
+   containers:
+    - name: web-server
+-     image: quay.io/ocsci/nginx:fio
++     image: quay.io/aaruniaggarwal/nginx:fio
+      volumeMounts:
+        - name: mypvc
+          mountPath: /var/lib/www/html
+diff --git a/ocs_ci/templates/CSI/rbd/pod.yaml b/ocs_ci/templates/CSI/rbd/pod.yaml
+index 34eb5984..aa4d458c 100644
+--- a/ocs_ci/templates/CSI/rbd/pod.yaml
++++ b/ocs_ci/templates/CSI/rbd/pod.yaml
+@@ -7,7 +7,7 @@ metadata:
+ spec:
+   containers:
+    - name: web-server
+-     image: quay.io/ocsci/nginx:fio
++     image: quay.io/aaruniaggarwal/nginx:fio
+      volumeMounts:
+        - name: mypvc
+          mountPath: /var/lib/www/html
+diff --git a/ocs_ci/templates/app-pods/nginx.yaml b/ocs_ci/templates/app-pods/nginx.yaml
+index 62f641f7..58ab2ea2 100644
+--- a/ocs_ci/templates/app-pods/nginx.yaml
++++ b/ocs_ci/templates/app-pods/nginx.yaml
+@@ -7,7 +7,7 @@ metadata:
+ spec:
+   containers:
+    - name: web-server
+-     image: quay.io/ocsci/nginx:fio
++     image: quay.io/aaruniaggarwal/nginx:fio
+      volumeMounts:
+        - name: mypvc
+          mountPath: /var/lib/www/html
+diff --git a/ocs_ci/templates/app-pods/raw_block_pod.yaml b/ocs_ci/templates/app-pods/raw_block_pod.yaml
+index 2569e251..e5738cc1 100644
+--- a/ocs_ci/templates/app-pods/raw_block_pod.yaml
++++ b/ocs_ci/templates/app-pods/raw_block_pod.yaml
+@@ -5,7 +5,7 @@ metadata:
+ spec:
+   containers:
+     - name: my-container
+-      image: quay.io/ocsci/nginx:fio
++      image: quay.io/aaruniaggarwal/nginx:fio
+       securityContext:
+          capabilities: {}
+       volumeDevices:

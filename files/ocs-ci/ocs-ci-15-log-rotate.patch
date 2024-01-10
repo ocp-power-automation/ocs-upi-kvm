@@ -1,8 +1,8 @@
 diff --git a/tests/manage/z_cluster/test_rook_ceph_log_rotate.py b/tests/manage/z_cluster/test_rook_ceph_log_rotate.py
-index 28e36afb..64537bf5 100644
+index 73d22858..27750132 100644
 --- a/tests/manage/z_cluster/test_rook_ceph_log_rotate.py
 +++ b/tests/manage/z_cluster/test_rook_ceph_log_rotate.py
-@@ -90,7 +90,7 @@ class TestRookCephLogRotate(ManageTest):
+@@ -92,7 +92,7 @@ class TestRookCephLogRotate(ManageTest):
              else f"{self.podtype_id[pod_type][2]}{self.podtype_id[pod_type][1]}"
          )
          cnt_logs = len(re.findall(expected_string, output_cmd))
