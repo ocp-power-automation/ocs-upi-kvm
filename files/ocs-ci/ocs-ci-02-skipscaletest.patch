@@ -1,15 +1,15 @@
-diff --git a/tests/e2e/scale/test_scale_osds_fill_75%_reboot_workers.py b/tests/e2e/scale/test_scale_osds_fill_75%_reboot_workers.py
+diff --git a/tests/cross_functional/scale/test_scale_osds_fill_75%_reboot_workers.py b/tests/cross_functional/scale/test_scale_osds_fill_75%_reboot_workers.py
 index 151f08fe..4f166b97 100644
---- a/tests/e2e/scale/test_scale_osds_fill_75%_reboot_workers.py
-+++ b/tests/e2e/scale/test_scale_osds_fill_75%_reboot_workers.py
+--- a/tests/cross_functional/scale/test_scale_osds_fill_75%_reboot_workers.py
++++ b/tests/cross_functional/scale/test_scale_osds_fill_75%_reboot_workers.py
 @@ -21,6 +21,7 @@ from ocs_ci.framework.pytest_customization.marks import (
      orange_squad,
      skipif_external_mode,
      skipif_aws_i3,
 +    skipif_ibm_power,
  )
- 
- 
+
+
 @@ -47,6 +48,7 @@ logger = logging.getLogger(__name__)
      ],
  )
