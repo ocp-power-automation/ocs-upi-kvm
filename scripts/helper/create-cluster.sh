@@ -68,7 +68,7 @@ case "$OCP_VERSION" in
                 RHCOS_SUFFIX="-$RHCOS_RELEASE"
 		;;
 	4.11)
-                OCP_RELEASE="4.11.55"
+                OCP_RELEASE="4.11.59"
                 RHCOS_VERSION="4.11"
                 if [ -z "$RHCOS_RELEASE" ]; then
                         RHCOS_RELEASE="4.11.48"                   # Latest release of RHCOS 4.11 at this time
@@ -76,7 +76,7 @@ case "$OCP_VERSION" in
                 RHCOS_SUFFIX="-$RHCOS_RELEASE"
                 ;;
 	4.12)
-		OCP_RELEASE="4.12.45"
+		OCP_RELEASE="4.12.55"
                 RHCOS_VERSION="4.12"
                 if [ -z "$RHCOS_RELEASE" ]; then
                         RHCOS_RELEASE="4.12.30"                   # Latest release of RHCOS 4.12 at this time
@@ -84,7 +84,7 @@ case "$OCP_VERSION" in
                 RHCOS_SUFFIX="-$RHCOS_RELEASE"
 		;;
         4.13)
-                OCP_RELEASE="4.13.26"
+                OCP_RELEASE="4.13.40"
                 RHCOS_VERSION="4.13"
                 if [ -z "$RHCOS_RELEASE" ]; then
                         RHCOS_RELEASE="4.13.10"                   # Latest release of RHCOS 4.13 at this time
@@ -92,21 +92,29 @@ case "$OCP_VERSION" in
                 RHCOS_SUFFIX="-$RHCOS_RELEASE"
                 ;;
 	4.14)
-                OCP_RELEASE="4.14.6"
+                OCP_RELEASE="4.14.21"
                 RHCOS_VERSION="4.14"
                 if [ -z "$RHCOS_RELEASE" ]; then
-                        RHCOS_RELEASE="4.14.0"                   # Latest release of RHCOS 4.14 at this time
+                        RHCOS_RELEASE="4.14.15"                   # Latest release of RHCOS 4.14 at this time
                 fi
                 RHCOS_SUFFIX="-$RHCOS_RELEASE"
                 ;;
-	4.15)
+        4.15)
+                OCP_RELEASE="4.15.9"
+                RHCOS_VERSION="4.15"
+                if [ -z "$RHCOS_RELEASE" ]; then
+                        RHCOS_RELEASE="4.15.0"                   # Latest release of RHCOS 4.14 at this time
+                fi
+                RHCOS_SUFFIX="-$RHCOS_RELEASE"
+                ;;	
+	4.16)
                 unset OCP_RELEASE
-                RHCOS_VERSION="4.14"
+                RHCOS_VERSION="4.15"
                 unset RHCOS_RELEASE
                 RHCOS_SUFFIX="-$RHCOS_VERSION"
                 ;;	
 	*)
-		echo "Invalid OCP_VERSION=$OCP_VERSION.  Supported versions are 4.4 - 4.15"
+		echo "Invalid OCP_VERSION=$OCP_VERSION.  Supported versions are 4.4 - 4.16"
 		exit 1
 esac
 
@@ -408,7 +416,7 @@ pushd src/$OCP_PROJECT
 set +e
 
 case "$OCP_VERSION" in
-4.4|4.5|4.6|4.7|4.8|4.9|4.10|4.11|4.12|4.13|4.14)
+4.4|4.5|4.6|4.7|4.8|4.9|4.10|4.11|4.12|4.13|4.14|4.15)
 	if [ -z "$OCP_PROJECT_COMMIT" ]; then
 		echo "Internal error: OCP_PROJECT_COMMIT is not set"
 		exit 1

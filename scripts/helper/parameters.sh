@@ -12,9 +12,9 @@ export RHID_KEY=${RHID_KEY:=""}
 
 export PLATFORM=${PLATFORM:="kvm"}
 
-export OCP_VERSION=${OCP_VERSION:="4.15"}
+export OCP_VERSION=${OCP_VERSION:="4.16"}
 
-export OCS_VERSION=${OCS_VERSION:="4.15"}
+export OCS_VERSION=${OCS_VERSION:="4.16"}
 export OCS_REGISTRY_IMAGE=${OCS_REGISTRY_IMAGE:="quay.io/rhceph-dev/ocs-registry:latest-stable-$OCS_VERSION"}
 export OPTIONAL_OPERATORS_IMAGE=${OPTIONAL_OPERATORS_IMAGE:="quay.io/openshift-release-dev/ocp-release-nightly:iib-int-index-art-operators-$OCP_VERSION"}
 
@@ -44,7 +44,7 @@ source helper/$PLATFORM/parameters.sh
 
 export SANITIZED_OCP_VERSION=${OCP_VERSION/./-}
 
-GO_VERSION=${GO_VERSION:="go1.21.5"}
+GO_VERSION=${GO_VERSION:="go1.22.2"}
 TERRAFORM_VERSION=${TERRAFORM_VERSION:="v1.2.7"}
 TERRAFORM_RANDOM_VERSION=${TERRAFORM_RANDOM_VERSION:="3.4"}
 TERRAFORM_NULL_VERSION=${TERRAFORM_NULL_VERSION:="3.2.2"}
