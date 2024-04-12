@@ -45,6 +45,14 @@ else
   sudo dnf -y install curl libcurl-devel unzip libxml2-devel
 fi
 
+git clone https://github.com/OpenMathLib/OpenBLAS.git
+cd OpenBLAS
+git checkout v0.3.26
+make -j8
+make PREFIX=/usr/local/OpenBLAS install
+export PKG_CONFIG_PATH=/usr/local/OpenBLAS/lib/pkgconfig
+cd ..
+
 pushd ../src/ocs-ci
 
 set +e

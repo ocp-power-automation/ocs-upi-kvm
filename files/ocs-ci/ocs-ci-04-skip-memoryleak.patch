@@ -1,7 +1,7 @@
-diff --git a/tests/e2e/scale/test_pv_scale_and_respin_ceph_pods.py b/tests/e2e/scale/test_pv_scale_and_respin_ceph_pods.py
+diff --git a/tests/cross_functional/scale/test_pv_scale_and_respin_ceph_pods.py b/tests/cross_functional/scale/test_pv_scale_and_respin_ceph_pods.py
 index 42151749..cab68589 100644
---- a/tests/e2e/scale/test_pv_scale_and_respin_ceph_pods.py
-+++ b/tests/e2e/scale/test_pv_scale_and_respin_ceph_pods.py
+--- a/tests/cross_functional/scale/test_pv_scale_and_respin_ceph_pods.py
++++ b/tests/cross_functional/scale/test_pv_scale_and_respin_ceph_pods.py
 @@ -14,7 +14,10 @@ from ocs_ci.helpers import helpers, disruption_helpers
  from ocs_ci.ocs.resources.objectconfigfile import ObjectConfFile
  from ocs_ci.framework.pytest_customization.marks import orange_squad
