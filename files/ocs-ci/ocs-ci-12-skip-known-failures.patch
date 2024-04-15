@@ -192,7 +192,7 @@ index c081a253..9769edfe 100644
 
  from ocs_ci.framework import config
 -from ocs_ci.framework.pytest_customization.marks import red_squad, mcg
-+from ocs_ci.framework.pytest_customization.marks import red_squad, skipif_ibm_power
++from ocs_ci.framework.pytest_customization.marks import red_squad, mcg, skipif_ibm_power
  from ocs_ci.framework.testlib import (
      bugzilla,
      ignore_leftovers,
