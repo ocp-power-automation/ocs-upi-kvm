@@ -132,9 +132,9 @@ function update_supplemental_ocsci_config () {
 			;;
 		powervm)
 			if [ -n "$BASTION_IP" ]; then
-				vcnt=$(ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null root@$BASTION_IP ssh core@worker-0 lsblk -a | grep "$WORKER_VOLUME_SIZE" | wc -l)
+				vcnt=$(ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null root@$BASTION_IP oc debug node/worker-0 -- chroot /host lsblk -a 2>/dev/null  | grep "$WORKER_VOLUME_SIZE" | wc -l)
 			else
-				vcnt=$(ssh core@worker-0 lsblk -a 2>/dev/null | grep "$WORKER_VOLUME_SIZE" | wc -l)
+				vcnt=$(oc debug node/worker-0 -- chroot /host lsblk -a 2>/dev/null  | grep "$WORKER_VOLUME_SIZE" | wc -l)
 			fi
 			export vcnt
 			yq -y -i '.ENV_DATA.number_of_storage_disks |= ( env.vcnt | tonumber )' $WORKSPACE/ocs-ci-conf.yaml
