@@ -1,8 +1,8 @@
 diff --git a/ocs_ci/ocs/resources/pod.py b/ocs_ci/ocs/resources/pod.py
-index b8a7f548..a4c4c7c5 100644
+index 49ef7ac8..bdd0b6c2 100644
 --- a/ocs_ci/ocs/resources/pod.py
 +++ b/ocs_ci/ocs/resources/pod.py
-@@ -2081,8 +2081,13 @@ def wait_for_storage_pods(timeout=200):
+@@ -2091,8 +2091,13 @@ def wait_for_storage_pods(timeout=200):
 
      for pod_obj in all_pod_obj:
          state = constants.STATUS_RUNNING
@@ -16,5 +16,6 @@ index b8a7f548..a4c4c7c5 100644
 +            if any(i in pod_obj.name for i in ["-1-deploy", "ocs-deviceset"]):
 +                state = constants.STATUS_COMPLETED
          helpers.wait_for_resource_state(resource=pod_obj, state=state, timeout=timeout)
+
 
 

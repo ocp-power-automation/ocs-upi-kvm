@@ -221,7 +221,7 @@ index c081a253..9769edfe 100644
          ],
      )
 diff --git a/tests/functional/z_cluster/nodes/test_nodes_restart.py b/tests/functional/z_cluster/nodes/test_nodes_restart.py
-index 70172f4a..a670fe60 100644
+index 5eb6f0b2..9bd95d6e 100644
 --- a/tests/functional/z_cluster/nodes/test_nodes_restart.py
 +++ b/tests/functional/z_cluster/nodes/test_nodes_restart.py
 @@ -1,7 +1,7 @@
@@ -233,7 +233,7 @@ index 70172f4a..a670fe60 100644
  from ocs_ci.framework.testlib import (
      tier4a,
      tier4b,
-@@ -139,6 +139,7 @@ class TestNodesRestart(ManageTest):
+@@ -140,6 +140,7 @@ class TestNodesRestart(ManageTest):
      )
      @skipif_ibm_cloud
      @skipif_vsphere_ipi
@@ -241,3 +241,4 @@ index 70172f4a..a670fe60 100644
      def test_pv_provisioning_under_degraded_state_stop_provisioner_pod_node(
          self,
          nodes,
+
