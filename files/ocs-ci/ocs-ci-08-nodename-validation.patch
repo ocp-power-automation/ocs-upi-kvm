@@ -1,13 +1,13 @@
 diff --git a/ocs_ci/ocs/resources/storage_cluster.py b/ocs_ci/ocs/resources/storage_cluster.py
-index 9d340856..b13ae820 100644
+index 70566fbc..61949801 100644
 --- a/ocs_ci/ocs/resources/storage_cluster.py
 +++ b/ocs_ci/ocs/resources/storage_cluster.py
-@@ -556,7 +556,7 @@ def ocs_install_verification(
-             # removes duplicate hostname
+@@ -564,7 +564,7 @@ def ocs_install_verification(
              deviceset_pvcs = list(set(deviceset_pvcs))
              if (
--                config.ENV_DATA.get("platform") == constants.BAREMETAL_PLATFORM
-+                config.ENV_DATA.get("platform") == constants.BAREMETAL_PLATFORM or constants.IBM_POWER_PLATFORM
+                 config.ENV_DATA.get("platform")
+-                in [constants.BAREMETAL_PLATFORM, constants.HCI_BAREMETAL]
++                in [constants.BAREMETAL_PLATFORM, constants.HCI_BAREMETAL, constants.IBM_POWER_PLATFORM]
                  or config.ENV_DATA.get("platform") == constants.AWS_PLATFORM
              ):
                  deviceset_pvcs = [
