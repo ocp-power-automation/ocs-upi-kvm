@@ -1,8 +1,8 @@
 diff --git a/ocs_ci/utility/deployment.py b/ocs_ci/utility/deployment.py
-index cf09484f..effc7164 100644
+index 67bc5500..c5b101ee 100644
 --- a/ocs_ci/utility/deployment.py
 +++ b/ocs_ci/utility/deployment.py
-@@ -138,7 +138,7 @@ def get_and_apply_icsp_from_catalog(image, apply=True, insecure=False):
+@@ -139,7 +139,7 @@ def get_and_apply_icsp_from_catalog(image, apply=True, insecure=False):
      pull_secret_path = os.path.join(constants.DATA_DIR, "pull-secret")
      create_directory_path(icsp_file_dest_dir)
      cmd = (

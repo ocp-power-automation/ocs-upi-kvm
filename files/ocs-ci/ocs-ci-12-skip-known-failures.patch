@@ -108,19 +108,24 @@ index 29694183..c1b0005f 100644
      def test_hugepages_post_odf_deployment(
          self,
 diff --git a/tests/functional/z_cluster/test_rook_ceph_operator_log_type.py b/tests/functional/z_cluster/test_rook_ceph_operator_log_type.py
-index 592f057e..7753a1f1 100644
---- a/tests/functional/z_cluster/test_rook_ceph_operator_log_type.py
-+++ b/tests/functional/z_cluster/test_rook_ceph_operator_log_type.py
-@@ -10,7 +10,7 @@ from ocs_ci.helpers.helpers import (
-     get_last_log_time_date,
-     check_osd_log_exist_on_rook_ceph_operator_pod,
- )
--from ocs_ci.framework.pytest_customization.marks import brown_squad
-+from ocs_ci.framework.pytest_customization.marks import brown_squad, skipif_ibm_power
- from ocs_ci.framework.testlib import (
-     ManageTest,
-     tier2,
-@@ -29,6 +29,7 @@ log = logging.getLogger(__name__)
+-index 592f057e..7753a1f1 100644
++index 8ac47782..56601bbb 100644
+ --- a/tests/functional/z_cluster/test_rook_ceph_operator_log_type.py
+ +++ b/tests/functional/z_cluster/test_rook_ceph_operator_log_type.py
+-@@ -10,7 +10,7 @@ from ocs_ci.helpers.helpers import (
+-     get_last_log_time_date,
++@@ -11,7 +11,7 @@ from ocs_ci.helpers.helpers import (
+      check_osd_log_exist_on_rook_ceph_operator_pod,
+  )
++ from ocs_ci.helpers.odf_cli import ODFCLIRetriever, ODFCliRunner
+ -from ocs_ci.framework.pytest_customization.marks import brown_squad
+-+from ocs_ci.framework.pytest_customization.marks import brown_squad, skipif_ibm_power
+++from ocs_ci.framework.pytest_customization.marks import brown_squad,skipif_ibm_power
+  from ocs_ci.framework.testlib import (
+      ManageTest,
+      tier2,
+-@@ -29,6 +29,7 @@ log = logging.getLogger(__name__)
++@@ -30,6 +30,7 @@ log = logging.getLogger(__name__)
  @bugzilla("1962821")
  @skipif_ocs_version("<4.8")
  @skipif_external_mode
