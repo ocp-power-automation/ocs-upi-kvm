@@ -1,5 +1,5 @@
 diff --git a/tests/functional/z_cluster/nodes/test_nodes_maintenance.py b/tests/functional/z_cluster/nodes/test_nodes_maintenance.py
-index df1e4e0e..7d32280e 100644
+index 4752c928..a9363b1e 100644
 --- a/tests/functional/z_cluster/nodes/test_nodes_maintenance.py
 +++ b/tests/functional/z_cluster/nodes/test_nodes_maintenance.py
 @@ -53,6 +53,9 @@ from ocs_ci.helpers.helpers import (
@@ -28,7 +28,7 @@ index df1e4e0e..7d32280e 100644
      @pytest.mark.parametrize(
          argnames=["node_type"],
          argvalues=[
-@@ -466,6 +471,7 @@ class TestNodesMaintenance(ManageTest):
+@@ -468,6 +473,7 @@ class TestNodesMaintenance(ManageTest):
      @skipif_managed_service
      @skipif_hci_provider_and_client
      @skipif_more_than_three_workers

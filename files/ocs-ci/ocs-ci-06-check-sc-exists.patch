@@ -1,10 +1,10 @@
 diff --git a/ocs_ci/deployment/deployment.py b/ocs_ci/deployment/deployment.py
-index a26e6201..21138475 100644
+index 1b942b27..e659a317 100644
 --- a/ocs_ci/deployment/deployment.py
 +++ b/ocs_ci/deployment/deployment.py
-@@ -2580,6 +2580,11 @@ def setup_persistent_monitoring():
-     """
-     Change monitoring backend to OCS
+@@ -2682,6 +2682,11 @@ def setup_persistent_monitoring():
+     https://docs.redhat.com/en/documentation/red_hat_openshift_data_foundation
+     /4.16/html-single/managing_and_allocating_storage_resources/
      """
 +    # Validate the storage class exists
 +    retry((CommandFailed), tries=16, delay=15)(

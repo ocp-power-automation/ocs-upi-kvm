@@ -22,8 +22,8 @@ export PLATFORM=${PLATFORM:="powervs"}                          # Also supported
 
 # These environment variables are optional for all platforms
 
-export OCP_VERSION=${OCP_VERSION:=4.8}                          # 4.5-4.8 are supported
-export OCS_VERSION=${OCS_VERSION:=4.8}
+export OCP_VERSION=${OCP_VERSION:=4.18}                          # 4.12-4.18 are supported
+export OCS_VERSION=${OCS_VERSION:=4.18}
 #export FIPS_ENABLEMENT=false
 # These are optional for KVM OCP cluster create.  Default values are shown
 
