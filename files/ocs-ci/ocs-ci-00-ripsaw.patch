@@ -1,8 +1,8 @@
 diff --git a/ocs_ci/ocs/benchmark_operator.py b/ocs_ci/ocs/benchmark_operator.py
-index 91c3df31..40c1f40f 100644
+index 3beda2000..1a6cfe6be 100644
 --- a/ocs_ci/ocs/benchmark_operator.py
 +++ b/ocs_ci/ocs/benchmark_operator.py
-@@ -120,6 +120,15 @@ class BenchmarkOperator(object):
+@@ -121,6 +121,15 @@ class BenchmarkOperator(object):
              log.info(f"Cloning {BMO_NAME} in {self.dir}")
              git_clone_cmd = f"git clone -b {self.branch} {self.repo} --depth 1"
              run(git_clone_cmd, shell=True, cwd=self.dir, check=True)
@@ -18,7 +18,7 @@ index 91c3df31..40c1f40f 100644
          except (CommandFailed, CalledProcessError) as cf:
              log.error(f"Error during cloning of {BMO_NAME} repository")
              raise cf
-@@ -150,7 +159,7 @@ class BenchmarkOperator(object):
+@@ -151,7 +160,7 @@ class BenchmarkOperator(object):
          """
          log.info("Deploy the benchmark-operator project")
          try:

@@ -1,17 +1,17 @@
 diff --git a/ocs_ci/ocs/amq.py b/ocs_ci/ocs/amq.py
-index bbbed3d1..2dac6865 100644
+index 2d44f04f9..ffa6348cc 100644
 --- a/ocs_ci/ocs/amq.py
 +++ b/ocs_ci/ocs/amq.py
-@@ -26,7 +26,7 @@ from ocs_ci.helpers.helpers import storagecluster_independent_check, validate_pv
+@@ -27,7 +27,7 @@ from ocs_ci.helpers.helpers import storagecluster_independent_check, validate_pv
  from ocs_ci.ocs.resources.pvc import get_all_pvc_objs, delete_pvcs
- 
+
  log = logging.getLogger(__name__)
 -URL = "https://get.helm.sh/helm-v2.16.1-linux-amd64.tar.gz"
 +URL = "https://get.helm.sh/helm-v2.16.1-linux-ppc64le.tar.gz"
  AMQ_BENCHMARK_NAMESPACE = "tiller"
- 
- 
-@@ -623,9 +623,9 @@ class AMQ(object):
+
+
+@@ -630,9 +630,9 @@ class AMQ(object):
          # Install helm cli (version v2.16.0 as we need tiller component)
          # And create tiller pods
          wget_cmd = f"wget -c --read-timeout=5 --tries=0 {URL}"
@@ -23,7 +23,7 @@ index bbbed3d1..2dac6865 100644
              f" --service-account {tiller_namespace}"
          )
          exec_cmd(cmd=wget_cmd, cwd=self.dir)
-@@ -647,7 +647,7 @@ class AMQ(object):
+@@ -654,7 +654,7 @@ class AMQ(object):
          values = templating.load_yaml(constants.AMQ_BENCHMARK_VALUE_YAML)
          values["numWorkers"] = num_of_clients
          benchmark_cmd = (
@@ -32,7 +32,41 @@ index bbbed3d1..2dac6865 100644
              f" --name {benchmark_pod_name} --tiller-namespace {tiller_namespace}"
          )
          exec_cmd(cmd=benchmark_cmd, cwd=self.dir)
-@@ -993,7 +993,7 @@ class AMQ(object):
+@@ -1000,7 +1000,7 @@ class AMQ(object):
+         if self.benchmark:
+             # Delete the helm app
+             try:
+-                purge_cmd = f"linux-amd64/helm delete benchmark --purge --tiller-namespace {tiller_namespace}"
++                purge_cmd = f"linux-ppc64le/helm delete benchmark --purge --tiller-namespace {tiller_namespace}"
+                 run(purge_cmd, shell=True, cwd=self.dir, check=True)
+             except (CommandFailed, CalledProcessError) as cf:
+                 log.error("Failed to delete help app")
+(END)
+ AMQ_BENCHMARK_NAMESPACE = "tiller"
+
+
+@@ -630,9 +630,9 @@ class AMQ(object):
+         # Install helm cli (version v2.16.0 as we need tiller component)
+         # And create tiller pods
+         wget_cmd = f"wget -c --read-timeout=5 --tries=0 {URL}"
+-        untar_cmd = "tar -zxvf helm-v2.16.1-linux-amd64.tar.gz"
++        untar_cmd = "tar -zxvf helm-v2.16.1-linux-ppc64le.tar.gz"
+         tiller_cmd = (
+-            f"linux-amd64/helm init --tiller-namespace {tiller_namespace}"
++            f"linux-ppc64le/helm init --tiller-namespace {tiller_namespace}"
+             f" --service-account {tiller_namespace}"
+         )
+         exec_cmd(cmd=wget_cmd, cwd=self.dir)
+@@ -654,7 +654,7 @@ class AMQ(object):
+         values = templating.load_yaml(constants.AMQ_BENCHMARK_VALUE_YAML)
+         values["numWorkers"] = num_of_clients
+         benchmark_cmd = (
+-            f"linux-amd64/helm install {constants.AMQ_BENCHMARK_POD_YAML}"
++            f"linux-ppc64le/helm install {constants.AMQ_BENCHMARK_POD_YAML}"
+             f" --name {benchmark_pod_name} --tiller-namespace {tiller_namespace}"
+         )
+         exec_cmd(cmd=benchmark_cmd, cwd=self.dir)
+@@ -1000,7 +1000,7 @@ class AMQ(object):
          if self.benchmark:
              # Delete the helm app
              try:
