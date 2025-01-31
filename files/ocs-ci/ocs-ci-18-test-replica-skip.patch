@@ -1,0 +1,23 @@
+diff --git a/tests/functional/storageclass/test_replica1.py b/tests/functional/storageclass/test_replica1.py
+index b30a6f23f..7cdbda218 100644
+--- a/tests/functional/storageclass/test_replica1.py
++++ b/tests/functional/storageclass/test_replica1.py
+@@ -40,7 +40,9 @@ from ocs_ci.ocs.replica_one import (
+     get_all_osd_names_by_device_class,
+     get_failure_domains,
+ )
+-
++from ocs_ci.framework.pytest_customization.marks import (
++    skipif_ibm_power,
++)
+ 
+ log = getLogger(__name__)
+ 
+@@ -72,6 +74,7 @@ def create_pod_on_failure_domain(project_factory, pod_factory, failure_domain: s
+ @brown_squad
+ @bugzilla("2274175")
+ @tier1
++@skipif_ibm_power
+ @skipif_external_mode
+ class TestReplicaOne:
+     @pytest.fixture(scope="class")

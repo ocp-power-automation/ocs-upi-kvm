@@ -1,17 +1,17 @@
 diff --git a/tests/functional/z_cluster/nodes/test_nodes_maintenance.py b/tests/functional/z_cluster/nodes/test_nodes_maintenance.py
-index 4752c928..a9363b1e 100644
+index 2b741b6a3..cbadbeab6 100644
 --- a/tests/functional/z_cluster/nodes/test_nodes_maintenance.py
 +++ b/tests/functional/z_cluster/nodes/test_nodes_maintenance.py
 @@ -53,6 +53,9 @@ from ocs_ci.helpers.helpers import (
  )
  from ocs_ci.helpers import helpers
-
+ 
 +from ocs_ci.framework.pytest_customization.marks import (
 +    skipif_ibm_power,
 +)
-
+ 
  log = logging.getLogger(__name__)
-
+ 
 @@ -124,6 +127,7 @@ class TestNodesMaintenance(ManageTest):
      @tier1
      @skipif_managed_service
@@ -20,7 +20,7 @@ index 4752c928..a9363b1e 100644
      @pytest.mark.parametrize(
          argnames=["node_type"],
          argvalues=[
-@@ -192,6 +196,7 @@ class TestNodesMaintenance(ManageTest):
+@@ -195,6 +199,7 @@ class TestNodesMaintenance(ManageTest):
      @skipif_bm
      @skipif_managed_service
      @skipif_hci_provider_and_client
@@ -28,7 +28,7 @@ index 4752c928..a9363b1e 100644
      @pytest.mark.parametrize(
          argnames=["node_type"],
          argvalues=[
-@@ -468,6 +473,7 @@ class TestNodesMaintenance(ManageTest):
+@@ -474,6 +479,7 @@ class TestNodesMaintenance(ManageTest):
      @skipif_managed_service
      @skipif_hci_provider_and_client
      @skipif_more_than_three_workers
@@ -36,4 +36,3 @@ index 4752c928..a9363b1e 100644
      @pytest.mark.polarion_id("OCS-2524")
      @tier4a
      def test_pdb_check_simultaneous_node_drains(
-
