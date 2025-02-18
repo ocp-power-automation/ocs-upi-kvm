@@ -85,7 +85,7 @@ fi
 
 # Relate the report generated below with the ocs-ci deployment via run_id 
 
-run_id=$(ls -t -1 $LOGDIR/run*.yaml | head -n 1 | xargs grep run_id | awk '{print $2}')
+run_id=$(ls -t -1 $LOGDIR/run*.yaml | head -n 1 | xargs grep run_id | awk '{print $2}' | head -n 1)
 
 echo -e "\nSupplemental ocs-ci config:"
 cat $WORKSPACE/ocs-ci-conf.yaml
