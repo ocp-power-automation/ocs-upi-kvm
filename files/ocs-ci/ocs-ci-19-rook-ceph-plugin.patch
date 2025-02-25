@@ -1,0 +1,59 @@
+diff --git a/ocs_ci/templates/krew_plugin/rookcephplugin_install.sh b/ocs_ci/templates/krew_plugin/rookcephplugin_install.sh
+index 6cbbe1862..aa49185b2 100644
+--- a/ocs_ci/templates/krew_plugin/rookcephplugin_install.sh
++++ b/ocs_ci/templates/krew_plugin/rookcephplugin_install.sh
+@@ -1,4 +1,10 @@
+-oc krew install rook-ceph
++arch=$(uname -i)
++if [[ "$arch" == ppc64le ]]
++then
++ cp /root/kubectl-rook-ceph/bin/kubectl-rook-ceph /usr/local/bin/
++else
++ oc krew install rook-ceph
++fi
+ host=$(hostname)
+ if [[ "$host" == *"jagent"* ]]
+ then
+diff --git a/ocs_ci/ocs/ceph_debug.py b/ocs_ci/ocs/ceph_debug.py
+index a294ed3bd..e257dd9f1 100644
+--- a/ocs_ci/ocs/ceph_debug.py
++++ b/ocs_ci/ocs/ceph_debug.py
+@@ -33,7 +33,8 @@ class RookCephPlugin(object):
+         self.namespace = namespace
+         self.operator_namespace = operator_namespace
+         self.alternate_image = alternate_image
+-        self.cmd = f"rook-ceph -n {namespace} --operator-namespace {operator_namespace}"
++        #self.cmd = f"rook-ceph -n {namespace} --operator-namespace {operator_namespace}"
++        self.cmd = f"kubectl-rook-ceph -n {namespace}"
+         self.deployment_in_maintenance = dict()
+ 
+         if not self.check_krew_installed():
+@@ -82,7 +83,7 @@ class RookCephPlugin(object):
+         """
+         installed = True
+         try:
+-            exec_cmd(cmd="kubectl rook-ceph --help")
++            exec_cmd(cmd="kubectl-rook-ceph --help")
+         except Exception as ex:
+             if 'unknown command "rook-ceph" for "kubectl"' in ex.args[0]:
+                 installed = False
+@@ -127,7 +128,8 @@ class RookCephPlugin(object):
+         if alternate_image:
+             self.alternate_image = alternate_image
+             command += f" --alternate-image {self.alternate_image}"
+-        OCP().exec_oc_cmd(command=command, timeout=timeout, out_yaml_format=False)
++        #OCP().exec_oc_cmd(command=command, timeout=timeout, out_yaml_format=False)
++        exec_cmd(cmd=command, timeout=timeout)
+         logger.info(f"{deployment_name} is successfully in mainetenance mode now!")
+ 
+         self.deployment_in_maintenance[deployment_name] = True
+@@ -154,7 +156,8 @@ class RookCephPlugin(object):
+         if alternate_image:
+             self.alternate_image = alternate_image
+             command += f" --alternate-image {self.alternate_image}"
+-        OCP().exec_oc_cmd(command=command, timeout=timeout, out_yaml_format=False)
++        #OCP().exec_oc_cmd(command=command, timeout=timeout, out_yaml_format=False)
++        exec_cmd(cmd=command, timeout=timeout)
+         logger.info(
+             f"{deployment_name} is successfully removed from mainetenance mode now!"
+         )
