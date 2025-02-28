@@ -28,4 +28,6 @@ echo -e "\n Kubectl Rook Ceph Plugin installed Successfully"
 oc get namespace/openshift-storage > /dev/null 2>&1
 if [ "$?" == 0 ]; then
 	./bin/kubectl-rook-ceph -n openshift-storage rook version
+else
+       echo -e "\n Rook version can't be checked as Openshift-storage namespace doesn't exist.."
 fi
