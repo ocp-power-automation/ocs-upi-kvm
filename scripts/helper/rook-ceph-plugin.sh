@@ -25,7 +25,10 @@ cd kubectl-rook-ceph/ && make build
 
 echo -e "\n Kubectl Rook Ceph Plugin installed Successfully"
 
+set +e
+
 oc get namespace/openshift-storage > /dev/null 2>&1
+
 if [ "$?" == 0 ]; then
 	./bin/kubectl-rook-ceph -n openshift-storage rook version
 else
