@@ -1,6 +1,7 @@
 #!/bin/bash
 
 set -e
+set -x
 
 
 if [ -e /usr/local/go/bin/go ]; then
