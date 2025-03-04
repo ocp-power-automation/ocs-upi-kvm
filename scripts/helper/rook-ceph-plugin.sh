@@ -22,6 +22,7 @@ echo -e "\n Cloning kubectl-rook-ceph repository...\n"
 git clone https://github.com/rook/kubectl-rook-ceph.git
 cd kubectl-rook-ceph/ && make build
 ./bin/kubectl-rook-ceph --help
+cp bin/kubectl-rook-ceph /usr/local/bin/
 
 echo -e "\n Kubectl Rook Ceph Plugin installed Successfully"
 
@@ -30,7 +31,7 @@ set +e
 oc get namespace/openshift-storage > /dev/null 2>&1
 
 if [ "$?" == 0 ]; then
-	./bin/kubectl-rook-ceph -n openshift-storage rook version
+	kubectl-rook-ceph -n openshift-storage rook version
 else
        echo -e "\n Rook version can't be checked as Openshift-storage namespace doesn't exist.."
 fi
