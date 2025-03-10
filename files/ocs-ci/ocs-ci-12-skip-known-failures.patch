@@ -67,7 +67,7 @@ index 729d3c04..775c5d0c 100644
  class TestS3WithJavaSDK:
      @bugzilla("2064304")
 diff --git a/tests/functional/object/mcg/test_noobaa_secret.py b/tests/functional/object/mcg/test_noobaa_secret.py
-index d149e307..eb1af5a9 100644
+index 0e20e5261..17d999c40 100644
 --- a/tests/functional/object/mcg/test_noobaa_secret.py
 +++ b/tests/functional/object/mcg/test_noobaa_secret.py
 @@ -21,6 +21,7 @@ from ocs_ci.framework.pytest_customization.marks import (
@@ -78,7 +78,7 @@ index d149e307..eb1af5a9 100644
      red_squad,
      runs_on_provider,
      mcg,
-@@ -185,6 +186,7 @@ class TestNoobaaSecrets:
+@@ -188,6 +189,7 @@ class TestNoobaaSecrets:
 
      @bugzilla("2090956")
      @bugzilla("1992090")
