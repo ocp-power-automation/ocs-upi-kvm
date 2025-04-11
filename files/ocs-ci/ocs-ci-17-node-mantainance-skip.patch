@@ -1,8 +1,8 @@
 diff --git a/tests/functional/z_cluster/nodes/test_nodes_maintenance.py b/tests/functional/z_cluster/nodes/test_nodes_maintenance.py
-index 2b741b6a3..cbadbeab6 100644
+index e184469b8..c7dd75cc0 100644
 --- a/tests/functional/z_cluster/nodes/test_nodes_maintenance.py
 +++ b/tests/functional/z_cluster/nodes/test_nodes_maintenance.py
-@@ -53,6 +53,9 @@ from ocs_ci.helpers.helpers import (
+@@ -56,6 +56,9 @@ from ocs_ci.helpers.helpers import (
  )
  from ocs_ci.helpers import helpers
  
@@ -12,7 +12,7 @@ index 2b741b6a3..cbadbeab6 100644
  
  log = logging.getLogger(__name__)
  
-@@ -124,6 +127,7 @@ class TestNodesMaintenance(ManageTest):
+@@ -134,6 +137,7 @@ class TestNodesMaintenance(ManageTest):
      @tier1
      @skipif_managed_service
      @skipif_hci_provider_and_client
@@ -20,7 +20,7 @@ index 2b741b6a3..cbadbeab6 100644
      @pytest.mark.parametrize(
          argnames=["node_type"],
          argvalues=[
-@@ -195,6 +199,7 @@ class TestNodesMaintenance(ManageTest):
+@@ -213,6 +217,7 @@ class TestNodesMaintenance(ManageTest):
      @skipif_bm
      @skipif_managed_service
      @skipif_hci_provider_and_client
@@ -28,7 +28,7 @@ index 2b741b6a3..cbadbeab6 100644
      @pytest.mark.parametrize(
          argnames=["node_type"],
          argvalues=[
-@@ -474,6 +479,7 @@ class TestNodesMaintenance(ManageTest):
+@@ -493,6 +498,7 @@ class TestNodesMaintenance(ManageTest):
      @skipif_managed_service
      @skipif_hci_provider_and_client
      @skipif_more_than_three_workers
