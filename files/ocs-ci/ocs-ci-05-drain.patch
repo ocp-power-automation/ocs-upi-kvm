@@ -1,8 +1,8 @@
 diff --git a/ocs_ci/ocs/node.py b/ocs_ci/ocs/node.py
-index a2998ca1f..ed0320db7 100644
+index 652b0548c..9806eadf5 100644
 --- a/ocs_ci/ocs/node.py
 +++ b/ocs_ci/ocs/node.py
-@@ -267,7 +267,7 @@ def drain_nodes(node_names, timeout=1800, disable_eviction=False):
+@@ -268,7 +268,7 @@ def drain_nodes(node_names, timeout=1800, disable_eviction=False):
          else:
              ocp.exec_oc_cmd(
                  f"adm drain {node_names_str} --force=true --ignore-daemonsets "

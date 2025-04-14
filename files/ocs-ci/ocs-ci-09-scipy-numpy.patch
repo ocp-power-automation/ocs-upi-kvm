@@ -1,10 +1,10 @@
 diff --git a/setup.py b/setup.py
-index 8ef9aa261..fb69792ef 100644
+index b78c5604d..2eec7141a 100644
 --- a/setup.py
 +++ b/setup.py
-@@ -48,11 +48,11 @@ setup(
-         "google-cloud-storage==2.6.0",
-         "google-auth==2.14.1",
+@@ -47,11 +47,11 @@ setup(
+         "google-cloud-storage==3.1.0",
+         "google-auth==2.38.0",
          "elasticsearch==8.11.1",
 -        "numpy==1.23.2",
 +        "numpy==1.26.4",

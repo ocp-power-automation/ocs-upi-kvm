@@ -1,8 +1,8 @@
 diff --git a/ocs_ci/helpers/helpers.py b/ocs_ci/helpers/helpers.py
-index c03f840c4..c150aafc6 100644
+index f7c949521..2bd180388 100644
 --- a/ocs_ci/helpers/helpers.py
 +++ b/ocs_ci/helpers/helpers.py
-@@ -109,7 +109,7 @@ def create_resource(do_reload=True, **kwargs):
+@@ -110,7 +110,7 @@ def create_resource(do_reload=True, **kwargs):
      return ocs_obj
  
  

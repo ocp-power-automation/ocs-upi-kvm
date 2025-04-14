@@ -1,16 +1,16 @@
 diff --git a/tests/functional/z_cluster/test_ceph_default_values_check.py b/tests/functional/z_cluster/test_ceph_default_values_check.py
-index 2ecc6e60..2c0a4d0f 100644
+index 7169a533b..76e094287 100644
 --- a/tests/functional/z_cluster/test_ceph_default_values_check.py
 +++ b/tests/functional/z_cluster/test_ceph_default_values_check.py
-@@ -5,6 +5,7 @@ import pytest
+@@ -4,6 +4,7 @@ import pytest
+
  from ocs_ci.framework.pytest_customization.marks import (
-     bugzilla,
      skipif_ocs_version,
 +    skipif_ibm_power,
      brown_squad,
  )
  from ocs_ci.framework.testlib import (
-@@ -103,6 +104,7 @@ class TestCephDefaultValuesCheck(ManageTest):
+@@ -101,6 +102,7 @@ class TestCephDefaultValuesCheck(ManageTest):
          config.DEPLOYMENT.get("ceph_debug"),
          reason="Ceph was configured with customized values by ocs-ci so there is point in validating its config values",
      )
@@ -47,47 +47,47 @@ index 2685a8b2..f76620d0 100644
      )
      @pytest.mark.skipif(
 diff --git a/tests/functional/object/mcg/test_s3_with_java_sdk.py b/tests/functional/object/mcg/test_s3_with_java_sdk.py
-index 729d3c04..775c5d0c 100644
+index b32166151..86fbfd16b 100644
 --- a/tests/functional/object/mcg/test_s3_with_java_sdk.py
 +++ b/tests/functional/object/mcg/test_s3_with_java_sdk.py
-@@ -5,6 +5,7 @@ from ocs_ci.framework.pytest_customization.marks import (
-     bugzilla,
+@@ -4,6 +4,7 @@ import pytest
+ from ocs_ci.framework.pytest_customization.marks import (
      skipif_ocs_version,
      skipif_disconnected_cluster,
 +    skipif_ibm_power,
      skipif_proxy_cluster,
      tier1,
      red_squad,
-@@ -21,6 +22,7 @@ logger = logging.getLogger(__name__)
+@@ -20,6 +21,7 @@ logger = logging.getLogger(__name__)
  @runs_on_provider
  @skipif_ocs_version("<4.9")
  @skipif_disconnected_cluster
 +@skipif_ibm_power
  @skipif_proxy_cluster
  class TestS3WithJavaSDK:
-     @bugzilla("2064304")
+     @pytest.mark.parametrize(
 diff --git a/tests/functional/object/mcg/test_noobaa_secret.py b/tests/functional/object/mcg/test_noobaa_secret.py
-index 0e20e5261..17d999c40 100644
+index 21375796e..0a96ed066 100644
 --- a/tests/functional/object/mcg/test_noobaa_secret.py
 +++ b/tests/functional/object/mcg/test_noobaa_secret.py
-@@ -21,6 +21,7 @@ from ocs_ci.framework.pytest_customization.marks import (
-     bugzilla,
+@@ -20,6 +20,7 @@ from ocs_ci.framework.pytest_customization.marks import (
+     polarion_id,
      skipif_ocs_version,
      skipif_disconnected_cluster,
 +    skipif_ibm_power,
      red_squad,
      runs_on_provider,
      mcg,
-@@ -188,6 +189,7 @@ class TestNoobaaSecrets:
+@@ -183,6 +184,7 @@ class TestNoobaaSecrets:
+             "Secret remains even after the linked backingstores are deleted, as expected!"
+         )
 
-     @bugzilla("2090956")
-     @bugzilla("1992090")
 +    @skipif_ibm_power
      @polarion_id("OCS-4468")
      def test_noobaa_secret_deletion_method2(self, teardown_factory, mcg_obj, cleanup):
          """
 diff --git a/tests/functional/z_cluster/test_hugepages.py b/tests/functional/z_cluster/test_hugepages.py
-index 29694183..c1b0005f 100644
+index 69d31845d..8e5d88f01 100644
 --- a/tests/functional/z_cluster/test_hugepages.py
 +++ b/tests/functional/z_cluster/test_hugepages.py
 @@ -15,7 +15,7 @@ from ocs_ci.ocs.node import (
@@ -97,9 +97,9 @@ index 29694183..c1b0005f 100644
 -from ocs_ci.framework.pytest_customization.marks import brown_squad
 +from ocs_ci.framework.pytest_customization.marks import brown_squad, skipif_ibm_power
  from ocs_ci.framework.testlib import (
-     bugzilla,
      skipif_external_mode,
-@@ -71,6 +71,7 @@ class TestHugePages(E2ETest):
+     skipif_ocs_version,
+@@ -68,6 +68,7 @@ class TestHugePages(E2ETest):
          request.addfinalizer(finalizer)
 
      @skipif_external_mode
@@ -154,10 +154,10 @@ index a2f706fb..a4e42259 100644
      """
      Test that there are appropriate alerts when NooBaa Bucket Quota is reached.
 diff --git a/tests/functional/object/mcg/test_mcg_resources_disruptions.py b/tests/functional/object/mcg/test_mcg_resources_disruptions.py
-index 1cfd11667..dc58bacbb 100644
+index af9c252a9..a384e16b2 100644
 --- a/tests/functional/object/mcg/test_mcg_resources_disruptions.py
 +++ b/tests/functional/object/mcg/test_mcg_resources_disruptions.py
-@@ -18,6 +18,7 @@ from ocs_ci.framework.testlib import (
+@@ -17,6 +17,7 @@ from ocs_ci.framework.testlib import (
      runs_on_provider,
      mcg,
  )
@@ -165,7 +165,7 @@ index 1cfd11667..dc58bacbb 100644
  from ocs_ci.helpers import helpers
  from ocs_ci.helpers.helpers import wait_for_resource_state
  from ocs_ci.ocs import cluster, constants, ocp
-@@ -130,7 +131,13 @@ class TestMCGResourcesDisruptions(MCGTest):
+@@ -129,7 +130,13 @@ class TestMCGResourcesDisruptions(MCGTest):
          argnames=["pod_to_drain"],
          argvalues=[
              pytest.param(*["noobaa_core"], marks=pytest.mark.polarion_id("OCS-2286")),
@@ -180,16 +180,16 @@ index 1cfd11667..dc58bacbb 100644
              pytest.param(
                  *["noobaa_endpoint"], marks=pytest.mark.polarion_id("OCS-2288")
              ),
-@@ -233,6 +240,7 @@ class TestMCGResourcesDisruptions(MCGTest):
+@@ -231,6 +238,7 @@ class TestMCGResourcesDisruptions(MCGTest):
+     @tier3
      @pytest.mark.polarion_id("OCS-2513")
-     @marks.bugzilla("1903573")
      @skipif_managed_service
 +    @skipif_ibm_power
      @skipif_ocs_version("<4.7")
      def test_db_scc(self, teardown):
          """
 diff --git a/tests/functional/object/mcg/test_host_node_failure.py b/tests/functional/object/mcg/test_host_node_failure.py
-index c081a253..9769edfe 100644
+index 10d1bfb75..6539282ed 100644
 --- a/tests/functional/object/mcg/test_host_node_failure.py
 +++ b/tests/functional/object/mcg/test_host_node_failure.py
 @@ -3,7 +3,7 @@ import pytest
@@ -199,9 +199,9 @@ index c081a253..9769edfe 100644
 -from ocs_ci.framework.pytest_customization.marks import red_squad, mcg
 +from ocs_ci.framework.pytest_customization.marks import red_squad, mcg, skipif_ibm_power
  from ocs_ci.framework.testlib import (
-     bugzilla,
      ignore_leftovers,
-@@ -71,7 +71,10 @@ class TestNoobaaSTSHostNodeFailure(ManageTest):
+     ManageTest,
+@@ -69,7 +69,10 @@ class TestNoobaaSTSHostNodeFailure(ManageTest):
              ),
              pytest.param(
                  *[constants.NOOBAA_DB_STATEFULSET, False],
@@ -213,7 +213,7 @@ index c081a253..9769edfe 100644
              ),
              pytest.param(
                  *[constants.NOOBAA_CORE_STATEFULSET, True],
-@@ -79,7 +82,10 @@ class TestNoobaaSTSHostNodeFailure(ManageTest):
+@@ -77,7 +80,10 @@ class TestNoobaaSTSHostNodeFailure(ManageTest):
              ),
              pytest.param(
                  *[constants.NOOBAA_DB_STATEFULSET, True],
@@ -226,7 +226,7 @@ index c081a253..9769edfe 100644
          ],
      )
 diff --git a/tests/functional/z_cluster/nodes/test_nodes_restart.py b/tests/functional/z_cluster/nodes/test_nodes_restart.py
-index 85164c671..23a9ece69 100644
+index ec2a881ef..0d3e2feb5 100644
 --- a/tests/functional/z_cluster/nodes/test_nodes_restart.py
 +++ b/tests/functional/z_cluster/nodes/test_nodes_restart.py
 @@ -1,7 +1,7 @@
@@ -238,7 +238,7 @@ index 85164c671..23a9ece69 100644
  from ocs_ci.framework.testlib import (
      tier4a,
      tier4b,
-@@ -141,6 +141,7 @@ class TestNodesRestart(ManageTest):
+@@ -139,6 +139,7 @@ class TestNodesRestart(ManageTest):
      )
      @skipif_ibm_cloud
      @skipif_vsphere_ipi
@@ -246,4 +246,3 @@ index 85164c671..23a9ece69 100644
      def test_pv_provisioning_under_degraded_state_stop_provisioner_pod_node(
          self,
          nodes,
-
