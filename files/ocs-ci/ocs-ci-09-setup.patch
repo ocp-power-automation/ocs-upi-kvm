@@ -1,0 +1,36 @@
+diff --git a/setup.py b/setup.py
+index 520539df5..97d7bce38 100644
+--- a/setup.py
++++ b/setup.py
+@@ -18,7 +18,7 @@ setup(
+     install_requires=[
+         "apache-libcloud==3.1.0",
+         "docopt==0.6.2",
+-        "gevent==23.9.1",
++        "gevent==25.4.2",
+         "ibm-cos-sdk==2.13.5",
+         "reportportal-client==3.2.3",
+         "requests==2.32.3",
+@@ -47,11 +47,11 @@ setup(
+         "google-cloud-storage==3.1.0",
+         "google-auth==2.38.0",
+         "elasticsearch==8.11.1",
+-        "numpy==1.23.2",
++        "numpy==1.26.4",
+         "pandas==1.5.2",
+         "tabulate==0.9.0",
+         "python-ipmi==0.4.2",
+-        "scipy==1.12.0",
++        "scipy==1.11.0",
+         "PrettyTable==0.7.2",
+         "azure-common==1.1.28",
+         "azure-mgmt-compute==33.0.0",
+@@ -72,7 +72,7 @@ setup(
+         # by default program attempting to load an x86_64-only library from a native arm64 process
+         # Beginning with gevent 20.12.0, 64-bit ARM binaries are distributed on PyPI for aarch64 manylinux2014
+         # compatible systems. Resolves problem for m1 Mac chips
+-        "greenlet==3.0rc3",
++        "greenlet==3.2.0",
+         "ovirt-engine-sdk-python==4.4.11",
+         "junitparser==3.1.0",
+         "flaky==3.7.0",
