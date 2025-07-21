@@ -1,0 +1,26 @@
+diff --git a/ocs_ci/templates/app-pods/awscli_multiarch.yaml b/ocs_ci/templates/app-pods/awscli_multiarch.yaml
+index 372eba953..138f091b8 100644
+--- a/ocs_ci/templates/app-pods/awscli_multiarch.yaml
++++ b/ocs_ci/templates/app-pods/awscli_multiarch.yaml
+@@ -6,7 +6,7 @@ metadata:
+ spec:
+   containers:
+     - name: awscli
+-      image: quay.io/ocsci/s3-cli-with-test-objects-multiarch:6.0
++      image: quay.io/ocsci/s3-cli-with-test-objects-multiarch:6.1-test
+       # Override the default `aws` entrypoint in order to
+       # allow the pod to run continuously and act as a relay
+       command: ['/bin/sh']
+diff --git a/ocs_ci/templates/mcg/s3cli-sts.yaml b/ocs_ci/templates/mcg/s3cli-sts.yaml
+index 532e7fa71..7d35bafee 100644
+--- a/ocs_ci/templates/mcg/s3cli-sts.yaml
++++ b/ocs_ci/templates/mcg/s3cli-sts.yaml
+@@ -23,7 +23,7 @@ spec:
+             name: awscli-service-ca
+       containers:
+         - name: s3cli
+-          image: quay.io/ocsci/s3-cli-with-test-objects-multiarch:6.0
++          image: quay.io/ocsci/s3-cli-with-test-objects-multiarch:6.1-test
+           command: ['/bin/sh']
+           stdin: true
+           tty: true
