@@ -1,0 +1,29 @@
+diff --git a/tests/functional/z_cluster/nodes/test_nodes_maintenance.py b/tests/functional/z_cluster/nodes/test_nodes_maintenance.py
+index df1e4e0ea..d6fcc6d41 100644
+--- a/tests/functional/z_cluster/nodes/test_nodes_maintenance.py
++++ b/tests/functional/z_cluster/nodes/test_nodes_maintenance.py
+@@ -43,6 +43,8 @@ from ocs_ci.framework.testlib import (
+     skipif_hci_provider_and_client,
+     skipif_more_than_three_workers,
+ )
++
++from ocs_ci.framework.pytest_customization.marks import skipif_ibm_power
+ from ocs_ci.helpers.sanity_helpers import Sanity, SanityExternalCluster
+ from ocs_ci.ocs.resources import pod
+ from ocs_ci.helpers.helpers import (
+@@ -192,6 +194,7 @@ class TestNodesMaintenance(ManageTest):
+     @skipif_bm
+     @skipif_managed_service
+     @skipif_hci_provider_and_client
++    @skipif_ibm_power
+     @pytest.mark.parametrize(
+         argnames=["node_type"],
+         argvalues=[
+@@ -468,6 +471,7 @@ class TestNodesMaintenance(ManageTest):
+     @skipif_more_than_three_workers
+     @pytest.mark.polarion_id("OCS-2524")
+     @tier4a
++    @skipif_ibm_power
+     def test_pdb_check_simultaneous_node_drains(
+         self,
+         pvc_factory,
