@@ -1,5 +1,5 @@
 diff --git a/tests/functional/z_cluster/test_ceph_default_values_check.py b/tests/functional/z_cluster/test_ceph_default_values_check.py
-index d406d049e..015f57470 100644
+index fea1ef30b..47c5b0217 100644
 --- a/tests/functional/z_cluster/test_ceph_default_values_check.py
 +++ b/tests/functional/z_cluster/test_ceph_default_values_check.py
 @@ -4,6 +4,7 @@ import pytest
@@ -10,7 +10,7 @@ index d406d049e..015f57470 100644
      brown_squad,
  )
  from ocs_ci.framework.testlib import (
-@@ -105,6 +106,7 @@ class TestCephDefaultValuesCheck(ManageTest):
+@@ -106,6 +107,7 @@ class TestCephDefaultValuesCheck(ManageTest):
          config.DEPLOYMENT.get("ceph_debug"),
          reason="Ceph was configured with customized values by ocs-ci so there is point in validating its config values",
      )
@@ -19,33 +19,28 @@ index d406d049e..015f57470 100644
          """
          Test case for comparing the cluster's config values of
 diff --git a/tests/functional/z_cluster/test_must_gather.py b/tests/functional/z_cluster/test_must_gather.py
-index 2685a8b2..f76620d0 100644
+index c49d46ef6..0e84afb98 100644
 --- a/tests/functional/z_cluster/test_must_gather.py
 +++ b/tests/functional/z_cluster/test_must_gather.py
-@@ -2,7 +2,7 @@ import logging
+@@ -2,7 +2,8 @@ import logging
  import pytest
 
  from ocs_ci.framework import config
 -from ocs_ci.framework.pytest_customization.marks import brown_squad
-+from ocs_ci.framework.pytest_customization.marks import brown_squad, skipif_ibm_power
++from ocs_ci.framework.pytest_customization.marks import brown_squad,  skipif_ibm_power
++
  from ocs_ci.framework.testlib import (
      ManageTest,
      tier1,
-@@ -53,7 +53,13 @@ class TestMustGather(ManageTest):
-                     skipif_hci_client,
+@@ -57,7 +58,7 @@ class TestMustGather(ManageTest):
                  ]
              ),
--            pytest.param(*["OTHERS"], marks=pytest.mark.polarion_id("OCS-1583")),
-+            pytest.param(
-+                *["OTHERS"],
-+                marks=[
-+                    pytest.mark.polarion_id("OCS-1583"),
-+                    skipif_ibm_power,
-+                ]
-+            ),
+             pytest.param(
+-                *["OTHERS"], marks=[tier2, pytest.mark.polarion_id("OCS-1583")]
++                *["OTHERS"], marks=[tier2, pytest.mark.polarion_id("OCS-1583"), skipif_ibm_power]
+             ),
          ],
      )
-     @pytest.mark.skipif(
 diff --git a/tests/functional/object/mcg/test_s3_with_java_sdk.py b/tests/functional/object/mcg/test_s3_with_java_sdk.py
 index b32166151..86fbfd16b 100644
 --- a/tests/functional/object/mcg/test_s3_with_java_sdk.py
@@ -226,7 +221,7 @@ index 10d1bfb75..6539282ed 100644
          ],
      )
 diff --git a/tests/functional/z_cluster/nodes/test_nodes_restart.py b/tests/functional/z_cluster/nodes/test_nodes_restart.py
-index ec2a881ef..0d3e2feb5 100644
+index 621bd985d..737f48caf 100644
 --- a/tests/functional/z_cluster/nodes/test_nodes_restart.py
 +++ b/tests/functional/z_cluster/nodes/test_nodes_restart.py
 @@ -1,7 +1,7 @@
@@ -238,7 +233,7 @@ index ec2a881ef..0d3e2feb5 100644
  from ocs_ci.framework.testlib import (
      tier4a,
      tier4b,
-@@ -139,6 +139,7 @@ class TestNodesRestart(ManageTest):
+@@ -140,6 +140,7 @@ class TestNodesRestart(ManageTest):
      )
      @skipif_ibm_cloud
      @skipif_vsphere_ipi

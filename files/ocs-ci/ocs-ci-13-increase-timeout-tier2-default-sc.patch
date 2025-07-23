@@ -1,12 +1,20 @@
 diff --git a/ocs_ci/helpers/helpers.py b/ocs_ci/helpers/helpers.py
-index 9554ba0cd..3bd2b5a48 100644
+index f4f7f83d2..73569be53 100644
 --- a/ocs_ci/helpers/helpers.py
 +++ b/ocs_ci/helpers/helpers.py
-@@ -1953,6 +1953,16 @@ def change_default_storageclass(scname):
+@@ -111,7 +111,7 @@ def create_resource(do_reload=True, **kwargs):
+     return ocs_obj
+ 
+ 
+-def wait_for_resource_state(resource, state, timeout=60):
++def wait_for_resource_state(resource, state, timeout=120):
+     """
+     Wait for a resource to get to a given status
+ 
+@@ -1970,6 +1970,14 @@ def change_default_storageclass(scname):
      """
      default_sc = get_default_storage_class()
      ocp_obj = ocp.OCP(kind="StorageClass")
-+
 +    # Change the new storageclass to default
 +    patch = (
 +        ' \'{"metadata": {"annotations":'
@@ -15,11 +23,10 @@ index 9554ba0cd..3bd2b5a48 100644
 +    )
 +    patch_cmd = f"patch storageclass {scname} -p" + patch
 +    ocp_obj.exec_oc_cmd(command=patch_cmd)
-+
      if default_sc:
          # Change the existing default Storageclass annotation to false
          for sc in default_sc:
-@@ -1964,16 +1974,6 @@ def change_default_storageclass(scname):
+@@ -1981,17 +1989,6 @@ def change_default_storageclass(scname):
              patch_cmd = f"patch storageclass {sc} -p" + patch
              ocp_obj.exec_oc_cmd(command=patch_cmd)
  
@@ -33,6 +40,7 @@ index 9554ba0cd..3bd2b5a48 100644
 -    ocp_obj.exec_oc_cmd(command=patch_cmd)
 -    return True
 -
- 
+-
  def is_volume_present_in_backend(interface, image_uuid, pool_name=None):
      """
+     Check whether Image/Subvolume is present in the backend.

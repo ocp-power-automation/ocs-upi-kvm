@@ -1,8 +1,8 @@
 diff --git a/ocs_ci/templates/workloads/logwriter/cephfs.logreader.yaml b/ocs_ci/templates/workloads/logwriter/cephfs.logreader.yaml
-index 2dacb6e5..f354c7f7 100644
+index 537bb91b4..a74b80591 100644
 --- a/ocs_ci/templates/workloads/logwriter/cephfs.logreader.yaml
 +++ b/ocs_ci/templates/workloads/logwriter/cephfs.logreader.yaml
-@@ -31,7 +31,7 @@ spec:
+@@ -32,7 +32,7 @@ spec:
          node-role.kubernetes.io/worker: ""
        containers:
        - name: logreader
