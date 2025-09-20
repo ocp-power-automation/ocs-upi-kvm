@@ -1,5 +1,5 @@
 diff --git a/tests/functional/z_cluster/test_ceph_default_values_check.py b/tests/functional/z_cluster/test_ceph_default_values_check.py
-index fea1ef30b..47c5b0217 100644
+index 8b7ee6686..b23202448 100644
 --- a/tests/functional/z_cluster/test_ceph_default_values_check.py
 +++ b/tests/functional/z_cluster/test_ceph_default_values_check.py
 @@ -4,6 +4,7 @@ import pytest
@@ -10,7 +10,7 @@ index fea1ef30b..47c5b0217 100644
      brown_squad,
  )
  from ocs_ci.framework.testlib import (
-@@ -106,6 +107,7 @@ class TestCephDefaultValuesCheck(ManageTest):
+@@ -194,6 +195,7 @@ class TestCephDefaultValuesCheck(ManageTest):
          config.DEPLOYMENT.get("ceph_debug"),
          reason="Ceph was configured with customized values by ocs-ci so there is point in validating its config values",
      )
@@ -129,7 +129,7 @@ diff --git a/tests/functional/z_cluster/test_rook_ceph_operator_log_type.py b/te
  class TestRookCephOperatorLogType(ManageTest):
      """
 diff --git a/tests/functional/monitoring/prometheus/alerts/test_noobaa.py b/tests/functional/monitoring/prometheus/alerts/test_noobaa.py
-index a2f706fb..a4e42259 100644
+index 9af06219a..e2af2875c 100644
 --- a/tests/functional/monitoring/prometheus/alerts/test_noobaa.py
 +++ b/tests/functional/monitoring/prometheus/alerts/test_noobaa.py
 @@ -1,6 +1,6 @@
@@ -139,9 +139,9 @@ index a2f706fb..a4e42259 100644
 +from ocs_ci.framework.pytest_customization.marks import blue_squad, skipif_ibm_power
  from ocs_ci.framework.testlib import (
      polarion_id,
-     skipif_aws_creds_are_missing,
-@@ -24,6 +24,7 @@ log = logging.getLogger(__name__)
- @skipif_managed_service
+     runs_on_provider,
+@@ -26,6 +26,7 @@ log = logging.getLogger(__name__)
+ @runs_on_provider
  @skipif_disconnected_cluster
  @skipif_aws_creds_are_missing
 +@skipif_ibm_power
@@ -149,7 +149,7 @@ index a2f706fb..a4e42259 100644
      """
      Test that there are appropriate alerts when NooBaa Bucket Quota is reached.
 diff --git a/tests/functional/object/mcg/test_mcg_resources_disruptions.py b/tests/functional/object/mcg/test_mcg_resources_disruptions.py
-index af9c252a9..a384e16b2 100644
+index da57eca80..ceed87e7e 100644
 --- a/tests/functional/object/mcg/test_mcg_resources_disruptions.py
 +++ b/tests/functional/object/mcg/test_mcg_resources_disruptions.py
 @@ -17,6 +17,7 @@ from ocs_ci.framework.testlib import (
@@ -160,7 +160,7 @@ index af9c252a9..a384e16b2 100644
  from ocs_ci.helpers import helpers
  from ocs_ci.helpers.helpers import wait_for_resource_state
  from ocs_ci.ocs import cluster, constants, ocp
-@@ -129,7 +130,13 @@ class TestMCGResourcesDisruptions(MCGTest):
+@@ -123,7 +124,13 @@ class TestMCGResourcesDisruptions(MCGTest):
          argnames=["pod_to_drain"],
          argvalues=[
              pytest.param(*["noobaa_core"], marks=pytest.mark.polarion_id("OCS-2286")),
@@ -175,7 +175,7 @@ index af9c252a9..a384e16b2 100644
              pytest.param(
                  *["noobaa_endpoint"], marks=pytest.mark.polarion_id("OCS-2288")
              ),
-@@ -231,6 +238,7 @@ class TestMCGResourcesDisruptions(MCGTest):
+@@ -225,6 +232,7 @@ class TestMCGResourcesDisruptions(MCGTest):
      @tier3
      @pytest.mark.polarion_id("OCS-2513")
      @skipif_managed_service
