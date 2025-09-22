@@ -1,8 +1,8 @@
 diff --git a/ocs_ci/helpers/helpers.py b/ocs_ci/helpers/helpers.py
-index f4f7f83d2..73569be53 100644
+index 8eb4530ba..b30db3c98 100644
 --- a/ocs_ci/helpers/helpers.py
 +++ b/ocs_ci/helpers/helpers.py
-@@ -111,7 +111,7 @@ def create_resource(do_reload=True, **kwargs):
+@@ -110,7 +110,7 @@ def create_resource(do_reload=True, **kwargs):
      return ocs_obj
  
  
@@ -11,7 +11,7 @@ index f4f7f83d2..73569be53 100644
      """
      Wait for a resource to get to a given status
  
-@@ -1970,6 +1970,14 @@ def change_default_storageclass(scname):
+@@ -2005,6 +2005,14 @@ def change_default_storageclass(scname):
      """
      default_sc = get_default_storage_class()
      ocp_obj = ocp.OCP(kind="StorageClass")
@@ -26,7 +26,7 @@ index f4f7f83d2..73569be53 100644
      if default_sc:
          # Change the existing default Storageclass annotation to false
          for sc in default_sc:
-@@ -1981,17 +1989,6 @@ def change_default_storageclass(scname):
+@@ -2016,17 +2024,6 @@ def change_default_storageclass(scname):
              patch_cmd = f"patch storageclass {sc} -p" + patch
              ocp_obj.exec_oc_cmd(command=patch_cmd)
  

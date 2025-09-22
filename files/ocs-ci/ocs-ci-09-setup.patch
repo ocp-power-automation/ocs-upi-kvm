@@ -1,5 +1,5 @@
 diff --git a/setup.py b/setup.py
-index 520539df5..97d7bce38 100644
+index 13a848e9c..844d20646 100644
 --- a/setup.py
 +++ b/setup.py
 @@ -18,7 +18,7 @@ setup(
@@ -25,7 +25,7 @@ index 520539df5..97d7bce38 100644
          "PrettyTable==0.7.2",
          "azure-common==1.1.28",
          "azure-mgmt-compute==33.0.0",
-@@ -72,7 +72,7 @@ setup(
+@@ -75,7 +75,7 @@ setup(
          # by default program attempting to load an x86_64-only library from a native arm64 process
          # Beginning with gevent 20.12.0, 64-bit ARM binaries are distributed on PyPI for aarch64 manylinux2014
          # compatible systems. Resolves problem for m1 Mac chips
