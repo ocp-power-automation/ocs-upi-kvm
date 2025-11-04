@@ -1,5 +1,5 @@
 diff --git a/tests/functional/z_cluster/test_ceph_default_values_check.py b/tests/functional/z_cluster/test_ceph_default_values_check.py
-index 8b7ee6686..b23202448 100644
+index 6553594ac..02b3b6f02 100644
 --- a/tests/functional/z_cluster/test_ceph_default_values_check.py
 +++ b/tests/functional/z_cluster/test_ceph_default_values_check.py
 @@ -4,6 +4,7 @@ import pytest
@@ -10,7 +10,7 @@ index 8b7ee6686..b23202448 100644
      brown_squad,
  )
  from ocs_ci.framework.testlib import (
-@@ -194,6 +195,7 @@ class TestCephDefaultValuesCheck(ManageTest):
+@@ -201,6 +202,7 @@ class TestCephDefaultValuesCheck(ManageTest):
          config.DEPLOYMENT.get("ceph_debug"),
          reason="Ceph was configured with customized values by ocs-ci so there is point in validating its config values",
      )
