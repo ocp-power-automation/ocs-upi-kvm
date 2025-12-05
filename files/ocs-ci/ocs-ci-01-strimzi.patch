@@ -1,5 +1,5 @@
 diff --git a/ocs_ci/ocs/amq.py b/ocs_ci/ocs/amq.py
-index d8c05ac59..ca968ac5b 100644
+index 9e0ff63a8..cbb4da8c0 100644
 --- a/ocs_ci/ocs/amq.py
 +++ b/ocs_ci/ocs/amq.py
 @@ -27,7 +27,7 @@ from ocs_ci.helpers.helpers import storagecluster_independent_check, validate_pv
@@ -11,7 +11,7 @@ index d8c05ac59..ca968ac5b 100644
  AMQ_BENCHMARK_NAMESPACE = "tiller"
 
 
-@@ -629,9 +629,9 @@ class AMQ(object):
+@@ -628,9 +628,9 @@ class AMQ(object):
          # Install helm cli (version v2.16.0 as we need tiller component)
          # And create tiller pods
          wget_cmd = f"wget -c --read-timeout=5 --tries=0 {URL}"
@@ -23,7 +23,7 @@ index d8c05ac59..ca968ac5b 100644
              f" --service-account {tiller_namespace}"
          )
          exec_cmd(cmd=wget_cmd, cwd=self.dir)
-@@ -653,7 +653,7 @@ class AMQ(object):
+@@ -652,7 +652,7 @@ class AMQ(object):
          values = templating.load_yaml(constants.AMQ_BENCHMARK_VALUE_YAML)
          values["numWorkers"] = num_of_clients
          benchmark_cmd = (
@@ -32,7 +32,7 @@ index d8c05ac59..ca968ac5b 100644
              f" --name {benchmark_pod_name} --tiller-namespace {tiller_namespace}"
          )
          exec_cmd(cmd=benchmark_cmd, cwd=self.dir)
-@@ -1000,7 +1000,7 @@ class AMQ(object):
+@@ -999,7 +999,7 @@ class AMQ(object):
              if self.benchmark:
                  # Delete the helm app
                  try:

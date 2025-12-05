@@ -1,8 +1,8 @@
 diff --git a/tests/functional/storageclass/test_replica1.py b/tests/functional/storageclass/test_replica1.py
-index 06bceb473..f3cff2119 100644
+index 8515db63c..f7ce4dfc4 100644
 --- a/tests/functional/storageclass/test_replica1.py
 +++ b/tests/functional/storageclass/test_replica1.py
-@@ -9,6 +9,9 @@ from ocs_ci.framework.pytest_customization.marks import (
+@@ -8,6 +8,9 @@ from ocs_ci.framework.pytest_customization.marks import (
      tier1,
      skipif_external_mode,
  )
@@ -10,13 +10,13 @@ index 06bceb473..f3cff2119 100644
 +    skipif_ibm_power,
 +)
  from ocs_ci.ocs.ocp import OCP
+ from ocs_ci.ocs.exceptions import CommandFailed
  from ocs_ci.ocs.resources.storage_cluster import (
-     set_non_resilient_pool,
-@@ -156,6 +159,7 @@ def create_pod_on_failure_domain(project_factory, pod_factory, failure_domain: s
+@@ -123,6 +126,7 @@ def create_pod_on_failure_domain(project_factory, failure_domain: str):
  @brown_squad
  @tier1
  @skipif_external_mode
 +@skipif_ibm_power
  class TestReplicaOne:
-     @pytest.fixture(scope="class")
      def replica1_setup(self):
+         # Initialize workload tracking for this test run
