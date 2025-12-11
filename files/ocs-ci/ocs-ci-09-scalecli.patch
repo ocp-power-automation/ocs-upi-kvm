@@ -1,0 +1,26 @@
+diff --git a/ocs_ci/templates/app-pods/simple-app.yaml b/ocs_ci/templates/app-pods/simple-app.yaml
+index 733cb06ae..b0c06f60b 100644
+--- a/ocs_ci/templates/app-pods/simple-app.yaml
++++ b/ocs_ci/templates/app-pods/simple-app.yaml
+@@ -26,7 +26,7 @@ spec:
+             - sh
+             - -c
+             - echo Running simple app && sleep 18000
+-          image: quay.io/ocsci/scale-cli:latest
++          image: quay.io/ocsci/scale-cli:multi-arch
+           imagePullPolicy: Always
+           name: simple-app-container
+           resources: { }
+diff --git a/ocs_ci/templates/mcg/scalecli_pod.yaml b/ocs_ci/templates/mcg/scalecli_pod.yaml
+index 56f37088f..0bb50472c 100644
+--- a/ocs_ci/templates/mcg/scalecli_pod.yaml
++++ b/ocs_ci/templates/mcg/scalecli_pod.yaml
+@@ -6,7 +6,7 @@ metadata:
+ spec:
+   containers:
+     - name: scale-cli
+-      image: quay.io/ocsci/scale-cli:latest
++      image: quay.io/ocsci/scale-cli:multi-arch
+       # Override the default `aws` entrypoint in order to
+       # allow the pod to run continuously and act as a relay
+       command: ['/bin/sh']
