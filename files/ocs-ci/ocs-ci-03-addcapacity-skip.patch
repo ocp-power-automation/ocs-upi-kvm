@@ -124,9 +124,8 @@ index 4dcadbea..50d9c978 100644
  @skipif_hci_provider_and_client
  @skipif_compact_mode
  @pytest.mark.polarion_id("OCS-2594")
-
 diff --git a/tests/functional/z_cluster/nodes/test_node_replacement_proactive.py b/tests/functional/z_cluster/nodes/test_node_replacement_proactive.py
-index a5145d01..efa63099 100644
+index 871ac263f..2e2d8176f 100644
 --- a/tests/functional/z_cluster/nodes/test_node_replacement_proactive.py
 +++ b/tests/functional/z_cluster/nodes/test_node_replacement_proactive.py
 @@ -21,6 +21,7 @@ from ocs_ci.framework.pytest_customization.marks import (
@@ -136,8 +135,8 @@ index a5145d01..efa63099 100644
 +    skipif_ibm_power,
      skipif_hci_client,
      brown_squad,
- )
-@@ -182,6 +183,7 @@ def delete_and_create_osd_node(osd_node_name):
+     skipif_ibm_cloud_managed,
+@@ -185,6 +186,7 @@ def delete_and_create_osd_node(osd_node_name):
  @skipif_managed_service
  @skipif_hci_provider_and_client
  @skipif_bmpsi
@@ -145,7 +144,7 @@ index a5145d01..efa63099 100644
  @skipif_external_mode
  class TestNodeReplacementWithIO(ManageTest):
      """
-@@ -261,6 +263,7 @@ class TestNodeReplacementWithIO(ManageTest):
+@@ -264,6 +266,7 @@ class TestNodeReplacementWithIO(ManageTest):
  @skipif_bmpsi
  @skipif_external_mode
  @skipif_ms_consumer
@@ -153,7 +152,7 @@ index a5145d01..efa63099 100644
  @skipif_hci_client
  class TestNodeReplacement(ManageTest):
      """
-@@ -309,6 +312,7 @@ class TestNodeReplacement(ManageTest):
+@@ -313,6 +316,7 @@ class TestNodeReplacement(ManageTest):
  @pytest.mark.polarion_id("OCS-2535")
  @skipif_external_mode
  @skipif_managed_service
