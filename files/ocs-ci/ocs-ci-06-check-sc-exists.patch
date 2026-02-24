@@ -1,16 +1,15 @@
 diff --git a/ocs_ci/deployment/deployment.py b/ocs_ci/deployment/deployment.py
-index 1394b9bea..3a7924660 100644
+index f5ac6ba4f..b45a65728 100644
 --- a/ocs_ci/deployment/deployment.py
 +++ b/ocs_ci/deployment/deployment.py
-@@ -3120,6 +3120,11 @@ def setup_persistent_monitoring():
-     https://docs.redhat.com/en/documentation/red_hat_openshift_data_foundation
+@@ -2727,7 +2727,9 @@ def setup_persistent_monitoring():
      /4.16/html-single/managing_and_allocating_storage_resources/
      """
-+    # Validate the storage class exists
-+    retry((CommandFailed), tries=16, delay=15)(
-+        helpers.default_storage_class
-+    )(interface_type=constants.CEPHBLOCKPOOL)
-+
      sc = helpers.default_storage_class(interface_type=constants.CEPHBLOCKPOOL)
- 
+-
++   # Validate the storage class exists
++    retry((CommandFailed), tries=16, delay=15)(helpers.default_storage_class)(
++            interface_type=constants.CEPHBLOCKPOOL)
      # Get the list of monitoring pods
+     pods_list = get_all_pods(
+         namespace=defaults.OCS_MONITORING_NAMESPACE,
