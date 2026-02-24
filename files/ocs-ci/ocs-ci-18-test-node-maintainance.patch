@@ -1,18 +1,25 @@
-diff --git a/tests/manage/z_cluster/nodes/test_nodes_maintenance.py b/tests/manage/z_cluster/nodes/test_nodes_maintenance.py
-index df1e4e0ea..92a4d911e 100644
---- a/tests/manage/z_cluster/nodes/test_nodes_maintenance.py
-+++ b/tests/manage/z_cluster/nodes/test_nodes_maintenance.py
-@@ -10,6 +10,9 @@ from ocs_ci.ocs.exceptions import (
-     ResourceWrongStatusException,
-     ResourceNotFoundError,
+diff --git a/tests/functional/z_cluster/nodes/test_nodes_maintenance.py b/tests/functional/z_cluster/nodes/test_nodes_maintenance.py
+index df1e4e0ea..9e7e13129 100644
+--- a/tests/functional/z_cluster/nodes/test_nodes_maintenance.py
++++ b/tests/functional/z_cluster/nodes/test_nodes_maintenance.py
+@@ -27,7 +27,7 @@ from ocs_ci.ocs.node import (
  )
-+from ocs_ci.framework.pytest_customization.marks import (
-+                    skipif_ibm_power,)
-+
- from ocs_ci.utility.retry import retry
- from ocs_ci.utility.utils import ceph_health_check_base, TimeoutSampler
- 
-@@ -192,6 +195,7 @@ class TestNodesMaintenance(ManageTest):
+ from ocs_ci.ocs.cluster import validate_existence_of_blocking_pdb
+ from ocs_ci.framework import config
+-from ocs_ci.framework.pytest_customization.marks import brown_squad
++from ocs_ci.framework.pytest_customization.marks import brown_squad, skipif_ibm_power
+ from ocs_ci.framework.testlib import (
+     tier1,
+     tier2,
+@@ -124,6 +124,7 @@ class TestNodesMaintenance(ManageTest):
+     @tier1
+     @skipif_managed_service
+     @skipif_hci_provider_and_client
++    @skipif_ibm_power
+     @pytest.mark.parametrize(
+         argnames=["node_type"],
+         argvalues=[
+@@ -192,6 +193,7 @@ class TestNodesMaintenance(ManageTest):
      @skipif_bm
      @skipif_managed_service
      @skipif_hci_provider_and_client
@@ -20,7 +27,15 @@ index df1e4e0ea..92a4d911e 100644
      @pytest.mark.parametrize(
          argnames=["node_type"],
          argvalues=[
-@@ -468,6 +472,7 @@ class TestNodesMaintenance(ManageTest):
+@@ -345,6 +347,7 @@ class TestNodesMaintenance(ManageTest):
+     @tier4a
+     @aws_based_platform_required
+     @ipi_deployment_required
++    @skipif_ibm_power
+     @pytest.mark.parametrize(
+         argnames=["interface"],
+         argvalues=[
+@@ -468,6 +471,7 @@ class TestNodesMaintenance(ManageTest):
      @skipif_more_than_three_workers
      @pytest.mark.polarion_id("OCS-2524")
      @tier4a

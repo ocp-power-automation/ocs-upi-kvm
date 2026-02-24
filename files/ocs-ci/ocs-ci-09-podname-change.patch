@@ -1,8 +1,8 @@
 diff --git a/ocs_ci/ocs/resources/pod.py b/ocs_ci/ocs/resources/pod.py
-index 738b314c..b51e0137 100644
+index 88c3511c0..6c998f2fa 100644
 --- a/ocs_ci/ocs/resources/pod.py
 +++ b/ocs_ci/ocs/resources/pod.py
-@@ -2019,8 +2019,13 @@ def wait_for_storage_pods(timeout=200):
+@@ -2106,8 +2106,13 @@ def wait_for_storage_pods(timeout=200):
  
      for pod_obj in all_pod_obj:
          state = constants.STATUS_RUNNING
@@ -18,4 +18,3 @@ index 738b314c..b51e0137 100644
          helpers.wait_for_resource_state(resource=pod_obj, state=state, timeout=timeout)
  
  
-
