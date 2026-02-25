@@ -1,5 +1,5 @@
 diff --git a/ocs_ci/deployment/helpers/lso_helpers.py b/ocs_ci/deployment/helpers/lso_helpers.py
-index 8bfd81983..4e48008d4 100644
+index 6bd5ff080..316603132 100644
 --- a/ocs_ci/deployment/helpers/lso_helpers.py
 +++ b/ocs_ci/deployment/helpers/lso_helpers.py
 @@ -21,6 +21,7 @@ from ocs_ci.ocs.node import (
@@ -8,12 +8,14 @@ index 8bfd81983..4e48008d4 100644
  from ocs_ci.utility import templating, version
 +from ocs_ci.ocs.utils import label_pod_security_admission
  from ocs_ci.utility.deployment import get_ocp_ga_version
+ from ocs_ci.utility.operators import LocalStorageOperator
  from ocs_ci.utility.localstorage import get_lso_channel
- from ocs_ci.utility.retry import retry
-@@ -121,6 +122,7 @@ def setup_local_storage(storageclass):
-     if platform == constants.RHV_PLATFORM:
-         add_disk_for_rhv_platform()
+@@ -62,7 +63,8 @@ def setup_local_storage(storageclass):
+     lso_type = config.DEPLOYMENT.get("type")
  
+     add_disks_lso()
+-
++    lso_namespace = config.ENV_DATA["local_storage_namespace"]
 +    label_pod_security_admission(lso_namespace)
      if (ocp_version >= version.VERSION_4_6) and (ocs_version >= version.VERSION_4_6):
          # Pull local volume discovery yaml data

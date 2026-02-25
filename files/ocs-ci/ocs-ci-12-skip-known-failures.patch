@@ -19,28 +19,26 @@ index 6553594ac..02b3b6f02 100644
          """
          Test case for comparing the cluster's config values of
 diff --git a/tests/functional/z_cluster/test_must_gather.py b/tests/functional/z_cluster/test_must_gather.py
-index c49d46ef6..0e84afb98 100644
+index 1d7832478..5e348005c 100644
 --- a/tests/functional/z_cluster/test_must_gather.py
 +++ b/tests/functional/z_cluster/test_must_gather.py
-@@ -2,7 +2,8 @@ import logging
+@@ -2,7 +2,7 @@ import logging
  import pytest
 
  from ocs_ci.framework import config
 -from ocs_ci.framework.pytest_customization.marks import brown_squad
-+from ocs_ci.framework.pytest_customization.marks import brown_squad,  skipif_ibm_power
-+
++from ocs_ci.framework.pytest_customization.marks import brown_squad, skipif_ibm_power
  from ocs_ci.framework.testlib import (
      ManageTest,
      tier1,
-@@ -57,7 +58,7 @@ class TestMustGather(ManageTest):
-                 ]
-             ),
-             pytest.param(
--                *["OTHERS"], marks=[tier2, pytest.mark.polarion_id("OCS-1583")]
-+                *["OTHERS"], marks=[tier2, pytest.mark.polarion_id("OCS-1583"), skipif_ibm_power]
-             ),
-         ],
-     )
+@@ -31,6 +31,7 @@ def mustgather(request):
+
+
+ @brown_squad
++@skipif_ibm_power
+ class TestMustGather(ManageTest):
+     @tier1
+     @pytest.mark.parametrize(
 diff --git a/tests/functional/object/mcg/test_s3_with_java_sdk.py b/tests/functional/object/mcg/test_s3_with_java_sdk.py
 index b32166151..86fbfd16b 100644
 --- a/tests/functional/object/mcg/test_s3_with_java_sdk.py
@@ -241,3 +239,35 @@ index 621bd985d..737f48caf 100644
      def test_pv_provisioning_under_degraded_state_stop_provisioner_pod_node(
          self,
          nodes,
+diff --git a/tests/functional/z_cluster/nodes/test_automated_recovery_from_failed_nodes_reactive.py b/tests/functional/z_cluster/nodes/test_automated_recovery_from_failed_nodes_reactive.py
+index ff3b7e1da..ebca9b15f 100644
+--- a/tests/functional/z_cluster/nodes/test_automated_recovery_from_failed_nodes_reactive.py
++++ b/tests/functional/z_cluster/nodes/test_automated_recovery_from_failed_nodes_reactive.py
+@@ -53,6 +53,7 @@ deployment_type = config.ENV_DATA["deployment_type"].lower()
+ @brown_squad
+ @ignore_leftovers
+ @tier4b
++@skipif_ibm_power
+ class TestAutomatedRecoveryFromFailedNodes(ManageTest):
+     """
+     Knip-678 Automated recovery from failed nodes - Reactive
+diff --git a/tests/functional/object/rgw/test_keda_ha.py b/tests/functional/object/rgw/test_keda_ha.py
+index e74d1e03f..fcef36925 100644
+--- a/tests/functional/object/rgw/test_keda_ha.py
++++ b/tests/functional/object/rgw/test_keda_ha.py
+@@ -9,6 +9,7 @@ from ocs_ci.framework.pytest_customization.marks import (
+     rgw,
+     skipif_disconnected_cluster,
+     tier1,
++    skipif_ibm_power,
+ )
+ from ocs_ci.ocs import constants
+ from ocs_ci.ocs.exceptions import TimeoutExpiredError
+@@ -31,6 +32,7 @@ RGW_SCALE_TARGET_REF = {
+ @rgw
+ @red_squad
+ @skipif_disconnected_cluster
++@skipif_ibm_power
+ class TestKedaHA:
+     """
+     Test RGW's integration with the KEDA autoscaler

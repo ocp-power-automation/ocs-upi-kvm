@@ -1,26 +1,23 @@
 diff --git a/tests/functional/z_cluster/cluster_expansion/test_add_capacity_entry_exit_criteria.py b/tests/functional/z_cluster/cluster_expansion/test_add_capacity_entry_exit_criteria.py
-index fb0c8470..af225537 100644
+index ff1b688e2..54cf9f263 100644
 --- a/tests/functional/z_cluster/cluster_expansion/test_add_capacity_entry_exit_criteria.py
 +++ b/tests/functional/z_cluster/cluster_expansion/test_add_capacity_entry_exit_criteria.py
-@@ -2,6 +2,10 @@ import logging
- from concurrent.futures import ThreadPoolExecutor
- import pytest
-
-+from ocs_ci.framework.pytest_customization.marks import (
+@@ -6,6 +6,7 @@ from ocs_ci.framework import config
+ from ocs_ci.framework.pytest_customization.marks import (
+     brown_squad,
+     skipif_insufficient_resources,
 +    skipif_ibm_power,
-+)
-+
- from ocs_ci.ocs.cluster import is_flexible_scaling_enabled
- from ocs_ci.ocs.ocp import OCP
- from ocs_ci.ocs.resources import pod as pod_helpers
-@@ -44,6 +48,7 @@ logger = logging.getLogger(__name__)
- @ignore_leftovers
- @tier2
- @skipif_bm
-+@skipif_ibm_power
+ )
+ from ocs_ci.framework.testlib import (
+     tier2,
+@@ -45,6 +46,7 @@ logger = logging.getLogger(__name__)
  @skipif_external_mode
  @skipif_managed_service
  @skipif_hci_provider_and_client
++@skipif_ibm_power
+ @skipif_insufficient_resources(ram_gb=65, cpu_cores=6)
+ class TestAddCapacity(ManageTest):
+
 diff --git a/tests/functional/z_cluster/cluster_expansion/test_add_capacity_with_node_restart.py b/tests/functional/z_cluster/cluster_expansion/test_add_capacity_with_node_restart.py
 index 63471922..58e8d88c 100644
 --- a/tests/functional/z_cluster/cluster_expansion/test_add_capacity_with_node_restart.py
@@ -125,7 +122,7 @@ index 41b6e2c7d..dff6fb513 100644
  @skipif_compact_mode
  @pytest.mark.polarion_id("OCS-2594")
 diff --git a/tests/functional/z_cluster/nodes/test_node_replacement_proactive.py b/tests/functional/z_cluster/nodes/test_node_replacement_proactive.py
-index cc307dcc5..a7f205605 100644
+index eae5be904..59f9fdc7c 100644
 --- a/tests/functional/z_cluster/nodes/test_node_replacement_proactive.py
 +++ b/tests/functional/z_cluster/nodes/test_node_replacement_proactive.py
 @@ -20,6 +20,7 @@ from ocs_ci.framework.pytest_customization.marks import (
@@ -144,7 +141,7 @@ index cc307dcc5..a7f205605 100644
  @skipif_external_mode
  class TestNodeReplacementWithIO(ManageTest):
      """
-@@ -279,6 +281,7 @@ class TestNodeReplacementWithIO(ManageTest):
+@@ -273,6 +275,7 @@ class TestNodeReplacementWithIO(ManageTest):
  @skipif_bmpsi
  @skipif_external_mode
  @skipif_ms_consumer
@@ -152,7 +149,7 @@ index cc307dcc5..a7f205605 100644
  @skipif_hci_client
  class TestNodeReplacement(ManageTest):
      """
-@@ -335,6 +338,7 @@ class TestNodeReplacement(ManageTest):
+@@ -329,6 +332,7 @@ class TestNodeReplacement(ManageTest):
  @pytest.mark.polarion_id("OCS-2535")
  @skipif_external_mode
  @skipif_managed_service
