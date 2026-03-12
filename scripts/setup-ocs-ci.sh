@@ -40,9 +40,16 @@ if [  -n "$(uname -a | grep Ubuntu)" ]; then
 	sudo apt update
 	sudo apt install libffi-dev liblapack3 libatlas-base-dev libssl-dev gcc g++ gfortran make patch python3-venv libcurl4-openssl-dev libssl-dev libxml2-dev libxslt1-dev -y
 else
-	sudo dnf -y install libffi-devel lapack atlas-devel openssl-devel gcc gcc-c++ gcc-gfortran make patch
+  sudo dnf -y install libffi-devel lapack atlas-devel openssl-devel gcc gcc-c++ gcc-gfortran make patch
   sudo dnf -y install python3-devel python3-setuptools  rust-toolset
   sudo dnf -y install curl libcurl-devel unzip libxml2-devel
+  # Need it for PyYaml
+  subscription-manager repos --enable codeready-builder-for-rhel-9-ppc64le-rpms
+  dnf install -y libyaml-devel
+  # Add EPEL repo if not already installed
+  sudo dnf install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-9.noarch.rpm || true
+  # Install Python 3.11
+  sudo dnf install -y python3.11 python3.11-devel python3.11-pip
 fi
 
 git clone https://github.com/OpenMathLib/OpenBLAS.git
@@ -93,7 +100,7 @@ fi
 
 rm -rf $WORKSPACE/venv
 
-python3.9 -m venv $WORKSPACE/venv
+python3.11 -m venv $WORKSPACE/venv
 
 . $WORKSPACE/venv/bin/activate		# activate named python venv
 
