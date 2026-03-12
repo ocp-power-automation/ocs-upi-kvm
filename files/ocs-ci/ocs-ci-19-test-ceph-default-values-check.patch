@@ -1,0 +1,12 @@
+diff --git a/ocs_ci/ocs/constants.py b/ocs_ci/ocs/constants.py
+index 03dbc829f..458564b84 100644
+--- a/ocs_ci/ocs/constants.py
++++ b/ocs_ci/ocs/constants.py
+@@ -2170,6 +2170,7 @@ work_mem = 1747kB
+ min_wal_size = 2GB
+ max_wal_size = 8GB
+ shared_preload_libraries = 'pg_stat_statements'
++pg_stat_statements.track = all
+ """
+ 
+ WORKLOAD_STORAGE_TYPE_BLOCK = "block"
