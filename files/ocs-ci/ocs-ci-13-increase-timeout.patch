@@ -1,13 +1,13 @@
 diff --git a/ocs_ci/helpers/helpers.py b/ocs_ci/helpers/helpers.py
-index 21546c98..931c5393 100644
+index 5b69569dd..452146e6d 100644
 --- a/ocs_ci/helpers/helpers.py
 +++ b/ocs_ci/helpers/helpers.py
-@@ -99,7 +99,7 @@ def create_resource(do_reload=True, **kwargs):
+@@ -101,7 +101,7 @@ def create_resource(do_reload=True, **kwargs):
      return ocs_obj
-
-
+ 
+ 
 -def wait_for_resource_state(resource, state, timeout=60):
 +def wait_for_resource_state(resource, state, timeout=120):
      """
      Wait for a resource to get to a given status
-
+ 
