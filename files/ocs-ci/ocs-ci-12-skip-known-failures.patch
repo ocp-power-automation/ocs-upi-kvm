@@ -1,5 +1,5 @@
 diff --git a/tests/functional/z_cluster/test_ceph_default_values_check.py b/tests/functional/z_cluster/test_ceph_default_values_check.py
-index 2ecc6e60..2c0a4d0f 100644
+index 3333e7470..77b286f73 100644
 --- a/tests/functional/z_cluster/test_ceph_default_values_check.py
 +++ b/tests/functional/z_cluster/test_ceph_default_values_check.py
 @@ -5,6 +5,7 @@ import pytest
@@ -10,7 +10,7 @@ index 2ecc6e60..2c0a4d0f 100644
      brown_squad,
  )
  from ocs_ci.framework.testlib import (
-@@ -103,6 +104,7 @@ class TestCephDefaultValuesCheck(ManageTest):
+@@ -104,6 +105,7 @@ class TestCephDefaultValuesCheck(ManageTest):
          config.DEPLOYMENT.get("ceph_debug"),
          reason="Ceph was configured with customized values by ocs-ci so there is point in validating its config values",
      )
@@ -19,7 +19,7 @@ index 2ecc6e60..2c0a4d0f 100644
          """
          Test case for comparing the cluster's config values of
 diff --git a/tests/functional/z_cluster/test_must_gather.py b/tests/functional/z_cluster/test_must_gather.py
-index 2685a8b2..f76620d0 100644
+index c49d46ef6..5ea4bcf62 100644
 --- a/tests/functional/z_cluster/test_must_gather.py
 +++ b/tests/functional/z_cluster/test_must_gather.py
 @@ -2,7 +2,7 @@ import logging
@@ -31,21 +31,14 @@ index 2685a8b2..f76620d0 100644
  from ocs_ci.framework.testlib import (
      ManageTest,
      tier1,
-@@ -53,7 +53,13 @@ class TestMustGather(ManageTest):
-                     skipif_hci_client,
-                 ]
-             ),
--            pytest.param(*["OTHERS"], marks=pytest.mark.polarion_id("OCS-1583")),
-+            pytest.param(
-+                *["OTHERS"],
-+                marks=[
-+                    pytest.mark.polarion_id("OCS-1583"),
-+                    skipif_ibm_power,
-+                ]
-+            ),
-         ],
-     )
-     @pytest.mark.skipif(
+@@ -31,6 +31,7 @@ def mustgather(request):
+
+
+ @brown_squad
++@skipif_ibm_power
+ class TestMustGather(ManageTest):
+     @tier1
+     @pytest.mark.parametrize(
 diff --git a/tests/functional/object/mcg/test_s3_with_java_sdk.py b/tests/functional/object/mcg/test_s3_with_java_sdk.py
 index 729d3c04..775c5d0c 100644
 --- a/tests/functional/object/mcg/test_s3_with_java_sdk.py
@@ -221,7 +214,7 @@ index c081a253..9769edfe 100644
          ],
      )
 diff --git a/tests/functional/z_cluster/nodes/test_nodes_restart.py b/tests/functional/z_cluster/nodes/test_nodes_restart.py
-index 70172f4a..a670fe60 100644
+index 5eb6f0b24..9bd95d6e6 100644
 --- a/tests/functional/z_cluster/nodes/test_nodes_restart.py
 +++ b/tests/functional/z_cluster/nodes/test_nodes_restart.py
 @@ -1,7 +1,7 @@
@@ -233,7 +226,7 @@ index 70172f4a..a670fe60 100644
  from ocs_ci.framework.testlib import (
      tier4a,
      tier4b,
-@@ -139,6 +139,7 @@ class TestNodesRestart(ManageTest):
+@@ -140,6 +140,7 @@ class TestNodesRestart(ManageTest):
      )
      @skipif_ibm_cloud
      @skipif_vsphere_ipi
