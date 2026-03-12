@@ -53,6 +53,9 @@ else
         libffi-devel lapack atlas-devel \
         openssl-devel curl libcurl-devel \
         libxml2-devel unzip rust-toolset
+    #Package needed for pyyaml
+    subscription-manager repos --enable codeready-builder-for-rhel-9-ppc64le-rpms
+    dnf install -y libyaml-devel
     # Add EPEL repo if not already installed
     sudo dnf install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-9.noarch.rpm || true
     # Install Python 3.11

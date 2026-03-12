@@ -19,28 +19,26 @@ index 6553594ac..02b3b6f02 100644
          """
          Test case for comparing the cluster's config values of
 diff --git a/tests/functional/z_cluster/test_must_gather.py b/tests/functional/z_cluster/test_must_gather.py
-index c49d46ef6..0e84afb98 100644
+index c49d46ef6..5ea4bcf62 100644
 --- a/tests/functional/z_cluster/test_must_gather.py
 +++ b/tests/functional/z_cluster/test_must_gather.py
-@@ -2,7 +2,8 @@ import logging
+@@ -2,7 +2,7 @@ import logging
  import pytest
 
  from ocs_ci.framework import config
 -from ocs_ci.framework.pytest_customization.marks import brown_squad
-+from ocs_ci.framework.pytest_customization.marks import brown_squad,  skipif_ibm_power
-+
++from ocs_ci.framework.pytest_customization.marks import brown_squad, skipif_ibm_power
  from ocs_ci.framework.testlib import (
      ManageTest,
      tier1,
-@@ -57,7 +58,7 @@ class TestMustGather(ManageTest):
-                 ]
-             ),
-             pytest.param(
--                *["OTHERS"], marks=[tier2, pytest.mark.polarion_id("OCS-1583")]
-+                *["OTHERS"], marks=[tier2, pytest.mark.polarion_id("OCS-1583"), skipif_ibm_power]
-             ),
-         ],
-     )
+@@ -31,6 +31,7 @@ def mustgather(request):
+
+
+ @brown_squad
++@skipif_ibm_power
+ class TestMustGather(ManageTest):
+     @tier1
+     @pytest.mark.parametrize(
 diff --git a/tests/functional/object/mcg/test_s3_with_java_sdk.py b/tests/functional/object/mcg/test_s3_with_java_sdk.py
 index b32166151..86fbfd16b 100644
 --- a/tests/functional/object/mcg/test_s3_with_java_sdk.py
