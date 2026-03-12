@@ -19,28 +19,26 @@ index fea1ef30b..47c5b0217 100644
          """
          Test case for comparing the cluster's config values of
 diff --git a/tests/functional/z_cluster/test_must_gather.py b/tests/functional/z_cluster/test_must_gather.py
-index c49d46ef6..0e84afb98 100644
+index c49d46ef6..5ea4bcf62 100644
 --- a/tests/functional/z_cluster/test_must_gather.py
 +++ b/tests/functional/z_cluster/test_must_gather.py
-@@ -2,7 +2,8 @@ import logging
+@@ -2,7 +2,7 @@ import logging
  import pytest
 
  from ocs_ci.framework import config
 -from ocs_ci.framework.pytest_customization.marks import brown_squad
-+from ocs_ci.framework.pytest_customization.marks import brown_squad,  skipif_ibm_power
-+
++from ocs_ci.framework.pytest_customization.marks import brown_squad, skipif_ibm_power
  from ocs_ci.framework.testlib import (
      ManageTest,
      tier1,
-@@ -57,7 +58,7 @@ class TestMustGather(ManageTest):
-                 ]
-             ),
-             pytest.param(
--                *["OTHERS"], marks=[tier2, pytest.mark.polarion_id("OCS-1583")]
-+                *["OTHERS"], marks=[tier2, pytest.mark.polarion_id("OCS-1583"), skipif_ibm_power]
-             ),
-         ],
-     )
+@@ -31,6 +31,7 @@ def mustgather(request):
+
+
+ @brown_squad
++@skipif_ibm_power
+ class TestMustGather(ManageTest):
+     @tier1
+     @pytest.mark.parametrize(
 diff --git a/tests/functional/object/mcg/test_s3_with_java_sdk.py b/tests/functional/object/mcg/test_s3_with_java_sdk.py
 index b32166151..86fbfd16b 100644
 --- a/tests/functional/object/mcg/test_s3_with_java_sdk.py
@@ -149,7 +147,7 @@ index a2f706fb..a4e42259 100644
      """
      Test that there are appropriate alerts when NooBaa Bucket Quota is reached.
 diff --git a/tests/functional/object/mcg/test_mcg_resources_disruptions.py b/tests/functional/object/mcg/test_mcg_resources_disruptions.py
-index af9c252a9..a384e16b2 100644
+index da57eca80..ceed87e7e 100644
 --- a/tests/functional/object/mcg/test_mcg_resources_disruptions.py
 +++ b/tests/functional/object/mcg/test_mcg_resources_disruptions.py
 @@ -17,6 +17,7 @@ from ocs_ci.framework.testlib import (
@@ -160,7 +158,7 @@ index af9c252a9..a384e16b2 100644
  from ocs_ci.helpers import helpers
  from ocs_ci.helpers.helpers import wait_for_resource_state
  from ocs_ci.ocs import cluster, constants, ocp
-@@ -129,7 +130,13 @@ class TestMCGResourcesDisruptions(MCGTest):
+@@ -123,7 +124,13 @@ class TestMCGResourcesDisruptions(MCGTest):
          argnames=["pod_to_drain"],
          argvalues=[
              pytest.param(*["noobaa_core"], marks=pytest.mark.polarion_id("OCS-2286")),
@@ -175,7 +173,7 @@ index af9c252a9..a384e16b2 100644
              pytest.param(
                  *["noobaa_endpoint"], marks=pytest.mark.polarion_id("OCS-2288")
              ),
-@@ -231,6 +238,7 @@ class TestMCGResourcesDisruptions(MCGTest):
+@@ -225,6 +232,7 @@ class TestMCGResourcesDisruptions(MCGTest):
      @tier3
      @pytest.mark.polarion_id("OCS-2513")
      @skipif_managed_service
