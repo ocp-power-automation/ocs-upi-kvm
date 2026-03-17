@@ -1,8 +1,8 @@
 diff --git a/ocs_ci/deployment/deployment.py b/ocs_ci/deployment/deployment.py
-index 0a8dffe12..70e8b5570 100644
+index 67da60d2a..0208742f6 100644
 --- a/ocs_ci/deployment/deployment.py
 +++ b/ocs_ci/deployment/deployment.py
-@@ -2768,6 +2768,11 @@ def setup_persistent_monitoring():
+@@ -3027,6 +3027,11 @@ def setup_persistent_monitoring():
      https://docs.redhat.com/en/documentation/red_hat_openshift_data_foundation
      /4.16/html-single/managing_and_allocating_storage_resources/
      """
