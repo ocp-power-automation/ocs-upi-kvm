@@ -1,8 +1,8 @@
 diff --git a/ocs_ci/ocs/constants.py b/ocs_ci/ocs/constants.py
-index fe877b405..480713321 100644
+index 0cb326e79..28d251d63 100644
 --- a/ocs_ci/ocs/constants.py
 +++ b/ocs_ci/ocs/constants.py
-@@ -2641,6 +2641,7 @@ work_mem = 1747kB
+@@ -2692,6 +2692,7 @@ work_mem = 1747kB
  min_wal_size = 2GB
  max_wal_size = 8GB
  shared_preload_libraries = 'pg_stat_statements'
