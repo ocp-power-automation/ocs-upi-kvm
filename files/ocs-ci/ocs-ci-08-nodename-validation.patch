@@ -1,8 +1,8 @@
 diff --git a/ocs_ci/ocs/resources/storage_cluster.py b/ocs_ci/ocs/resources/storage_cluster.py
-index b253e5817..e70960670 100644
+index a935f5d5d..530189b62 100644
 --- a/ocs_ci/ocs/resources/storage_cluster.py
 +++ b/ocs_ci/ocs/resources/storage_cluster.py
-@@ -660,7 +660,7 @@ def ocs_install_verification(
+@@ -670,7 +670,7 @@ def ocs_install_verification(
              deviceset_pvcs = list(set(deviceset_pvcs))
              if (
                  config.ENV_DATA.get("platform")
