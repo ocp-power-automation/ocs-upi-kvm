@@ -1,8 +1,8 @@
 diff --git a/ocs_ci/deployment/deployment.py b/ocs_ci/deployment/deployment.py
-index 5e9c33818..74dcfaa88 100644
+index db8f71a87..ed090999f 100644
 --- a/ocs_ci/deployment/deployment.py
 +++ b/ocs_ci/deployment/deployment.py
-@@ -2639,6 +2639,11 @@ def setup_persistent_monitoring():
+@@ -2732,6 +2732,11 @@ def setup_persistent_monitoring():
      """
      Change monitoring backend to OCS
      """
