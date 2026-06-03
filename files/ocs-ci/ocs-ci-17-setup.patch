@@ -1,8 +1,15 @@
 diff --git a/setup.py b/setup.py
-index cf5577758..0f104f788 100644
+index cf5577758..8b840af1a 100644
 --- a/setup.py
 +++ b/setup.py
-@@ -22,7 +22,7 @@ setup(
+@@ -16,13 +16,14 @@ setup(
+     license="MIT",
+     python_requires=">=3.9.18",
+     install_requires=[
++        "pycurl==7.45.7",
+         "apache-libcloud==3.8.0",
+         "docopt==0.6.2",
+         "gevent==23.9.1",
          "reportportal-client==3.2.3",
          "requests==2.32.2",
          "paramiko==3.5.0",
@@ -11,7 +18,7 @@ index cf5577758..0f104f788 100644
          "jinja2==3.1.6",
          "openshift==0.13.2",
          "boto3==1.38.31",
-@@ -47,11 +47,11 @@ setup(
+@@ -47,11 +48,11 @@ setup(
          "google-cloud-storage==2.6.0",
          "google-auth==2.14.1",
          "elasticsearch==8.11.1",
