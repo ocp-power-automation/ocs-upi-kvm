@@ -38,41 +38,14 @@ fi
 
 if [  -n "$(uname -a | grep Ubuntu)" ]; then
      # Update package index
-    sudo apt update
-    # Install build tools and Python 3.11 dependencies (fixed)
-    sudo apt install -y \
-      build-essential \
-      wget curl \
-      libssl-dev zlib1g-dev \
-      libncurses5-dev libncursesw5-dev \
-      libreadline-dev libsqlite3-dev \
-      libgdbm-dev libbz2-dev \
-      libexpat1-dev liblzma-dev \
-      tk-dev libffi-dev uuid-dev \
-      libcurl4-openssl-dev \
-      liblapack3 libxml2-dev libxslt1-dev \
-      gfortran make patch unzip kmod snapd
-      sudo ln -s /bin/lsmod /usr/sbin/lsmod
-     #Install kustomize
-     sudo snap install kustomize
-    # Install Python 3.11 manually
-    cd /tmp
-    wget https://www.python.org/ftp/python/3.11.9/Python-3.11.9.tgz
-    tar -xf Python-3.11.9.tgz
-    cd Python-3.11.9
-
-   ./configure
-    make -j$(nproc)
-   sudo make altinstall
-   #Install Openblas
-   sudo apt install -y libopenblas-dev libopenblas-openmp-dev pkg-config
+    sudo apt-get update -o Acquire::Retries=5
 else
     sudo dnf update -y
     sudo dnf -y install \
         gcc gcc-c++ gcc-gfortran make patch \
         libffi-devel lapack atlas-devel \
         openssl-devel curl libcurl-devel \
-        libxml2-devel unzip rust-toolset kustomize
+        libxml2-devel unzip rust-toolset
     #Needed for pyyaml
     subscription-manager repos --enable codeready-builder-for-rhel-9-ppc64le-rpms
     dnf install -y libyaml-devel
@@ -82,6 +55,15 @@ else
     sudo dnf install -y python3.11 python3.11-devel python3.11-pip
     #Install Openblas
     sudo dnf install -y openblas openblas-devel
+	#Install kustomize
+    curl -fL -o /tmp/kustomize.tar.gz \
+https://github.com/kubernetes-sigs/kustomize/releases/download/kustomize/v5.8.1/kustomize_v5.8.1_linux_ppc64le.tar.gz
+    tar -xzf /tmp/kustomize.tar.gz -C /tmp
+
+    sudo mv /tmp/kustomize /usr/local/bin/kustomize
+    sudo chmod +x /usr/local/bin/kustomize
+
+    kustomize version
 fi
 
 pushd "$WORKSPACE/ocs-upi-kvm/src/ocs-ci"

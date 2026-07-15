@@ -1,16 +1,16 @@
 diff --git a/tests/functional/z_cluster/nodes/test_nodes_maintenance.py b/tests/functional/z_cluster/nodes/test_nodes_maintenance.py
-index 6699ba269..1aea68236 100644
+index 25cdc7740..8199d0174 100644
 --- a/tests/functional/z_cluster/nodes/test_nodes_maintenance.py
 +++ b/tests/functional/z_cluster/nodes/test_nodes_maintenance.py
-@@ -31,6 +31,7 @@ from ocs_ci.framework.pytest_customization.marks import (
+@@ -39,6 +39,7 @@ from ocs_ci.framework.pytest_customization.marks import (
      brown_squad,
      skipif_hci_provider,
      skipif_rosa_hcp,
 +    skipif_ibm_power,
      skipif_compact_mode,
+     runs_on_provider,
  )
- from ocs_ci.framework.testlib import (
-@@ -133,6 +134,7 @@ class TestNodesMaintenance(ManageTest):
+@@ -151,6 +152,7 @@ class TestNodesMaintenance(ManageTest):
  
      @tier1
      @skipif_managed_service
@@ -18,7 +18,7 @@ index 6699ba269..1aea68236 100644
      @skipif_hci_provider
      @pytest.mark.parametrize(
          argnames=["node_type"],
-@@ -211,6 +213,7 @@ class TestNodesMaintenance(ManageTest):
+@@ -229,6 +231,7 @@ class TestNodesMaintenance(ManageTest):
  
      @tier4a
      @skipif_bm
@@ -26,7 +26,7 @@ index 6699ba269..1aea68236 100644
      @skipif_managed_service
      @pytest.mark.parametrize(
          argnames=["node_type"],
-@@ -293,6 +296,7 @@ class TestNodesMaintenance(ManageTest):
+@@ -311,6 +314,7 @@ class TestNodesMaintenance(ManageTest):
          self.sanity_helpers.delete_resources()
  
      @tier3
@@ -34,7 +34,7 @@ index 6699ba269..1aea68236 100644
      @pytest.mark.parametrize(
          argnames=["nodes_type"],
          argvalues=[
-@@ -329,6 +333,7 @@ class TestNodesMaintenance(ManageTest):
+@@ -347,6 +351,7 @@ class TestNodesMaintenance(ManageTest):
  
      @tier2
      @pytest.mark.polarion_id("OCS-1274")
@@ -42,7 +42,7 @@ index 6699ba269..1aea68236 100644
      @skipif_compact_mode
      def test_2_nodes_different_types(
          self, pvc_factory, pod_factory, bucket_factory, rgw_bucket_factory
-@@ -492,6 +497,7 @@ class TestNodesMaintenance(ManageTest):
+@@ -510,6 +515,7 @@ class TestNodesMaintenance(ManageTest):
  
      @skipif_managed_service
      @skipif_more_than_three_workers

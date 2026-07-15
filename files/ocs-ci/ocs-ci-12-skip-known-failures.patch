@@ -1,5 +1,5 @@
 diff --git a/tests/functional/z_cluster/test_ceph_default_values_check.py b/tests/functional/z_cluster/test_ceph_default_values_check.py
-index 6553594ac..02b3b6f02 100644
+index 48f5a5785..da93e087b 100644
 --- a/tests/functional/z_cluster/test_ceph_default_values_check.py
 +++ b/tests/functional/z_cluster/test_ceph_default_values_check.py
 @@ -4,6 +4,7 @@ import pytest
@@ -10,7 +10,7 @@ index 6553594ac..02b3b6f02 100644
      brown_squad,
  )
  from ocs_ci.framework.testlib import (
-@@ -201,6 +202,7 @@ class TestCephDefaultValuesCheck(ManageTest):
+@@ -208,6 +209,7 @@ class TestCephDefaultValuesCheck(ManageTest):
          config.DEPLOYMENT.get("ceph_debug"),
          reason="Ceph was configured with customized values by ocs-ci so there is point in validating its config values",
      )
@@ -221,7 +221,7 @@ index 268b776e0..97dc4996d 100644
          ],
      )
 diff --git a/tests/functional/z_cluster/nodes/test_nodes_restart.py b/tests/functional/z_cluster/nodes/test_nodes_restart.py
-index 621bd985d..737f48caf 100644
+index 988a36439..22b3aa315 100644
 --- a/tests/functional/z_cluster/nodes/test_nodes_restart.py
 +++ b/tests/functional/z_cluster/nodes/test_nodes_restart.py
 @@ -1,7 +1,7 @@
@@ -233,7 +233,7 @@ index 621bd985d..737f48caf 100644
  from ocs_ci.framework.testlib import (
      tier4a,
      tier4b,
-@@ -140,6 +140,7 @@ class TestNodesRestart(ManageTest):
+@@ -145,6 +145,7 @@ class TestNodesRestart(ManageTest):
      )
      @skipif_ibm_cloud
      @skipif_vsphere_ipi
@@ -241,6 +241,7 @@ index 621bd985d..737f48caf 100644
      def test_pv_provisioning_under_degraded_state_stop_provisioner_pod_node(
          self,
          nodes,
+
 diff --git a/tests/functional/z_cluster/nodes/test_automated_recovery_from_failed_nodes_reactive.py b/tests/functional/z_cluster/nodes/test_automated_recovery_from_failed_nodes_reactive.py
 index ff3b7e1da..ebca9b15f 100644
 --- a/tests/functional/z_cluster/nodes/test_automated_recovery_from_failed_nodes_reactive.py
@@ -313,3 +314,23 @@ index 811ca423b..8ae307e39 100644
  @red_squad
  class TestS3Vector(MCGTest):
      """
+diff --git a/tests/functional/pv/pv_services/test_automate_networkfence_workflow_with_cephcsi.py b/tests/functional/pv/pv_services/test_automate_networkfence_workflow_with_cephcsi.py
+index 787bfec7b..036ec7a25 100644
+--- a/tests/functional/pv/pv_services/test_automate_networkfence_workflow_with_cephcsi.py
++++ b/tests/functional/pv/pv_services/test_automate_networkfence_workflow_with_cephcsi.py
+@@ -14,6 +14,7 @@ import pytest
+ from ocs_ci.framework.pytest_customization.marks import (
+     skipif_hci_provider_or_client,
+     skipif_managed_service,
++    skipif_ibm_power,
+ )
+ from ocs_ci.framework.testlib import ManageTest, tier4b, green_squad
+ from ocs_ci.ocs import constants
+@@ -67,6 +68,7 @@ def pods_for_test_workload_pvcs(pod_obj_list, wait=True):
+ @tier4b
+ @skipif_managed_service
+ @skipif_hci_provider_or_client
++@skipif_ibm_power
+ class TestAutomateNetworkfenceWorkflowWithCephCSI(ManageTest):
+     """
+     RHSTOR-6942 - Automate the NetworkFence workflow with cephcsi.

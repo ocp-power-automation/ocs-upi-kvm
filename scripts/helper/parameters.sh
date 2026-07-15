@@ -12,11 +12,11 @@ export RHID_KEY=${RHID_KEY:=""}
 
 export PLATFORM=${PLATFORM:="kvm"}
 
-export OCP_VERSION=${OCP_VERSION:="4.22"}
+export OCP_VERSION=${OCP_VERSION:="5.0"}
 
-export OCS_VERSION=${OCS_VERSION:="4.22"}
+export OCS_VERSION=${OCS_VERSION:="4.23"}
 export OCS_REGISTRY_IMAGE=${OCS_REGISTRY_IMAGE:="quay.io/rhceph-dev/ocs-registry:latest-stable-$OCS_VERSION"}
-export OPTIONAL_OPERATORS_IMAGE=${OPTIONAL_OPERATORS_IMAGE:-"quay.io/redhat-user-workloads/ocp-art-tenant/art-fbc:ocp__${OCS_VERSION}__ose-local-storage-rhel9-operator"}
+export OPTIONAL_OPERATORS_IMAGE=${OPTIONAL_OPERATORS_IMAGE:-"quay.io/redhat-user-workloads/ocp-art-tenant/art-fbc:ocp__${OCP_VERSION}__ose-local-storage-rhel9-operator"}
 
 
 export WORKERS=${WORKERS:=3}

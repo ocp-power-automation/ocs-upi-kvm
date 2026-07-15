@@ -32,7 +32,7 @@ fi
 
 export WORKER_VOLUMES=${WORKER_VOLUMES:=1}
 
-if [ -z "$CLUSTER_ID_PREFIX" ]; then
+if [ -z "${CLUSTER_ID_PREFIX:-}" ]; then
         CLUSTER_ID_PREFIX=rdr-${RHID_USERNAME:0:3}
         export CLUSTER_ID_PREFIX=$CLUSTER_ID_PREFIX${OCP_VERSION/./}
 fi
@@ -101,8 +101,9 @@ esac
 export WORKER_VOLUME_SIZE=${WORKER_VOLUME_SIZE:="500"}
 
 export DNS_FORWARDERS=${DNS_FORWARDERS:="1.1.1.1; 9.9.9.9"}
-if [[ ! "$DNS_FORWARDERS" =~ "$DNS_BACKUP_SERVER" ]]; then
-        export DNS_FORWARDERS="$DNS_FORWARDERS; $DNS_BACKUP_SERVER"
+if [[ -n "${DNS_BACKUP_SERVER:-}" ]] &&
+   [[ ! "$DNS_FORWARDERS" =~ "$DNS_BACKUP_SERVER" ]]; then
+    export DNS_FORWARDERS="$DNS_FORWARDERS; $DNS_BACKUP_SERVER"
 fi
 
 export CLUSTER_DOMAIN=${CLUSTER_DOMAIN:="ibm.com"}                      # xip.io

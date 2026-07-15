@@ -55,8 +55,15 @@ mkdir -p $LOGDIR
 cp -f ../../files/ocs-ci/ocs-ci-conf.yaml $WORKSPACE/ocs-ci-conf.yaml
 update_supplemental_ocsci_config
 
+REGISTRY_PREFIX="openshift4"
+
+if [[ "${OCP_VERSION}" == "5.0" ]]; then
+    REGISTRY_PREFIX="openshift5"
+fi
+
 echo "Creating idms for local storage operator"
-   cat <<'EOF' | oc apply -f -
+
+cat <<EOF | oc apply -f -
 apiVersion: config.openshift.io/v1
 kind: ImageDigestMirrorSet
 metadata:
@@ -65,24 +72,25 @@ spec:
   imageDigestMirrors:
   - mirrors:
     - quay.io/redhat-user-workloads/ocp-art-tenant/art-images-share
-    source: registry.redhat.io/openshift4/ose-kube-rbac-proxy-rhel9
+    source: registry.redhat.io/${REGISTRY_PREFIX}/ose-kube-rbac-proxy-rhel9
 
   - mirrors:
     - quay.io/redhat-user-workloads/ocp-art-tenant/art-images-share
-    source: registry.redhat.io/openshift4/ose-local-storage-diskmaker-rhel9
+    source: registry.redhat.io/${REGISTRY_PREFIX}/ose-local-storage-diskmaker-rhel9
 
   - mirrors:
     - quay.io/redhat-user-workloads/ocp-art-tenant/art-images-share
-    source: registry.redhat.io/openshift4/ose-local-storage-mustgather-rhel9
+    source: registry.redhat.io/${REGISTRY_PREFIX}/ose-local-storage-mustgather-rhel9
 
   - mirrors:
     - quay.io/redhat-user-workloads/ocp-art-tenant/art-images-share
-    source: registry.redhat.io/openshift4/ose-local-storage-operator-bundle
+    source: registry.redhat.io/${REGISTRY_PREFIX}/ose-local-storage-operator-bundle
 
   - mirrors:
     - quay.io/redhat-user-workloads/ocp-art-tenant/art-images-share
-    source: registry.redhat.io/openshift4/ose-local-storage-rhel9-operator
+    source: registry.redhat.io/${REGISTRY_PREFIX}/ose-local-storage-rhel9-operator
 EOF
+
 
 echo "run-ci -m deployment --deploy --ocs-version $OCS_VERSION ..."
 
