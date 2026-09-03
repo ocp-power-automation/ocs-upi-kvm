@@ -1,5 +1,5 @@
 diff --git a/ocs_ci/helpers/helpers.py b/ocs_ci/helpers/helpers.py
-index 271157fb0..c682e1c11 100644
+index 465f1434b..37183d5ef 100644
 --- a/ocs_ci/helpers/helpers.py
 +++ b/ocs_ci/helpers/helpers.py
 @@ -132,7 +132,7 @@ def apply_resource(**kwargs):
@@ -53,3 +53,27 @@ index 271157fb0..c682e1c11 100644
  def is_volume_present_in_backend(interface, image_uuid, pool_name=None):
      """
      Check whether Image/Subvolume is present in the backend.
+@@ -7658,6 +7655,23 @@ def delete_cephfs_ec_pool(pool_name):
+     full_pool_name = f"{fs_name}-{pool_name}"
+ 
+     ct_pod = pod.get_ceph_tools_pod()
++    ct_pod.exec_ceph_cmd(
++            f"ceph fs rm_data_pool {fs_name} {full_pool_name}",
++            format=None,
++        )
++    logger.info(f"Removed '{full_pool_name}' from CephFS fsmap")
++    ct_pod.exec_ceph_cmd(
++            f"ceph config set mon mon_allow_pool_delete true",
++            format=None,
++    )
++    ct_pod.exec_ceph_cmd(
++            f"ceph osd pool delete {full_pool_name} {full_pool_name} "
++            f"--yes-i-really-really-mean-it",
++            format=None,
++    )
++    logger.info(f"Ceph pool '{full_pool_name}' deleted directly")
++    cephfs_name = get_cephfs_name()
++    ct_pod.exec_ceph_cmd(f"ceph fs rm_data_pool {cephfs_name} {full_pool_name}")
+     logger.info(f"Waiting for Ceph pool '{full_pool_name}' to be removed")
+     try:
+         for pools in TimeoutSampler(600, 15, ct_pod.exec_ceph_cmd, "ceph osd pool ls"):
