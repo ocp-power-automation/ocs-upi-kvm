@@ -72,7 +72,7 @@ else
         gcc gcc-c++ gcc-gfortran make patch \
         libffi-devel lapack atlas-devel \
         openssl-devel curl libcurl-devel \
-        libxml2-devel unzip rust-toolset kustomize
+        libxml2-devel unzip rust-toolset
     #Needed for pyyaml
     subscription-manager repos --enable codeready-builder-for-rhel-9-ppc64le-rpms
     dnf install -y libyaml-devel
@@ -82,6 +82,15 @@ else
     sudo dnf install -y python3.11 python3.11-devel python3.11-pip
     #Install Openblas
     sudo dnf install -y openblas openblas-devel
+	#Install kustomize
+    curl -fL -o /tmp/kustomize.tar.gz \
+    https://github.com/kubernetes-sigs/kustomize/releases/download/kustomize/v5.8.1/kustomize_v5.8.1_linux_ppc64le.tar.gz
+    tar -xzf /tmp/kustomize.tar.gz -C /tmp
+
+    sudo mv /tmp/kustomize /usr/local/bin/kustomize
+    sudo chmod +x /usr/local/bin/kustomize
+
+    kustomize version
 fi
 
 pushd "$WORKSPACE/ocs-upi-kvm/src/ocs-ci"
