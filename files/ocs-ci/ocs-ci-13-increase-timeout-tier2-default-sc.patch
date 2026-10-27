@@ -1,8 +1,8 @@
 diff --git a/ocs_ci/helpers/helpers.py b/ocs_ci/helpers/helpers.py
-index 271157fb0..c682e1c11 100644
+index f41479b88..293e0565f 100644
 --- a/ocs_ci/helpers/helpers.py
 +++ b/ocs_ci/helpers/helpers.py
-@@ -132,7 +132,7 @@ def apply_resource(**kwargs):
+@@ -133,7 +133,7 @@ def apply_resource(**kwargs):
      return ocs_obj
  
  
@@ -11,7 +11,7 @@ index 271157fb0..c682e1c11 100644
      """
      Wait for a resource to get to a given status
  
-@@ -1728,7 +1728,7 @@ def create_build_from_docker_image(
+@@ -1808,7 +1808,7 @@ def create_build_from_docker_image(
          oc_cmd += f"--kubeconfig {kubeconfig} "
      oc_cmd += command
      logger.info(f"Running command {oc_cmd}")
@@ -20,7 +20,7 @@ index 271157fb0..c682e1c11 100644
      if result.stderr.decode():
          raise UnavailableBuildException(
              f"Build creation failed with error: {result.stderr.decode()}"
-@@ -2195,6 +2195,14 @@ def change_default_storageclass(scname):
+@@ -2275,6 +2275,14 @@ def change_default_storageclass(scname):
      """
      default_sc = get_default_storage_class()
      ocp_obj = ocp.OCP(kind="StorageClass")
@@ -35,7 +35,7 @@ index 271157fb0..c682e1c11 100644
      if default_sc:
          # Change the existing default Storageclass annotation to false
          for sc in default_sc:
-@@ -2206,17 +2214,6 @@ def change_default_storageclass(scname):
+@@ -2286,17 +2294,6 @@ def change_default_storageclass(scname):
              patch_cmd = f"patch storageclass {sc} -p" + patch
              ocp_obj.exec_oc_cmd(command=patch_cmd)
  
