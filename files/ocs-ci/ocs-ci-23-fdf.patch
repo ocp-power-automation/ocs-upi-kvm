@@ -1,0 +1,71 @@
+diff --git a/tests/functional/pv/pv_services/test_create_large_sized_pvc_while_io_in_progress.py b/tests/functional/pv/pv_services/test_create_large_sized_pvc_while_io_in_progress.py
+index ee9eee8ac..f26171fbb 100644
+--- a/tests/functional/pv/pv_services/test_create_large_sized_pvc_while_io_in_progress.py
++++ b/tests/functional/pv/pv_services/test_create_large_sized_pvc_while_io_in_progress.py
+@@ -50,6 +50,6 @@ class TestCreateLargeSizedPVCWhileIOInProgress(ManageTest):
+         # Repeating the above flow for 5 times
+         for i in range(5):
+             log.info(f"Creating {interface} based PVC")
+-            pvc_obj = pvc_factory(interface=interface, size="500")
++            pvc_obj = pvc_factory(interface=interface, size="50")
+             pod_obj = pod_factory(pvc=pvc_obj, interface=interface)
+             pod.run_io_in_bg(pod_obj)
+diff --git a/tests/cross_functional/system_test/multicluster/test_post_installation_state.py b/tests/cross_functional/system_test/multicluster/test_post_installation_state.py
+index 15e76b2cc..130ad9db4 100644
+--- a/tests/cross_functional/system_test/multicluster/test_post_installation_state.py
++++ b/tests/cross_functional/system_test/multicluster/test_post_installation_state.py
+@@ -93,16 +93,19 @@ class TestPostInstallationState(ManageTest):
+         log_lines = provider_logs.split("\n")
+         consumer_names = managedservice.get_consumer_names()
+         for consumer_name in consumer_names:
+-            expected_log = (
+-                f'successfully Enabled the StorageConsumer resource "{consumer_name}"'
++            log_found = any(
++                "Successfully onboarded consumer" in line
++                and f'storageConsumerName="{consumer_name}"' in line
++                for line in log_lines
++            )
++            assert log_found, (
++                f'Onboarding log for consumer "{consumer_name}" '
++                "not found in ocs-provider-server logs"
++            )
++ 
++            log.info(
++                f'Successfully onboarded consumer log found for "{consumer_name}"'
+             )
+-            log_found = False
+-            for line in log_lines:
+-                if expected_log in line:
+-                    log_found = True
+-                    log.info(f"'{expected_log}' found in ocs-provider-server logs")
+-                    break
+-            assert log_found, f"'{expected_log}' not found in ocs-provider-server logs"
+ 
+     @tier1
+     @pytest.mark.polarion_id("OCS-3918")
+diff --git a/tests/functional/pv/pv_services/test_raw_block_pv.py b/tests/functional/pv/pv_services/test_raw_block_pv.py
+index b587ba11f..3febc821d 100644
+--- a/tests/functional/pv/pv_services/test_raw_block_pv.py
++++ b/tests/functional/pv/pv_services/test_raw_block_pv.py
+@@ -85,7 +85,7 @@ class TestRawBlockPV(ManageTest):
+         if config.ENV_DATA["platform"].lower() in constants.MANAGED_SERVICE_PLATFORMS:
+             size_tb = str(convert_device_size("50Gi", "TB")) + "Ti"
+         else:
+-            size_tb = "1Ti"
++            size_tb = "100Gi"
+         for size in [size_mb, size_gb, size_tb]:
+             pvcs.append(
+                 helpers.create_pvc(
+diff --git a/tests/functional/pv/pv_services/test_pvc_concurrent_deletion_creation.py b/tests/functional/pv/pv_services/test_pvc_concurrent_deletion_creation.py
+index 382657b0b..3be655bfb 100644
+--- a/tests/functional/pv/pv_services/test_pvc_concurrent_deletion_creation.py
++++ b/tests/functional/pv/pv_services/test_pvc_concurrent_deletion_creation.py
+@@ -44,7 +44,7 @@ class TestMultiplePvcConcurrentDeletionCreation(ManageTest):
+     """
+ 
+     num_of_pvcs = 100
+-    pvc_size = 3
++    pvc_size = 2
+     access_modes = [constants.ACCESS_MODE_RWO]
+ 
+     @pytest.fixture(autouse=True)

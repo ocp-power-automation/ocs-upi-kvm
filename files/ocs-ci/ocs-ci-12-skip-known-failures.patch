@@ -1,16 +1,16 @@
 diff --git a/tests/functional/z_cluster/test_ceph_default_values_check.py b/tests/functional/z_cluster/test_ceph_default_values_check.py
-index 48f5a5785..da93e087b 100644
+index ea70c79eb..c8f8bcda9 100644
 --- a/tests/functional/z_cluster/test_ceph_default_values_check.py
 +++ b/tests/functional/z_cluster/test_ceph_default_values_check.py
-@@ -4,6 +4,7 @@ import pytest
-
+@@ -5,6 +5,7 @@ import pytest
  from ocs_ci.framework.pytest_customization.marks import (
+     skipif_ec_pools_disabled,
      skipif_ocs_version,
 +    skipif_ibm_power,
      brown_squad,
+     polarion_id,
  )
- from ocs_ci.framework.testlib import (
-@@ -208,6 +209,7 @@ class TestCephDefaultValuesCheck(ManageTest):
+@@ -211,6 +212,7 @@ class TestCephDefaultValuesCheck(ManageTest):
          config.DEPLOYMENT.get("ceph_debug"),
          reason="Ceph was configured with customized values by ocs-ci so there is point in validating its config values",
      )
