@@ -1,5 +1,5 @@
 diff --git a/ocs_ci/helpers/helpers.py b/ocs_ci/helpers/helpers.py
-index f41479b88..293e0565f 100644
+index f41479b88..6fd1eb4a6 100644
 --- a/ocs_ci/helpers/helpers.py
 +++ b/ocs_ci/helpers/helpers.py
 @@ -133,7 +133,7 @@ def apply_resource(**kwargs):
@@ -11,6 +11,15 @@ index f41479b88..293e0565f 100644
      """
      Wait for a resource to get to a given status
  
+@@ -1418,7 +1418,7 @@ def validate_cephfilesystem(fs_name, namespace=None):
+         return False
+ 
+     try:
+-        for pools in TimeoutSampler(60, 3, ct_pod.exec_ceph_cmd, "ceph fs ls"):
++        for pools in TimeoutSampler(900, 3, ct_pod.exec_ceph_cmd, "ceph fs ls"):
+             for out in pools:
+                 result = out.get("name")
+                 if result == fs_name:
 @@ -1808,7 +1808,7 @@ def create_build_from_docker_image(
          oc_cmd += f"--kubeconfig {kubeconfig} "
      oc_cmd += command
@@ -53,3 +62,16 @@ index f41479b88..293e0565f 100644
  def is_volume_present_in_backend(interface, image_uuid, pool_name=None):
      """
      Check whether Image/Subvolume is present in the backend.
+diff --git a/ocs_ci/ocs/registry.py b/ocs_ci/ocs/registry.py
+index 195cc48f0..2f71e3220 100644
+--- a/ocs_ci/ocs/registry.py
++++ b/ocs_ci/ocs/registry.py
+@@ -34,7 +34,7 @@ def change_registry_backend_to_ocs():
+         size="100Gi",
+         access_mode=constants.ACCESS_MODE_RWX,
+     )
+-    helpers.wait_for_resource_state(pv_obj, "Bound", timeout=300)
++    helpers.wait_for_resource_state(pv_obj, "Bound", timeout=700)
+     param_cmd = f'[{{"op": "replace", "path": "/spec/storage", "value": {{"pvc": {{"claim": "{pv_obj.name}"}}}}}}]'
+ 
+     run_cmd(

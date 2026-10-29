@@ -20,3 +20,42 @@ index b137df23f..0ae5e5dd8 100644
      if (ocp_version >= version.VERSION_4_6) and (ocs_version >= version.VERSION_4_6):
          # Pull local volume discovery yaml data
          logger.info("Pulling LocalVolumeDiscovery CR data from yaml")
+diff --git a/ocs_ci/templates/operators/unreleased-operator-catalog-idms.yaml b/ocs_ci/templates/operators/unreleased-operator-catalog-idms.yaml
+index 3bdf3979f..7d079aab9 100644
+--- a/ocs_ci/templates/operators/unreleased-operator-catalog-idms.yaml
++++ b/ocs_ci/templates/operators/unreleased-operator-catalog-idms.yaml
+@@ -7,5 +7,5 @@ spec:
+   imageDigestMirrors:
+   # Example of mirrors - include for every required package
+   - mirrors:
+-    - quay.io/redhat-user-workloads/ocp-art-tenant/art-images-share
+-    source: registry.redhat.io/openshift4/IMAGE_PLACEHOLDER
++    - registry.stage.redhat.io
++    source: registry.redhat.io
+diff --git a/ocs_ci/utility/operators.py b/ocs_ci/utility/operators.py
+index e76528c51..39529d0b7 100644
+--- a/ocs_ci/utility/operators.py
++++ b/ocs_ci/utility/operators.py
+@@ -205,7 +205,8 @@ class Operator:
+                     name=cluster_name, idms_json_dict=idms_data, replace=False
+                 )
+         else:
+-            self.create_idms_for_unreleased_catalog()
++            #self.create_idms_for_unreleased_catalog()
++            pass
+         self._create_catalog(
+             self.unreleased_catalog_full_image, self.unreleased_catalog_name
+         )
+@@ -607,6 +608,12 @@ class LocalStorageOperator(Operator):
+         self.namespace = constants.LOCAL_STORAGE_NAMESPACE
+         super().__init__(create_catalog)
+ 
++    @property
++    def unreleased_catalog_full_image(self):
++        # allow overriding the FBC catalog image (tag or @sha256 digest) from config
++        image = config.DEPLOYMENT.get("optional_operators_image")
++        return image or super().unreleased_catalog_full_image
++
+     def _customize_operatorgroup(self, operatorgroup_data: dict):
+         """
+         Hook for LSO to customize OperatorGroup YAML
