@@ -14,9 +14,9 @@ export PLATFORM=${PLATFORM:="kvm"}
 
 export OCP_VERSION=${OCP_VERSION:="5.0"}
 
-export OCS_VERSION=${OCS_VERSION:="4.23"}
+export OCS_VERSION=${OCS_VERSION:="5.0"}
 export OCS_REGISTRY_IMAGE=${OCS_REGISTRY_IMAGE:="quay.io/rhceph-dev/ocs-registry:latest-stable-$OCS_VERSION"}
-export OPTIONAL_OPERATORS_IMAGE=${OPTIONAL_OPERATORS_IMAGE:-"quay.io/redhat-user-workloads/ocp-art-tenant/art-fbc:ocp__${OCP_VERSION}__ose-local-storage-rhel9-operator"}
+export OPTIONAL_OPERATORS_IMAGE=${OPTIONAL_OPERATORS_IMAGE:-"quay.io/redhat-user-workloads/ocp-art-tenant/art-fbc@sha256:40cabae7efea9716863395c4ce245d3b82c08555576aa72b4d1e8634331181bb"}
 
 
 export WORKERS=${WORKERS:=3}
@@ -109,7 +109,7 @@ function update_supplemental_ocsci_config () {
         export ocs_csv_channel=stable-$OCS_VERSION
         yq -y -i '.DEPLOYMENT.ocs_csv_channel |= env.ocs_csv_channel' $WORKSPACE/ocs-ci-conf.yaml
 
-	export ocp_must_gather=quay.io/rhceph-dev/ocs-must-gather:latest-$OCS_VERSION
+	export ocp_must_gather=quay.io/rhceph-dev/odf4-odf-must-gather-rhel9:v$OCS_VERSION
 	yq -y -i '.REPORTING.ocp_must_gather_image |= env.ocp_must_gather' $WORKSPACE/ocs-ci-conf.yaml
 
 	if [ -e ../../files/ocs-ci/$PLATFORM/ocpdr ]; then
