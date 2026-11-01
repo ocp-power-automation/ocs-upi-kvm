@@ -1,5 +1,5 @@
 diff --git a/ocs_ci/deployment/helpers/lso_helpers.py b/ocs_ci/deployment/helpers/lso_helpers.py
-index 6188f287e..4a5452ce2 100644
+index 4447a1147..6d0188689 100644
 --- a/ocs_ci/deployment/helpers/lso_helpers.py
 +++ b/ocs_ci/deployment/helpers/lso_helpers.py
 @@ -19,6 +19,7 @@ from ocs_ci.ocs.node import (
@@ -10,9 +10,9 @@ index 6188f287e..4a5452ce2 100644
  from ocs_ci.utility.deployment import get_ocp_ga_version
  from ocs_ci.utility.localstorage import get_lso_channel
  from ocs_ci.utility.retry import retry
-@@ -114,6 +115,7 @@ def setup_local_storage(storageclass):
-     if platform == constants.RHV_PLATFORM:
-         add_disk_for_rhv_platform()
+@@ -110,6 +111,7 @@ def setup_local_storage(storageclass):
+ 
+     add_disks_lso()
  
 +    label_pod_security_admission(lso_namespace)
      if (ocp_version >= version.VERSION_4_6) and (ocs_version >= version.VERSION_4_6):
