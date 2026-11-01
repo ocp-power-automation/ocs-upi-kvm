@@ -1,5 +1,5 @@
 diff --git a/ocs_ci/helpers/helpers.py b/ocs_ci/helpers/helpers.py
-index 75483f199..2a38c8ccb 100644
+index 75483f199..49a6f02f3 100644
 --- a/ocs_ci/helpers/helpers.py
 +++ b/ocs_ci/helpers/helpers.py
 @@ -100,7 +100,7 @@ def create_resource(do_reload=True, **kwargs):
@@ -11,3 +11,12 @@ index 75483f199..2a38c8ccb 100644
      """
      Wait for a resource to get to a given status
  
+@@ -1422,7 +1422,7 @@ def create_build_from_docker_image(
+         oc_cmd += f"--kubeconfig {kubeconfig} "
+     oc_cmd += command
+     logger.info(f"Running command {oc_cmd}")
+-    result = run(oc_cmd, stdout=PIPE, stderr=PIPE, timeout=15, shell=True)
++    result = run(oc_cmd, stdout=PIPE, stderr=PIPE, timeout=15, shell=True, executable="/bin/bash")
+     if result.stderr.decode():
+         raise UnavailableBuildException(
+             f"Build creation failed with error: {result.stderr.decode()}"
