@@ -178,7 +178,7 @@ while IFS= read -r TEST_CASE || [ -n "$TEST_CASE" ]; do
         CEPH_HEALTH=$(oc -n openshift-storage exec deploy/rook-ceph-tools -- ceph health 2>/dev/null || true)
         echo "  Ceph health: $CEPH_HEALTH"
 
-        if [ "$CEPH_HEALTH" = "HEALTH_OK" ]; then
+        if [[ "$CEPH_HEALTH" =~ ^HEALTH_OK ]]; then
             break
         fi
 

@@ -1,0 +1,184 @@
+diff --git a/tests/functional/cephx_keyrotation/test_cephx_keyrotation_bootstrap_cleanup.py b/tests/functional/cephx_keyrotation/test_cephx_keyrotation_bootstrap_cleanup.py
+index 8bb16282a..61f590b8e 100644
+--- a/tests/functional/cephx_keyrotation/test_cephx_keyrotation_bootstrap_cleanup.py
++++ b/tests/functional/cephx_keyrotation/test_cephx_keyrotation_bootstrap_cleanup.py
+@@ -33,7 +33,6 @@ pytestmark = pytest.mark.skip(
+ 
+ 
+ @skipif_external_mode
+-@skipif_ocs_version("<4.21")
+ @green_squad
+ @pytest.mark.order("last")
+ class TestCephXBootstrapKeyCleanup:
+diff --git a/tests/functional/cephx_keyrotation/test_cephx_keyrotation_configuration.py b/tests/functional/cephx_keyrotation/test_cephx_keyrotation_configuration.py
+index 0279be4ed..043d64c4b 100644
+--- a/tests/functional/cephx_keyrotation/test_cephx_keyrotation_configuration.py
++++ b/tests/functional/cephx_keyrotation/test_cephx_keyrotation_configuration.py
+@@ -28,7 +28,6 @@ EXPECTED_INITIAL_GENERATION = 2
+ 
+ 
+ @skipif_external_mode
+-@skipif_ocs_version("<4.21")
+ @skipif_ibm_hci_platform
+ @green_squad
+ @pytest.mark.order("first")
+@@ -110,7 +109,6 @@ class TestCephXKeyRotationPolicyDisabled:
+ 
+ 
+ @skipif_external_mode
+-@skipif_ocs_version("<4.21")
+ @skipif_ibm_hci_platform
+ @green_squad
+ class TestCephXAllowedCiphers:
+diff --git a/tests/functional/cephx_keyrotation/test_cephx_keyrotation_daemon_rotation.py b/tests/functional/cephx_keyrotation/test_cephx_keyrotation_daemon_rotation.py
+index e74dc72d6..6eeb99060 100644
+--- a/tests/functional/cephx_keyrotation/test_cephx_keyrotation_daemon_rotation.py
++++ b/tests/functional/cephx_keyrotation/test_cephx_keyrotation_daemon_rotation.py
+@@ -41,7 +41,6 @@ POST_ROTATION_PVC_SIZE = 5
+ 
+ 
+ @skipif_external_mode
+-@skipif_ocs_version("<4.21")
+ @green_squad
+ class TestCephXKeyRotation:
+     @pytest.mark.polarion_id("OCS-8128")
+@@ -388,7 +387,6 @@ class TestCephXKeyRotation:
+ 
+ 
+ @skipif_external_mode
+-@skipif_ocs_version("<4.21")
+ @green_squad
+ class TestCephXKeyRotationIdempotency:
+     @pytest.mark.polarion_id("OCS-8131")
+@@ -464,7 +462,6 @@ class TestCephXKeyRotationIdempotency:
+ 
+ 
+ @skipif_external_mode
+-@skipif_ocs_version("<4.21")
+ @green_squad
+ class TestCephXKeyRotationIOContinuity:
+     @pytest.mark.polarion_id("OCS-8132")
+diff --git a/tests/functional/cephx_keyrotation/test_cephx_keyrotation_metrics_exporter.py b/tests/functional/cephx_keyrotation/test_cephx_keyrotation_metrics_exporter.py
+index aad50fe0d..7d751544b 100644
+--- a/tests/functional/cephx_keyrotation/test_cephx_keyrotation_metrics_exporter.py
++++ b/tests/functional/cephx_keyrotation/test_cephx_keyrotation_metrics_exporter.py
+@@ -24,7 +24,6 @@ log = logging.getLogger(__name__)
+ 
+ 
+ @skipif_external_mode
+-@skipif_ocs_version("<4.21")
+ @green_squad
+ class TestCephXMetricsExporterRotation:
+     @pytest.mark.polarion_id("OCS-8136")
+diff --git a/tests/functional/cephx_keyrotation/test_cephx_keyrotation_mismatch_alert.py b/tests/functional/cephx_keyrotation/test_cephx_keyrotation_mismatch_alert.py
+index bcd41fe27..cf1fea5c6 100644
+--- a/tests/functional/cephx_keyrotation/test_cephx_keyrotation_mismatch_alert.py
++++ b/tests/functional/cephx_keyrotation/test_cephx_keyrotation_mismatch_alert.py
+@@ -483,7 +483,6 @@ def _induce_daemon_key_mismatch(rotator, namespace):
+ 
+ 
+ @skipif_external_mode
+-@skipif_ocs_version("<4.21")
+ @green_squad
+ class TestCephXKeyRotationMismatchMetric:
+     """TC1–TC2: mismatch metric emission and in-sync (value 0) state."""
+@@ -549,7 +548,6 @@ class TestCephXKeyRotationMismatchMetric:
+ 
+ 
+ @skipif_external_mode
+-@skipif_ocs_version("<4.21")
+ @green_squad
+ @ignore_leftovers
+ class TestCephXKeyRotationMismatchAlertLifecycle:
+@@ -864,7 +862,6 @@ class TestCephXKeyRotationMismatchAlertLifecycle:
+ 
+ 
+ @skipif_external_mode
+-@skipif_ocs_version("<4.21")
+ @green_squad
+ class TestCephXKeyRotationMismatchNoFilesystem:
+     """TC7: MDS mismatch metric is 0 when no CephFilesystem exists."""
+@@ -894,7 +891,6 @@ class TestCephXKeyRotationMismatchNoFilesystem:
+ 
+ 
+ @skipif_external_mode
+-@skipif_ocs_version("<4.21")
+ @green_squad
+ class TestCephXCephClusterReconciliation:
+     """TC8–TC13: CephCluster annotations and daemon keyGeneration reconciliation."""
+@@ -1171,7 +1167,6 @@ class TestCephXCephClusterReconciliation:
+ 
+ 
+ @skipif_external_mode
+-@skipif_ocs_version("<4.21")
+ @green_squad
+ class TestCephXCephClientAnnotations:
+     """TC14–TC15: CephClient created-with-cephx-features and keyType."""
+@@ -1259,7 +1254,6 @@ class TestCephXCephClientAnnotations:
+ 
+ 
+ @skipif_external_mode
+-@skipif_ocs_version("<4.21")
+ @green_squad
+ @ignore_leftovers
+ class TestCephXDesiredKeyGenNegative:
+diff --git a/tests/functional/cephx_keyrotation/test_cephx_keyrotation_negative.py b/tests/functional/cephx_keyrotation/test_cephx_keyrotation_negative.py
+index 66b5c044c..677ddc6b4 100644
+--- a/tests/functional/cephx_keyrotation/test_cephx_keyrotation_negative.py
++++ b/tests/functional/cephx_keyrotation/test_cephx_keyrotation_negative.py
+@@ -50,7 +50,6 @@ CSI_POST_ROTATION_PVC_SIZE = 5
+ 
+ 
+ @skipif_external_mode
+-@skipif_ocs_version("<4.21")
+ @green_squad
+ @ignore_leftovers
+ class TestCephXKeyRotationNegative:
+@@ -318,7 +317,6 @@ class TestCephXKeyRotationNegative:
+ 
+     @pytest.mark.polarion_id("OCS-8157")
+     @tier2
+-    @skipif_ocs_version("<4.21")
+     def test_cephx_daemon_key_generation_decrease_rejected(
+         self, cephx_keyrotation_setup
+     ):
+@@ -426,7 +424,6 @@ class TestCephXKeyRotationNegative:
+ 
+ 
+ @skipif_external_mode
+-@skipif_ocs_version("<4.21")
+ @green_squad
+ @ignore_leftovers
+ class TestCephXKeyRotationNegativeOSD:
+@@ -607,7 +604,6 @@ class TestCephXKeyRotationNegativeOSD:
+ 
+ 
+ @skipif_external_mode
+-@skipif_ocs_version("<4.21")
+ @green_squad
+ @ignore_leftovers
+ class TestCephXKeyRotationNegativeEncryptedCSI:
+diff --git a/tests/functional/cephx_keyrotation/test_cephx_keyrotation_node_cordon.py b/tests/functional/cephx_keyrotation/test_cephx_keyrotation_node_cordon.py
+index a806fd512..453ae5ea3 100644
+--- a/tests/functional/cephx_keyrotation/test_cephx_keyrotation_node_cordon.py
++++ b/tests/functional/cephx_keyrotation/test_cephx_keyrotation_node_cordon.py
+@@ -32,7 +32,6 @@ MIN_OSD_NODES = 3
+ 
+ 
+ @skipif_external_mode
+-@skipif_ocs_version("<4.21")
+ @green_squad
+ @ignore_leftovers
+ class TestCephXKeyRotationNodeCordon:
+diff --git a/tests/functional/cephx_keyrotation/test_cephx_keyrotation_osd_lockbox.py b/tests/functional/cephx_keyrotation/test_cephx_keyrotation_osd_lockbox.py
+index bd58cf6d1..ca4e47c6d 100644
+--- a/tests/functional/cephx_keyrotation/test_cephx_keyrotation_osd_lockbox.py
++++ b/tests/functional/cephx_keyrotation/test_cephx_keyrotation_osd_lockbox.py
+@@ -27,7 +27,6 @@ MIN_ENCRYPTED_OSD_COUNT = 1
+ 
+ 
+ @skipif_external_mode
+-@skipif_ocs_version("<4.21")
+ @green_squad
+ class TestCephXKeyRotationOSDLockbox:
+     @pytest.mark.polarion_id("OCS-8135")
