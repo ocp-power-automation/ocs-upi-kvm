@@ -1,5 +1,5 @@
 diff --git a/tests/functional/z_cluster/test_ceph_default_values_check.py b/tests/functional/z_cluster/test_ceph_default_values_check.py
-index 6553594ac..02b3b6f02 100644
+index 48f5a5785..da93e087b 100644
 --- a/tests/functional/z_cluster/test_ceph_default_values_check.py
 +++ b/tests/functional/z_cluster/test_ceph_default_values_check.py
 @@ -4,6 +4,7 @@ import pytest
@@ -10,7 +10,7 @@ index 6553594ac..02b3b6f02 100644
      brown_squad,
  )
  from ocs_ci.framework.testlib import (
-@@ -201,6 +202,7 @@ class TestCephDefaultValuesCheck(ManageTest):
+@@ -208,6 +209,7 @@ class TestCephDefaultValuesCheck(ManageTest):
          config.DEPLOYMENT.get("ceph_debug"),
          reason="Ceph was configured with customized values by ocs-ci so there is point in validating its config values",
      )
@@ -221,7 +221,7 @@ index 268b776e0..97dc4996d 100644
          ],
      )
 diff --git a/tests/functional/z_cluster/nodes/test_nodes_restart.py b/tests/functional/z_cluster/nodes/test_nodes_restart.py
-index 621bd985d..737f48caf 100644
+index 147c77f8e..a88284ebb 100644
 --- a/tests/functional/z_cluster/nodes/test_nodes_restart.py
 +++ b/tests/functional/z_cluster/nodes/test_nodes_restart.py
 @@ -1,7 +1,7 @@
@@ -233,7 +233,7 @@ index 621bd985d..737f48caf 100644
  from ocs_ci.framework.testlib import (
      tier4a,
      tier4b,
-@@ -140,6 +140,7 @@ class TestNodesRestart(ManageTest):
+@@ -145,6 +145,7 @@ class TestNodesRestart(ManageTest):
      )
      @skipif_ibm_cloud
      @skipif_vsphere_ipi
