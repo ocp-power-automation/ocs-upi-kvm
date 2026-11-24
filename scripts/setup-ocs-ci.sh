@@ -37,38 +37,43 @@ if [ "$OCS_CI_ON_BASTION" == true ]; then
 fi
 
 if [  -n "$(uname -a | grep Ubuntu)" ]; then
-	sudo apt update
-	sudo apt install libffi-dev liblapack3 libatlas-base-dev libssl-dev gcc g++ gfortran make patch python3-venv libcurl4-openssl-dev libssl-dev libxml2-dev libxslt1-dev -y
+     # Update package index
+    sudo apt-get update -o Acquire::Retries=5
 else
-  sudo dnf -y install libffi-devel lapack atlas-devel openssl-devel gcc gcc-c++ gcc-gfortran make patch
-  sudo dnf -y install python3-devel python3-setuptools  rust-toolset
-  sudo dnf -y install curl libcurl-devel unzip libxml2-devel
-  # Need it for PyYaml
-  subscription-manager repos --enable codeready-builder-for-rhel-9-ppc64le-rpms
-  dnf install -y libyaml-devel
-  # Add EPEL repo if not already installed
-  sudo dnf install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-9.noarch.rpm || true
-  # Install Python 3.11
-  sudo dnf install -y python3.11 python3.11-devel python3.11-pip
+    sudo dnf update -y
+    sudo dnf -y install \
+        gcc gcc-c++ gcc-gfortran make patch \
+        libffi-devel lapack atlas-devel \
+        openssl-devel curl libcurl-devel \
+        libxml2-devel unzip rust-toolset
+    #Needed for pyyaml
+    subscription-manager repos --enable codeready-builder-for-rhel-9-ppc64le-rpms
+    dnf install -y libyaml-devel
+    # Add EPEL repo if not already installed
+    sudo dnf install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-9.noarch.rpm || true
+    # Install Python 3.11
+    sudo dnf install -y python3.11 python3.11-devel python3.11-pip
+    #Install Openblas
+    sudo dnf install -y openblas openblas-devel
 fi
 
-git clone https://github.com/OpenMathLib/OpenBLAS.git
-cd OpenBLAS
-git checkout v0.3.26
-make -j8
-make PREFIX=/usr/local/OpenBLAS install
-export PKG_CONFIG_PATH=/usr/local/OpenBLAS/lib/pkgconfig
-cd ..
-
-pushd ../src/ocs-ci
+pushd "$WORKSPACE/ocs-upi-kvm/src/ocs-ci"
 
 set +e
 
-patchfiles=( $(ls ../../files/ocs-ci/ocs-ci-[0-9][0-9]-*.patch) )
-echo "patchfiles=${patchfiles[@]}"
 
-platform_patchfiles=( $(ls ../../files/ocs-ci/$PLATFORM/ocs-ci-*[0-9][0-9]-*.patch) )
-echo platform_patchfiles=${platform_patchfiles[@]}
+FILES_DIR="$WORKSPACE/ocs-upi-kvm/files/ocs-ci"
+
+# Collect patch files safely
+patchfiles=( $FILES_DIR/ocs-ci-[0-9][0-9]-*.patch )
+[ -e "${patchfiles[0]}" ] || patchfiles=()
+
+platform_patchfiles=( $FILES_DIR/$PLATFORM/ocs-ci-*[0-9][0-9]-*.patch )
+[ -e "${platform_patchfiles[0]}" ] || platform_patchfiles=()
+
+echo "patchfiles=${patchfiles[@]}"
+echo "platform_patchfiles=${platform_patchfiles[@]}"
+
 
 set -e
 
@@ -98,16 +103,16 @@ if [[ "${#patchfiles[@]}" -gt 0 ]] || [[ "${#platform_patchfiles[@]}" -gt 0 ]]; 
         fi
 fi
 
-rm -rf $WORKSPACE/venv
+rm -rf "$WORKSPACE/venv"
 
-python3.11 -m venv $WORKSPACE/venv
+PYTHON_BIN=$(command -v python3.11 || command -v python3)
+"$PYTHON_BIN" -m venv "$WORKSPACE/venv"
 
-. $WORKSPACE/venv/bin/activate		# activate named python venv
+. "$WORKSPACE/venv/bin/activate"		# activate named python venv
 
 pip3 install --upgrade pip setuptools wheel Cython
 pip3 install -r requirements.txt 
 pip3 install yq
-pip3 install boto3
 pip3 install pytest-html-merger
 
 deactivate					# exit venv shell
