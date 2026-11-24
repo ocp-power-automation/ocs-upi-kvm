@@ -147,7 +147,7 @@ index a2f706fb..a4e42259 100644
      """
      Test that there are appropriate alerts when NooBaa Bucket Quota is reached.
 diff --git a/tests/functional/object/mcg/test_mcg_resources_disruptions.py b/tests/functional/object/mcg/test_mcg_resources_disruptions.py
-index da57eca80..ceed87e7e 100644
+index 2e0df6e51..502025807 100644
 --- a/tests/functional/object/mcg/test_mcg_resources_disruptions.py
 +++ b/tests/functional/object/mcg/test_mcg_resources_disruptions.py
 @@ -17,6 +17,7 @@ from ocs_ci.framework.testlib import (
@@ -179,10 +179,10 @@ index da57eca80..ceed87e7e 100644
      @skipif_managed_service
 +    @skipif_ibm_power
      @skipif_ocs_version("<4.7")
-     def test_db_scc(self, teardown):
+     def deprecated_test_db_scc(self, teardown):
          """
 diff --git a/tests/functional/object/mcg/test_host_node_failure.py b/tests/functional/object/mcg/test_host_node_failure.py
-index 10d1bfb75..6539282ed 100644
+index 268b776e0..97dc4996d 100644
 --- a/tests/functional/object/mcg/test_host_node_failure.py
 +++ b/tests/functional/object/mcg/test_host_node_failure.py
 @@ -3,7 +3,7 @@ import pytest
@@ -194,7 +194,7 @@ index 10d1bfb75..6539282ed 100644
  from ocs_ci.framework.testlib import (
      ignore_leftovers,
      ManageTest,
-@@ -69,7 +69,10 @@ class TestNoobaaSTSHostNodeFailure(ManageTest):
+@@ -80,7 +80,10 @@ class TestNoobaaSTSHostNodeFailure(ManageTest):
              ),
              pytest.param(
                  *[constants.NOOBAA_DB_STATEFULSET, False],
@@ -206,7 +206,7 @@ index 10d1bfb75..6539282ed 100644
              ),
              pytest.param(
                  *[constants.NOOBAA_CORE_STATEFULSET, True],
-@@ -77,7 +80,10 @@ class TestNoobaaSTSHostNodeFailure(ManageTest):
+@@ -88,7 +91,10 @@ class TestNoobaaSTSHostNodeFailure(ManageTest):
              ),
              pytest.param(
                  *[constants.NOOBAA_DB_STATEFULSET, True],
