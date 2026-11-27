@@ -203,7 +203,7 @@ ceph_health_check() {
     local health
     health=$(oc -n openshift-storage rsh "$tools_pod" ceph health 2>/dev/null | tr -d '[:space:]')
 
-    if [[ "$health" == "HEALTH_OK" ]]; then
+    if [[ "$health" =~ ^HEALTH_OK ]]; then
         log_info "Ceph Health: HEALTH_OK"
         return 0
     else
